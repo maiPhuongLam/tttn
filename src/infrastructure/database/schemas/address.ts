@@ -1,6 +1,5 @@
-import { pgTable, serial, text, integer, jsonb, timestamp } from 'drizzle-orm/pg-core';
-import { InferSelectModel, relations } from 'drizzle-orm';
-import { users } from './user';
+import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import { InferSelectModel } from 'drizzle-orm';
 
 export const addresses = pgTable('addresses', {
   id: serial('id').primaryKey(),
@@ -11,9 +10,5 @@ export const addresses = pgTable('addresses', {
   createdAt: timestamp('created_at'),
   updatedAt: timestamp('updated_at'),
 });
-
-const addressRelations = relations(addresses, ({ one }) => ({
-  user: one(users),
-}));
 
 export type Address = InferSelectModel<typeof addresses>;

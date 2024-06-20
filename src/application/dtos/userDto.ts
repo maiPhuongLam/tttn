@@ -4,7 +4,7 @@ import { createAddressSchema } from './addressDto';
 
 export const idParamsSchema = z.object({
   id: z.string({ required_error: 'id is required' }),
-})
+});
 
 export const userBodySchema = z.object({
   email: z.string({ required_error: 'email is required' }),
