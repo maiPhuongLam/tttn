@@ -17,14 +17,10 @@ const worker = new Worker(
     const { role, userId, createService } = job.data;
 
     try {
-      if (role === 'customer') {
-        await createService(userId);
-      } else if (role === 'admin') {
-        await createService(userId);
-      } else {
-        throw new Error('Invalid role provided');
-      }
-    } catch (error) {
+      await createService(userId);
+      throw new Error('Invalid role provided');
+    }
+    catch (error) {
       logger.error(`Error processing job ${job.id}:`, error);
       throw error; // This will make BullMQ handle retries, etc., based on your configuration
     }
