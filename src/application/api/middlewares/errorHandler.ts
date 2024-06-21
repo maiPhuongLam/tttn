@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 
-const errorHandler = (
+export const errorHandler = (
   error: Error & { status: number; success: boolean },
   req: Request,
   res: Response,
@@ -11,5 +11,3 @@ const errorHandler = (
   const success = error.success || false;
   return res.status(status).json({ success, message });
 };
-
-export default errorHandler;

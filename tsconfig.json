@@ -21,7 +21,8 @@
   },
   "include": [
     "src",
-    "config"  // Include the config directory here
+    "config",
+    "@types/index.d.ts" // Include the config directory here
   ],
   "exclude": ["node_modules"]
 }

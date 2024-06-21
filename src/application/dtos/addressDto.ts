@@ -1,22 +1,22 @@
 import { z, TypeOf } from 'zod';
 import { idParamsSchema } from './userDto';
 
-const addressBodySchema = z.object({
+export const addressBodySchema = {
   streetAddress: z.string({ required_error: 'streetAddress is required' }),
   wardOrCommune: z.string({ required_error: 'wardOrCommune is required' }),
   district: z.string({ required_error: 'district is required' }),
   cityOrProvince: z.string({ required_error: 'cityOrProvince is required' }),
-});
+};
 
 export const createAddressSchema = z.object({
-  body: addressBodySchema,
+  body: z.object(addressBodySchema),
 });
 
-export type CreateAddressDto = TypeOf<typeof createAddressSchema>;
+export type CreateAddressDto = TypeOf<typeof createAddressSchema>['body'];
 
 export const updateAddressSchema = z.object({
-  params: idParamsSchema,
-  body: addressBodySchema.partial(),
+  params: z.object(idParamsSchema),
+  body: z.object(addressBodySchema).partial(),
 });
 
-export type UpdateAddressDto = TypeOf<typeof updateAddressSchema>;
+export type UpdateAddressDto = TypeOf<typeof updateAddressSchema>['body'];

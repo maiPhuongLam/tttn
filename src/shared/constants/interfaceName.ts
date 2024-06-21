@@ -9,4 +9,8 @@ export const INTERFACE_NAME = {
   AddressRepository: Symbol.for('AddressRepository'),
   AddressService: Symbol.for('AddressService'),
   AddressController: Symbol.for('AddressController'),
+  CustomerRepository: Symbol.for('CustomerRepository'),
+  CustomerService: Symbol.for('CustomerService'),
+  AdminRepository: Symbol.for('AdminRepository'),
+  AdminService: Symbol.for('AdminService'),
 };

@@ -2,14 +2,18 @@ import { IRepository } from 'src/domain/repositories';
 import { BaseCreateEntityType } from 'src/shared/types';
 import { DB } from '../connect';
 import { eq } from 'drizzle-orm';
-import { QueryResult } from 'pg';
+import { inject, injectable, unmanaged } from 'inversify';
+import { PgTable, PgTableWithColumns } from 'drizzle-orm/pg-core';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
+@injectable()
 export class Repository<T> implements IRepository<T> {
   protected db;
   private table;
-  constructor(table: any) {
+
+  constructor(@unmanaged() table: PgTableWithColumns<any>) {
     this.table = table;
-    this.db = DB;
+    this.db = DB; // Initialize the DB connection
   }
 
   async findAll(): Promise<T[]> {

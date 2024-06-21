@@ -1,4 +1,4 @@
-import { STATUS_CODES } from './statusCode';
+import { STATUS_CODES } from '../constants';
 
 class BaseError extends Error {
   public readonly name: string;
@@ -23,16 +23,22 @@ export class APIError extends BaseError {
 }
 
 // 400 Validation Error
-export class ValidationError extends BaseError {
+export class BadRequestError extends BaseError {
   constructor(description = 'bad request') {
     super('bad request', STATUS_CODES.BAD_REQUEST, description);
+  }
+}
+
+export class UnAuthorizedError extends BaseError {
+  constructor(description = 'unauthorized') {
+    super('unauthorized', STATUS_CODES.UNAUTHORIZED, description);
   }
 }
 
 // 403 Authorize error
 export class AuthorizeError extends BaseError {
   constructor(description = 'access denied') {
-    super('access denied', STATUS_CODES.UN_AUTHORISED, description);
+    super('access denied', STATUS_CODES.ACCESS_DENIED, description);
   }
 }
 

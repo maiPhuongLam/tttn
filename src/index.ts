@@ -5,7 +5,7 @@ import cors from 'cors';
 import logger from './infrastructure/logger';
 import configuration from './config/configuration';
 import dotenv from 'dotenv';
-import initRoutes from './application/api/routers';
+import appRouter from './application/api/routers';
 
 dotenv.config();
 function start() {
@@ -23,7 +23,7 @@ function start() {
     app.use(morgan('dev'));
   }
 
-  initRoutes(app); // Add this line for debugging
+  appRouter(app); // Add this line for debugging
 
   app.listen(port, () => {
     logger.info(`Express server started on ${baseURL}`);

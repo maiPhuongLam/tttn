@@ -8,10 +8,18 @@ export const loginSchema = z.object({
   }),
 });
 
-export type LoginDto = TypeOf<typeof loginSchema>;
+export type LoginDto = TypeOf<typeof loginSchema>['body'];
 
 export const registerSchema = z.object({
-  body: userBodySchema,
+  body: z.object(userBodySchema),
 });
 
-export type RegisterDto = TypeOf<typeof registerSchema>;
+export type RegisterDto = TypeOf<typeof registerSchema>['body'];
+
+export const refreshTokenSchema = z.object({
+  body: z.object({
+    refreshToken: z.string({ required_error: 'refresh token is required' }),
+  }),
+});
+
+export type RefreshTokenDto = TypeOf<typeof refreshTokenSchema>['body'];
