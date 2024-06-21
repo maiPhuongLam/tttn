@@ -1,3 +1,5 @@
+type DefaultFieldInEntity = 'id' | 'createdAt' | 'updatedAt'
+
 export type BaseCreateEntityType<T> = {
-  [K in Exclude<keyof T, 'id' | 'createdAt' | 'updatedAt'>]: T[K];
+  [K in Exclude<keyof T, DefaultFieldInEntity>]: T[K];
 };
