@@ -18,7 +18,6 @@ const worker = new Worker(
 
     try {
       await createService(userId);
-      throw new Error('Invalid role provided');
     }
     catch (error) {
       logger.error(`Error processing job ${job.id}:`, error);
