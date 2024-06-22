@@ -3,7 +3,7 @@ import { IAddressRepository } from 'src/domain/repositories';
 import { Address } from 'src/infrastructure/database/schemas';
 import { INTERFACE_NAME } from 'src/shared/constants';
 import { IAddressService } from 'src/domain/services/addressService';
-import { CreateAddressDto } from 'src/domain/dtos';
+import { CreateAddressDto } from '../dtos';
 
 @injectable()
 export class AddressService implements IAddressService {

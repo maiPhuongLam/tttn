@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
-import { LoginDto, RefreshTokenDto, RegisterDto } from 'src/domain/dtos';
+import { LoginDto, RefreshTokenDto, RegisterDto } from 'src/application/dtos';
 import { IAuthService } from 'src/domain/services';
 import logger from 'src/infrastructure/logger';
 import { INTERFACE_NAME, STATUS_CODES } from 'src/shared/constants';

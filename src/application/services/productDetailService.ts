@@ -3,7 +3,7 @@ import { IProductDetailRepository } from 'src/domain/repositories';
 import { ProductDetail } from 'src/infrastructure/database/schemas';
 import { INTERFACE_NAME } from 'src/shared/constants';
 import { IProductDetailService } from 'src/domain/services';
-import { CreateProductDetailDto, UpdateProductDetailDto } from 'src/domain/dtos';
+import { CreateProductDetailDto, UpdateProductDetailDto } from '../dtos';
 
 @injectable()
 export class ProductDetailService implements IProductDetailService {

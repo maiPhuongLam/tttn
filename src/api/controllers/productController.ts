@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { inject, injectable } from 'inversify';
-import { CreateProductDto, UpdateProductDto } from 'src/domain/dtos';
+import { CreateProductDto, UpdateProductDto } from 'src/application/dtos';
 import { IProductService } from 'src/domain/services';
 import logger from 'src/infrastructure/logger';
 import { INTERFACE_NAME, STATUS_CODES } from 'src/shared/constants';

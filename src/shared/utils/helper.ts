@@ -1,6 +1,5 @@
 import { Product } from 'src/infrastructure/database/schemas';
 import client from 'src/infrastructure/elasticsearch';
-import { SearchResult } from '../types';
 import { SearchResponse } from '@elastic/elasticsearch/lib/api/types';
 
 export function createCondition<T>(name: string, value: T) {
