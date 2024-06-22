@@ -18,7 +18,7 @@ export class CustomerService implements ICustomerService {
     }
   }
 
-  async find(): Promise<Customer[]> {
+  async get(): Promise<Customer[]> {
     try {
       return await this.customerRepository.findAll();
     } catch (error) {
@@ -26,7 +26,7 @@ export class CustomerService implements ICustomerService {
     }
   }
 
-  async findById(id: number): Promise<Customer | null> {
+  async getById(id: number): Promise<Customer | null> {
     try {
       return await this.customerRepository.findById(id);
     } catch (error) {
@@ -34,7 +34,7 @@ export class CustomerService implements ICustomerService {
     }
   }
 
-  async findByUserId(userId: number): Promise<Customer | null> {
+  async getByUserId(userId: number): Promise<Customer | null> {
     try {
       return await this.customerRepository.findByUserId(userId);
     } catch (error) {

@@ -3,3 +3,7 @@ export * from './authService';
 export * from './addressService';
 export * from './customerService';
 export * from './adminService';
+export * from './productService';
+export * from './productDetailService';
+export * from './brandService';
+export * from './categoryService';

@@ -9,7 +9,7 @@ import { INTERFACE_NAME, STATUS_CODES } from 'src/shared/constants';
 export class AuthController {
   constructor(@inject(INTERFACE_NAME.AuthService) private authService: IAuthService) {}
 
-  async postResigter(req: Request, res: Response, next: NextFunction) {
+  async resigter(req: Request, res: Response, next: NextFunction) {
     try {
       const body = <RegisterDto>req.body;
       const data = await this.authService.register(body);
@@ -25,7 +25,7 @@ export class AuthController {
     }
   }
 
-  async postLogin(req: Request, res: Response, next: NextFunction) {
+  async login(req: Request, res: Response, next: NextFunction) {
     try {
       const body = <LoginDto>req.body;
       const data = await this.authService.login(body);
@@ -41,7 +41,7 @@ export class AuthController {
     }
   }
 
-  async postLogout(req: Request, res: Response, next: NextFunction) {
+  async logout(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.userId;
       const data = await this.authService.logout(userId);
@@ -57,7 +57,7 @@ export class AuthController {
     }
   }
 
-  async porstRefreshToken(req: Request, res: Response, next: NextFunction) {
+  async refreshToken(req: Request, res: Response, next: NextFunction) {
     try {
       const { userId, role, body } = req;
       const { refreshToken } = <RefreshTokenDto>body;

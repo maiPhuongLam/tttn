@@ -36,7 +36,7 @@ export class UnAuthorizedError extends BaseError {
 }
 
 // 403 Authorize error
-export class AuthorizeError extends BaseError {
+export class ForbiddenError extends BaseError {
   constructor(description = 'access denied') {
     super('access denied', STATUS_CODES.ACCESS_DENIED, description);
   }

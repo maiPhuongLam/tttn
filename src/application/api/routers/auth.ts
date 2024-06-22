@@ -11,15 +11,15 @@ const controller = container.get<AuthController>(INTERFACE_NAME.AuthController);
 authRouter.post(
   '/register',
   validationResource(registerSchema),
-  controller.postResigter.bind(controller),
+  controller.resigter.bind(controller),
 );
-authRouter.post('/login', validationResource(loginSchema), controller.postLogin.bind(controller));
-authRouter.post('/logout', auth, controller.postLogout.bind(controller));
+authRouter.post('/login', validationResource(loginSchema), controller.login.bind(controller));
+authRouter.post('/logout', auth, controller.logout.bind(controller));
 authRouter.post(
   '/refresh-token',
   auth,
   validationResource(refreshTokenSchema),
-  controller.porstRefreshToken.bind(controller),
+  controller.refreshToken.bind(controller),
 );
 
 export default authRouter;

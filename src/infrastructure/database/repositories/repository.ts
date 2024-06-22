@@ -2,9 +2,8 @@ import { IRepository } from 'src/domain/repositories';
 import { BaseCreateEntityType } from 'src/shared/types';
 import { DB } from '../connect';
 import { eq } from 'drizzle-orm';
-import { inject, injectable, unmanaged } from 'inversify';
-import { PgTable, PgTableWithColumns } from 'drizzle-orm/pg-core';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { injectable, unmanaged } from 'inversify';
+import { PgTableWithColumns } from 'drizzle-orm/pg-core';
 
 @injectable()
 export class Repository<T> implements IRepository<T> {

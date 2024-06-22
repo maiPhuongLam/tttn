@@ -1,6 +1,9 @@
 // Import necessary modules
 import { Queue, Worker } from 'bullmq';
 import logger from '../logger';
+import { UserRoles } from 'src/shared/enums';
+import { DB } from '../database/connect';
+import { admins, customers } from '../database/schemas';
 
 // Create a new queue
 const createRoleQueue = new Queue('createRole', {
@@ -14,12 +17,15 @@ const createRoleQueue = new Queue('createRole', {
 const worker = new Worker(
   'createRole',
   async (job) => {
-    const { role, userId, createService } = job.data;
-
+    console.log(job);
+    const { role, userId } = job.data;
     try {
-      await createService(userId);
-    }
-    catch (error) {
+      if (role === UserRoles.CUSTOMER) {
+        await DB.insert(customers).values({ userId }).execute();
+      } else {
+        await DB.insert(admins).values({ userId }).execute();
+      }
+    } catch (error) {
       logger.error(`Error processing job ${job.id}:`, error);
       throw error; // This will make BullMQ handle retries, etc., based on your configuration
     }

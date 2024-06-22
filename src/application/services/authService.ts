@@ -6,16 +6,11 @@ import { TokenType } from 'src/shared/types';
 import { LoginDto, RegisterDto } from '../dtos';
 import { User } from 'src/infrastructure/database/schemas';
 import { BadRequestError } from 'src/shared/errors';
-import {
-  compare,
-  hash,
-  signAccessToken,
-  signRefreshToken,
-  verifyRefreshToken,
-} from 'src/shared/utils';
+import { compare, hash, signAccessToken, signRefreshToken } from 'src/shared/utils';
 import { IAddressService } from 'src/domain/services/addressService';
 import { IUserRepository } from 'src/domain/repositories';
 import createRoleQueue from 'src/infrastructure/workers';
+import logger from 'src/infrastructure/logger';
 
 @injectable()
 export class AuthService implements IAuthService {
@@ -23,7 +18,6 @@ export class AuthService implements IAuthService {
     @inject(INTERFACE_NAME.UserRepository) private userRepository: IUserRepository,
     @inject(INTERFACE_NAME.AddressService) private addressService: IAddressService,
     @inject(INTERFACE_NAME.CustomerService) private customerService: ICustomerService,
-    @inject(INTERFACE_NAME.AdminService) private adminService: IAdminService,
   ) {}
 
   async register(registerDto: RegisterDto): Promise<User> {
@@ -41,26 +35,17 @@ export class AuthService implements IAuthService {
 
       registerDto.password = await hash(registerDto.password);
       const userAddress = await this.addressService.createAddress(address);
-      const newUser = await this.userRepository.add({
+      const user = await this.userRepository.add({
         ...registerDto,
         addressId: userAddress.id,
         rt: null,
       });
-      if (registerDto.role === UserRoles.CUSTOMER) {
-        await createRoleQueue.add('createRole', {
-          role: UserRoles.CUSTOMER,
-          userId: newUser.id,
-          createService: this.customerService.createCustomer,
-        });
-      } else {
-        await createRoleQueue.add('createRole', {
-          role: UserRoles.ADMIN,
-          userId: newUser.id,
-          createService: this.adminService.createAdmin,
-        });
-      }
+      await createRoleQueue.add('createRole', {
+        role: registerDto.role,
+        userId: user.id,
+      });
 
-      return newUser;
+      return user;
     } catch (error) {
       throw error;
     }
@@ -117,7 +102,7 @@ export class AuthService implements IAuthService {
   }
 
   private async checkAdminOrCustomer(userId: number): Promise<UserRoles> {
-    const customer = await this.customerService.findByUserId(userId);
+    const customer = await this.customerService.getByUserId(userId);
     return customer ? UserRoles.CUSTOMER : UserRoles.ADMIN;
   }
 

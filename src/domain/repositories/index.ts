@@ -3,3 +3,8 @@ export * from './userRepository';
 export * from './addressRepository';
 export * from './customerRepository';
 export * from './adminRepository';
+export * from './productRepository';
+export * from './productDetailRepository';
+export * from './productItemRepository';
+export * from './brandRepository';
+export * from './categoryRepository';

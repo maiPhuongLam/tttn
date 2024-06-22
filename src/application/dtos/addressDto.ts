@@ -15,7 +15,7 @@ export const createAddressSchema = z.object({
 export type CreateAddressDto = TypeOf<typeof createAddressSchema>['body'];
 
 export const updateAddressSchema = z.object({
-  params: z.object(idParamsSchema),
+  params: idParamsSchema,
   body: z.object(addressBodySchema).partial(),
 });
 

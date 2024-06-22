@@ -3,6 +3,7 @@ import { IAdminRepository, ICustomerRepository } from 'src/domain/repositories';
 import { IAdminService } from 'src/domain/services';
 import { Admin } from 'src/infrastructure/database/schemas';
 import { INTERFACE_NAME } from 'src/shared/constants';
+import { NotFoundError } from 'src/shared/errors';
 
 @injectable()
 export class AdminService implements IAdminService {
@@ -16,7 +17,7 @@ export class AdminService implements IAdminService {
     }
   }
 
-  async find(): Promise<Admin[]> {
+  async get(): Promise<Admin[]> {
     try {
       return await this.adminRepository.findAll();
     } catch (error) {
@@ -24,17 +25,27 @@ export class AdminService implements IAdminService {
     }
   }
 
-  async findById(id: number): Promise<Admin | null> {
+  async getAdminById(id: number): Promise<Admin> {
     try {
-      return await this.adminRepository.findById(id);
+      const admin = await this.adminRepository.findById(id);
+      if (!admin) {
+        throw new NotFoundError(`Admin with id = ${id} not found`);
+      }
+
+      return admin;
     } catch (error) {
       throw error;
     }
   }
 
-  async findByUserId(userId: number): Promise<Admin | null> {
+  async getAdminByUserId(userId: number): Promise<Admin> {
     try {
-      return await this.adminRepository.findByUserId(userId);
+      const admin = await this.adminRepository.findByUserId(userId);
+      if (!admin) {
+        throw new NotFoundError(`Admin with user id = ${userId} not found`);
+      }
+
+      return admin;
     } catch (error) {
       throw error;
     }

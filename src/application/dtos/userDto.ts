@@ -2,9 +2,9 @@ import { TypeOf, z } from 'zod';
 import { UserRoles } from 'src/shared/enums';
 import { addressBodySchema, createAddressSchema } from './addressDto';
 
-export const idParamsSchema = {
+export const idParamsSchema = z.object({
   id: z.string({ required_error: 'id is required' }),
-};
+});
 
 export const userBodySchema = {
   email: z.string({ required_error: 'email is required' }),
@@ -22,7 +22,7 @@ export const createUserSchema = z.object({
 export type CreateUserDto = TypeOf<typeof createUserSchema>['body'];
 
 export const updateUserSchema = z.object({
-  params: z.object(idParamsSchema),
+  params: idParamsSchema,
   body: z.object(userBodySchema).partial(),
 });
 

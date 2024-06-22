@@ -1,7 +1,5 @@
 import { User, users } from '../schemas';
 import { injectable } from 'inversify';
-import { DB } from '../connect';
-import { BaseCreateEntityType, BaseUpdateEntityType } from 'src/shared/types';
 import { eq } from 'drizzle-orm';
 import { IUserRepository } from 'src/domain/repositories';
 import { Repository } from './repository';
