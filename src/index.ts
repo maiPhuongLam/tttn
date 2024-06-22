@@ -5,7 +5,7 @@ import cors from 'cors';
 import logger from './infrastructure/logger';
 import configuration from './config/configuration';
 import dotenv from 'dotenv';
-import appRouter from './application/api/routers';
+import appRouter from './api/routers';
 
 dotenv.config();
 function start() {

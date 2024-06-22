@@ -3,7 +3,7 @@ import { IProductRepository } from 'src/domain/repositories';
 import { Product } from 'src/infrastructure/database/schemas';
 import { INTERFACE_NAME } from 'src/shared/constants';
 import { NotFoundError } from 'src/shared/errors';
-import { CreateProductDto, UpdateProductDto } from '../dtos';
+import { CreateProductDto, UpdateProductDto } from 'src/domain/dtos';
 import { IAdminService, IProductDetailService, IProductService } from 'src/domain/services';
 import { deleteProductIndex, indexProduct, updateProductIndex } from 'src/shared/utils';
 

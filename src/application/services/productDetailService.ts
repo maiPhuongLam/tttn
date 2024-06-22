@@ -2,8 +2,8 @@ import { inject, injectable } from 'inversify';
 import { IProductDetailRepository } from 'src/domain/repositories';
 import { ProductDetail } from 'src/infrastructure/database/schemas';
 import { INTERFACE_NAME } from 'src/shared/constants';
-import { CreateProductDetailDto, UpdateProductDetailDto } from '../dtos';
 import { IProductDetailService } from 'src/domain/services';
+import { CreateProductDetailDto, UpdateProductDetailDto } from 'src/domain/dtos';
 
 @injectable()
 export class ProductDetailService implements IProductDetailService {

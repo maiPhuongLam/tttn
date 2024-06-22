@@ -3,7 +3,7 @@ import { IAdminService, IAuthService, ICustomerService } from 'src/domain/servic
 import { INTERFACE_NAME } from 'src/shared/constants';
 import { UserRoles } from 'src/shared/enums';
 import { TokenType } from 'src/shared/types';
-import { LoginDto, RegisterDto } from '../dtos';
+import { LoginDto, RegisterDto } from 'src/domain/dtos';
 import { User } from 'src/infrastructure/database/schemas';
 import { BadRequestError } from 'src/shared/errors';
 import { compare, hash, signAccessToken, signRefreshToken } from 'src/shared/utils';

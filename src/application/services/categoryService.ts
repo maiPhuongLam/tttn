@@ -4,7 +4,7 @@ import { IAdminService, ICategoryService } from 'src/domain/services';
 import { Category } from 'src/infrastructure/database/schemas';
 import { INTERFACE_NAME } from 'src/shared/constants';
 import { NotFoundError } from 'src/shared/errors';
-import { CreateCategoryDto, UpdateCategoryDto } from '../dtos';
+import { CreateCategoryDto, UpdateCategoryDto } from 'src/domain/dtos';
 
 @injectable()
 export class CategoryService implements ICategoryService {

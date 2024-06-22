@@ -4,7 +4,7 @@ import { IAdminService, IBrandService } from 'src/domain/services';
 import { Brand } from 'src/infrastructure/database/schemas';
 import { INTERFACE_NAME } from 'src/shared/constants';
 import { NotFoundError } from 'src/shared/errors';
-import { CreateBrandDto, UpdateBrandDto } from '../dtos';
+import { CreateBrandDto, UpdateBrandDto } from 'src/domain/dtos';
 
 @injectable()
 export class BrandService implements IBrandService {

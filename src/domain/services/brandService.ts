@@ -1,5 +1,5 @@
-import { CreateBrandDto, UpdateBrandDto } from 'src/application/dtos';
 import { Brand } from 'src/infrastructure/database/schemas';
+import { CreateBrandDto, UpdateBrandDto } from '../dtos';
 
 export interface IBrandService {
   getBrands(): Promise<Brand[]>;

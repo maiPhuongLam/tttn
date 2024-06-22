@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { injectable, inject } from 'inversify';
-import { CreateBrandDto, UpdateBrandDto } from 'src/application/dtos'; // Adjust path as per your application structure
+import { CreateBrandDto, UpdateBrandDto } from 'src/domain/dtos'; // Adjust path as per your application structure
 import { IBrandService } from 'src/domain/services'; // Adjust path as per your application structure
 import logger from 'src/infrastructure/logger'; // Adjust path as per your application structure
 import { INTERFACE_NAME, STATUS_CODES } from 'src/shared/constants'; // Adjust path as per your application structure
