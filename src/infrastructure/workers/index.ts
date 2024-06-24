@@ -1,35 +1,20 @@
 // Import necessary modules
-import { Queue, Worker } from 'bullmq';
+import { Job, Queue, Worker } from 'bullmq';
 import logger from '../logger';
-import { UserRoles } from 'src/shared/enums';
-import { DB } from '../database/connect';
-import { admins, customers } from '../database/schemas';
+import { addRole, uploadImageProduct } from 'src/shared/utils';
 
 // Create a new queue
-const createRoleQueue = new Queue('createRole', {
+const myQueue = new Queue('myQueue', {
   connection: {
     host: '127.0.0.1',
     port: 6379,
   },
 });
 
-// Define worker process
-const worker = new Worker(
-  'createRole',
-  async (job) => {
-    console.log(job);
-    const { role, userId } = job.data;
-    try {
-      if (role === UserRoles.CUSTOMER) {
-        await DB.insert(customers).values({ userId }).execute();
-      } else {
-        await DB.insert(admins).values({ userId }).execute();
-      }
-    } catch (error) {
-      logger.error(`Error processing job ${job.id}:`, error);
-      throw error; // This will make BullMQ handle retries, etc., based on your configuration
-    }
-  },
+// Define the first worker process for handling roles
+const roleWorker = new Worker(
+  'myQueue',
+  addRole,
   {
     connection: {
       host: '127.0.0.1',
@@ -39,14 +24,31 @@ const worker = new Worker(
   },
 );
 
-// Event listener for completed jobs (optional)
-worker.on('completed', (job) => {
-  console.log(`Job ${job.id} has been completed successfully`);
-});
+// Define the second worker process for uploading to Cloudinary
+const uploadToCloudinaryWorker = new Worker(
+  'image-upload',
+  uploadImageProduct,
+  {
+    connection: {
+      host: '127.0.0.1',
+      port: 6379,
+    },
+    removeOnFail: { count: 0 },
+  },
+);
 
-// Event listener for failed jobs (optional)
-worker.on('failed', (job: any, err: any) => {
-  console.error(`Job ${job.id} has failed with error:`, err);
-});
+// Helper function to attach event listeners to workers
+const attachListeners = (worker: Worker) => {
+  worker.on('completed', (job: Job) => {
+    console.log(`Job ${job.id} has been completed successfully`);
+  });
+  worker.on('failed', (job: Job | undefined, err: any) => {
+    logger.error(`Job ${job?.id} has failed with error:`, err);
+  });
+};
 
-export default createRoleQueue;
+// Attach event listeners to both workers
+attachListeners(roleWorker);
+attachListeners(uploadToCloudinaryWorker);
+
+export default myQueue;

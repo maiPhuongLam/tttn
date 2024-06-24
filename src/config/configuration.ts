@@ -17,6 +17,15 @@ interface Config {
   REDIS_PORT: number;
   REDIS_PASSWORD: string;
   REDIS_URI: string;
+  CLOUD_NAME: string;
+  API_KEY: string;
+  API_SECRET: string;
+  FOLDER_PATH: string;
+  PUBLIC_ID_PREFIX: string;
+  BUCKET_NAME: string;
+  REGION: string;
+  S3_ACCESS_KEY: string;
+  S3_SECRET_KEY: string;
 }
 
 const configuration: Config = {
@@ -30,6 +39,15 @@ const configuration: Config = {
   REDIS_PORT: +process.env.REDIS_PORT!,
   REDIS_PASSWORD: process.env.REDIS_PASSWORD!,
   REDIS_URI: process.env.REDIS_URI!,
+  CLOUD_NAME: process.env.CLOUD_NAME!,
+  API_KEY: process.env.API_KEY!,
+  API_SECRET: process.env.API_SECRET!,
+  FOLDER_PATH: process.env.FOLDER_PATH!,
+  PUBLIC_ID_PREFIX: process.env.PUBLIC_ID_PREFIX!,
+  BUCKET_NAME: process.env.BUCKET_NAME!,
+  REGION: process.env.REGION!,
+  S3_ACCESS_KEY: process.env.S3_ACCESS_KEY!,
+  S3_SECRET_KEY: process.env.S3_SECRET_KEY!,
 };
 
 export default configuration;

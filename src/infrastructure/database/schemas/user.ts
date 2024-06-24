@@ -1,4 +1,4 @@
-import { pgTable, serial, text, timestamp, varchar, integer, pgEnum } from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, timestamp, varchar, integer, pgEnum, index } from 'drizzle-orm/pg-core';
 import { InferSelectModel } from 'drizzle-orm';
 import { addresses } from './address';
 
@@ -14,6 +14,13 @@ export const users = pgTable('users', {
   rt: varchar('tr', { length: 256 }).unique(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}, (table) => {
+  return {
+    idIdx: index("users_id_idx").on(table.id),
+    emailIdx: index("users_email_idx").on(table.email),
+    phoneNumberIdx: index("users_phone_number_idx").on(table.phoneNumber),
+    nameIdx: index("users_name_idx").on(table.name),
+  }
 });
 
 export type User = InferSelectModel<typeof users>;

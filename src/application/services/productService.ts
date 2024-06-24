@@ -5,7 +5,8 @@ import { INTERFACE_NAME } from 'src/shared/constants';
 import { NotFoundError } from 'src/shared/errors';
 import { CreateProductDto, UpdateProductDto } from '../dtos';
 import { IAdminService, IProductDetailService, IProductService } from 'src/domain/services';
-import { deleteProductIndex, indexProduct, updateProductIndex } from 'src/shared/utils';
+import { deleteProductIndex, indexProduct, searchProductsByName, updateProductIndex } from 'src/shared/utils';
+import myQueue from 'src/infrastructure/workers';
 
 @injectable()
 export class ProductService implements IProductService {
@@ -46,8 +47,16 @@ export class ProductService implements IProductService {
         ...createProductDto,
         featureId: feature.id,
         adminId: admin.id,
+        image: {
+          public_id: "",
+          url: ""
+        }
       });
       await indexProduct(product);
+      if (createProductDto.image) {
+        const imagePath = createProductDto.image
+        await myQueue.add("image-upload", { imagePath, product })
+      }
       return product;
     } catch (error) {
       throw error;
@@ -71,6 +80,15 @@ export class ProductService implements IProductService {
       const deletedProduct = await this.productRepository.delete(id);
       await deleteProductIndex(id);
       return deletedProduct;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async searchProducts(query: string): Promise<Product[]> {
+    try {
+      const products = await searchProductsByName(query) as Product[];
+      return products;
     } catch (error) {
       throw error;
     }

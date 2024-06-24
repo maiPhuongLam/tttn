@@ -31,7 +31,7 @@ export const deleteProductIndex = async (productId: number) => {
   });
 };
 
-export const searchProducts = async (query: string) => {
+export const searchProductsByName = async (query: string) => {
   const result: SearchResponse<unknown, Product> = await client.search({
     index: 'products',
     body: {

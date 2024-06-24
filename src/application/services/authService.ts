@@ -9,8 +9,7 @@ import { BadRequestError } from 'src/shared/errors';
 import { compare, hash, signAccessToken, signRefreshToken } from 'src/shared/utils';
 import { IAddressService } from 'src/domain/services/addressService';
 import { IUserRepository } from 'src/domain/repositories';
-import createRoleQueue from 'src/infrastructure/workers';
-import logger from 'src/infrastructure/logger';
+import myQueue from 'src/infrastructure/workers';
 
 @injectable()
 export class AuthService implements IAuthService {
@@ -40,7 +39,7 @@ export class AuthService implements IAuthService {
         addressId: userAddress.id,
         rt: null,
       });
-      await createRoleQueue.add('createRole', {
+      await myQueue.add('role', {
         role: registerDto.role,
         userId: user.id,
       });

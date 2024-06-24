@@ -4,11 +4,11 @@ import { productDetailBody } from './productDetailDto';
 
 export const productBody = {
   name: z.string({ required_error: 'name is required' }),
-  image: z.string({ required_error: 'image is required' }),
   brandId: z.number({ required_error: 'brandId is required' }),
   categoryId: z.number({ required_error: 'categoryId is required' }),
   featureId: z.number({ required_error: 'featureId is required' }),
   releaseDate: z.date({ required_error: 'releaseDate is required' }),
+  image: z.string(),
   features: z.object(
     { ...productDetailBody },
     {

@@ -7,7 +7,9 @@ import { INTERFACE_NAME, STATUS_CODES } from 'src/shared/constants';
 
 @injectable()
 export class ProductController {
-  constructor(@inject(INTERFACE_NAME.ProductService) private productService: IProductService) {}
+  constructor(@inject(INTERFACE_NAME.ProductService) private productService: IProductService) {
+    
+  }
 
   async getProduct(req: Request, res: Response, next: NextFunction) {
     try {
@@ -44,7 +46,9 @@ export class ProductController {
     try {
       const createProductDto: CreateProductDto = req.body;
       const userId = req.userId;
-
+      if (req.file) {
+        createProductDto.image = req.file.path
+      }
       const data = await this.productService.createProduct(createProductDto, userId);
       const response = {
         success: true,
@@ -89,6 +93,16 @@ export class ProductController {
       return res.status(STATUS_CODES.OK).json(response);
     } catch (error) {
       logger.error('Delete Product failed', error);
+      next(error);
+    }
+  }
+
+  async uploadImage(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params
+
+    } catch (error) {
+      logger.error('Upload Image Product failed', error);
       next(error);
     }
   }
