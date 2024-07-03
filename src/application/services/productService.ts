@@ -5,8 +5,14 @@ import { INTERFACE_NAME } from 'src/shared/constants';
 import { NotFoundError } from 'src/shared/errors';
 import { CreateProductDto, UpdateProductDto } from '../dtos';
 import { IAdminService, IProductDetailService, IProductService } from 'src/domain/services';
-import { deleteProductIndex, indexProduct, searchProductsByName, updateProductIndex } from 'src/shared/utils';
+import {
+  deleteProductIndex,
+  indexProduct,
+  searchProductsByName,
+  updateProductIndex,
+} from 'src/shared/utils';
 import myQueue from 'src/infrastructure/workers';
+import logger from 'src/infrastructure/logger';
 
 @injectable()
 export class ProductService implements IProductService {
@@ -21,6 +27,7 @@ export class ProductService implements IProductService {
     try {
       return await this.productRepository.findAll();
     } catch (error) {
+      logger.error('Error in getProducts:', error);
       throw error;
     }
   }
@@ -34,31 +41,34 @@ export class ProductService implements IProductService {
 
       return product;
     } catch (error) {
+      logger.error('Error in getOneProduct:', error);
       throw error;
     }
   }
 
   async createProduct(createProductDto: CreateProductDto, userId: number): Promise<Product> {
     try {
+      const { features, ...productData } = createProductDto;
       const admin = await this.adminService.getAdminByUserId(userId);
-      const { features } = createProductDto;
       const feature = await this.productDetailService.createProductDetail(features);
       const product = await this.productRepository.add({
-        ...createProductDto,
+        ...productData,
+        releaseDate: new Date(productData.releaseDate),
         featureId: feature.id,
         adminId: admin.id,
-        image: {
-          public_id: "",
-          url: ""
-        }
+        // image: {
+        //   public_id: "",
+        //   url: ""
+        // }
       });
       await indexProduct(product);
-      if (createProductDto.image) {
-        const imagePath = createProductDto.image
-        await myQueue.add("image-upload", { imagePath, product })
-      }
+      // if (createProductDto.image) {
+      //   const imagePath = createProductDto.image;
+      //   await myQueue.add('image-upload', { imagePath, product });
+      // }
       return product;
     } catch (error) {
+      logger.error('Error in createProduct:', error); // Log lỗi tại đây
       throw error;
     }
   }
@@ -66,10 +76,14 @@ export class ProductService implements IProductService {
   async updateProduct(id: number, updateProductDto: UpdateProductDto): Promise<Product> {
     try {
       await this.getOneProduct(id);
-      const updatedProduct = await this.productRepository.update(id, updateProductDto);
+      const updatedProduct = await this.productRepository.update(id, {
+        ...updateProductDto,
+        releaseDate: new Date(updateProductDto.releaseDate!),
+      });
       await updateProductIndex(updatedProduct);
       return updatedProduct;
     } catch (error) {
+      logger.error('Error in updateProduct:', error);
       throw error;
     }
   }
@@ -81,15 +95,17 @@ export class ProductService implements IProductService {
       await deleteProductIndex(id);
       return deletedProduct;
     } catch (error) {
+      logger.error('Error in deleteProduct:', error);
       throw error;
     }
   }
 
   async searchProducts(query: string): Promise<Product[]> {
     try {
-      const products = await searchProductsByName(query) as Product[];
+      const products = (await searchProductsByName(query)) as Product[];
       return products;
     } catch (error) {
+      logger.error('Error in searchProducts:', error);
       throw error;
     }
   }

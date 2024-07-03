@@ -4,6 +4,8 @@ import { ProductDetail } from 'src/infrastructure/database/schemas';
 import { INTERFACE_NAME } from 'src/shared/constants';
 import { IProductDetailService } from 'src/domain/services';
 import { CreateProductDetailDto, UpdateProductDetailDto } from '../dtos';
+import { NotFoundError } from 'src/shared/errors';
+import logger from 'src/infrastructure/logger';
 
 @injectable()
 export class ProductDetailService implements IProductDetailService {
@@ -13,23 +15,59 @@ export class ProductDetailService implements IProductDetailService {
   ) {}
 
   async getProductDetails(): Promise<ProductDetail[]> {
-    throw new Error('Method not implemented.');
+    try {
+      return await this.productDetailRepository.findAll();
+    } catch (error) {
+      throw error;
+    }
   }
+
   async getOneProductDetail(id: number): Promise<ProductDetail | null> {
-    throw new Error('Method not implemented.');
+    try {
+      const productDetail = await this.productDetailRepository.findById(id);
+      if (!productDetail) {
+        throw new NotFoundError(`ProductDetail with id = ${id} is not found`);
+      }
+      return productDetail;
+    } catch (error) {
+      throw error;
+    }
   }
+
   async createProductDetail(
     createProductDetailDto: CreateProductDetailDto,
   ): Promise<ProductDetail> {
-    throw new Error('Method not implemented.');
+    try {
+      const productDetail = await this.productDetailRepository.add(createProductDetailDto);
+      return productDetail;
+    } catch (error) {
+      throw error;
+    }
   }
+
   async updateProductDetail(
     id: number,
     updateProductDetailDto: UpdateProductDetailDto,
   ): Promise<ProductDetail> {
-    throw new Error('Method not implemented.');
+    try {
+      await this.getOneProductDetail(id);
+      const updatedProductDetail = await this.productDetailRepository.update(
+        id,
+        updateProductDetailDto,
+      );
+      return updatedProductDetail;
+    } catch (error) {
+      throw error;
+    }
   }
+
   async deleteProductDetail(id: number): Promise<ProductDetail> {
-    throw new Error('Method not implemented.');
+    try {
+      await this.getOneProductDetail(id);
+      const deletedProductDetail = await this.productDetailRepository.delete(id);
+      return deletedProductDetail;
+    } catch (error) {
+      throw error;
+    }
   }
 }

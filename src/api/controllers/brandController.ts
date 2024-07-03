@@ -47,7 +47,7 @@ export class BrandController {
   }
 
   async createBrand(req: Request, res: Response, next: NextFunction) {
-    const createBrandDto: CreateBrandDto = req.body;
+    const createBrandDto = <CreateBrandDto>req.body;
     const userId = req.userId; // Assuming you have userId in request, adjust as per your authentication setup
     try {
       const newBrand = await this.brandService.createBrand(createBrandDto, userId);
@@ -65,7 +65,7 @@ export class BrandController {
 
   async updateBrand(req: Request, res: Response, next: NextFunction) {
     const id = parseInt(req.params.id);
-    const updateBrandDto: UpdateBrandDto = req.body;
+    const updateBrandDto = <UpdateBrandDto>req.body;
     try {
       const updatedBrand = await this.brandService.updateBrand(id, updateBrandDto);
       const response = {

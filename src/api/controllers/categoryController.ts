@@ -46,7 +46,7 @@ export class CategoryController {
   }
 
   async createCategory(req: Request, res: Response, next: NextFunction) {
-    const createCategoryDto: CreateCategoryDto = req.body;
+    const createCategoryDto = <CreateCategoryDto>req.body;
     const userId = req.userId; // Assuming you have userId in request, adjust as per your authentication setup
     try {
       const newCategory = await this.categoryService.createCategory(createCategoryDto, userId);
@@ -64,7 +64,7 @@ export class CategoryController {
 
   async updateCategory(req: Request, res: Response, next: NextFunction) {
     const id = parseInt(req.params.id);
-    const updateCategoryDto: UpdateCategoryDto = req.body;
+    const updateCategoryDto = <UpdateCategoryDto>req.body;
     try {
       const updatedCategory = await this.categoryService.updateCategory(id, updateCategoryDto);
       const response = {

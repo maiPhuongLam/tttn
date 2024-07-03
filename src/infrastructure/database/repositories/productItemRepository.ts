@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
 import { Repository } from './repository';
-import { ProductItem, products } from '../schemas';
+import { ProductItem, productItems } from '../schemas';
 import { IProductItemRepository, IProductRepository } from 'src/domain/repositories';
 
 @injectable()
@@ -9,6 +9,6 @@ export class ProductItemRepository
   implements IProductItemRepository
 {
   constructor() {
-    super(products);
+    super(productItems);
   }
 }

@@ -1,5 +1,5 @@
+import { CreateProductDetailDto, UpdateProductDetailDto } from 'src/application/dtos';
 import { ProductDetail } from 'src/infrastructure/database/schemas';
-import { CreateProductDetailDto, UpdateProductDetailDto } from '../dtos';
 
 export interface IProductDetailService {
   getProductDetails(): Promise<ProductDetail[]>;

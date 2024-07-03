@@ -12,30 +12,22 @@ const myQueue = new Queue('myQueue', {
 });
 
 // Define the first worker process for handling roles
-const roleWorker = new Worker(
-  'myQueue',
-  addRole,
-  {
-    connection: {
-      host: '127.0.0.1',
-      port: 6379,
-    },
-    removeOnFail: { count: 0 },
+const roleWorker = new Worker('myQueue', addRole, {
+  connection: {
+    host: '127.0.0.1',
+    port: 6379,
   },
-);
+  removeOnFail: { count: 0 },
+});
 
 // Define the second worker process for uploading to Cloudinary
-const uploadToCloudinaryWorker = new Worker(
-  'image-upload',
-  uploadImageProduct,
-  {
-    connection: {
-      host: '127.0.0.1',
-      port: 6379,
-    },
-    removeOnFail: { count: 0 },
+const uploadToCloudinaryWorker = new Worker('image-upload', uploadImageProduct, {
+  connection: {
+    host: '127.0.0.1',
+    port: 6379,
   },
-);
+  removeOnFail: { count: 0 },
+});
 
 // Helper function to attach event listeners to workers
 const attachListeners = (worker: Worker) => {

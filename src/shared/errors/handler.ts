@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthorizeError, NotFoundError, BadRequestError, UnAuthorizedError } from './errors';
+import { ForbiddenError, NotFoundError, BadRequestError, UnAuthorizedError } from './errors';
 import logger from 'src/infrastructure/logger';
 
 export const HandleErrorWithLogger = (
@@ -13,7 +13,7 @@ export const HandleErrorWithLogger = (
   let data = error.message;
 
   // skip common / known errors
-  [NotFoundError, BadRequestError, AuthorizeError, UnAuthorizedError].forEach((typeOfError) => {
+  [NotFoundError, BadRequestError, ForbiddenError, UnAuthorizedError].forEach((typeOfError) => {
     if (error instanceof typeOfError) {
       reportError = false;
       status = error.status;

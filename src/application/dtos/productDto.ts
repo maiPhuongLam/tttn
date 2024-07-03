@@ -2,12 +2,18 @@ import { z, TypeOf } from 'zod';
 import { idParamsSchema } from './userDto';
 import { productDetailBody } from './productDetailDto';
 
+const dateStringToDate = z
+  .string({ required_error: 'releaseDate is required' })
+  .refine((val) => !isNaN(Date.parse(val)), {
+    message: 'Invalid date string',
+  })
+  .transform((val) => new Date(val));
+
 export const productBody = {
   name: z.string({ required_error: 'name is required' }),
   brandId: z.number({ required_error: 'brandId is required' }),
   categoryId: z.number({ required_error: 'categoryId is required' }),
-  featureId: z.number({ required_error: 'featureId is required' }),
-  releaseDate: z.date({ required_error: 'releaseDate is required' }),
+  releaseDate: dateStringToDate,
   image: z.string(),
   features: z.object(
     { ...productDetailBody },

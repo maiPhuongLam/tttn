@@ -13,12 +13,12 @@ import { InferSelectModel } from 'drizzle-orm';
 export const productDetails = pgTable('product_details', {
   id: serial('id').primaryKey(),
   screenSize: varchar('screenSize').notNull(),
-  battery: varchar('name').notNull(),
-  camera: varchar('name').notNull(),
-  processor: varchar('name').notNull(),
-  ram: varchar('name').notNull(),
-  storage: integer('stock').notNull(),
-  os: varchar('name').notNull(),
+  battery: varchar('battery').notNull(),
+  camera: varchar('camera').notNull(),
+  processor: varchar('processor').notNull(),
+  ram: varchar('ram').notNull(),
+  storage: integer('storage').notNull(),
+  os: varchar('os').notNull(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });

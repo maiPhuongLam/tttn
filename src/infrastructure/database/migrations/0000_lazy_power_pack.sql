@@ -44,7 +44,8 @@ CREATE TABLE IF NOT EXISTS "brands" (
 	"name" varchar NOT NULL,
 	"admin_id" integer,
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "brands_name_unique" UNIQUE("name")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "carts" (
@@ -70,7 +71,8 @@ CREATE TABLE IF NOT EXISTS "categories" (
 	"name" "name" NOT NULL,
 	"admin_id" integer,
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "categories_name_unique" UNIQUE("name")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "customers" (
@@ -186,6 +188,23 @@ CREATE TABLE IF NOT EXISTS "warranty_requests" (
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "admins_id_idx" ON "admins" ("id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "brands_id_idx" ON "brands" ("id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "carts_id_idx" ON "carts" ("id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "carts_customer_id_idx" ON "carts" ("id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "categories_id_idx" ON "categories" ("id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "customers_id_idx" ON "customers" ("id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "orders_id_idx" ON "orders" ("id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "products_id_idx" ON "products" ("id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "products_name_idx" ON "products" ("name");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "products_feature_id_idx" ON "products" ("name");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "product_items_id_idx" ON "product_items" ("id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "product_items_SKU_idx" ON "product_items" ("name");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "product_items_product_id_idx" ON "product_items" ("product_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "users_id_idx" ON "users" ("id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "users_email_idx" ON "users" ("email");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "users_phone_number_idx" ON "users" ("phone_number");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "users_name_idx" ON "users" ("name");--> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "admins" ADD CONSTRAINT "admins_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION

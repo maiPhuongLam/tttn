@@ -7,9 +7,7 @@ import { INTERFACE_NAME, STATUS_CODES } from 'src/shared/constants';
 
 @injectable()
 export class ProductController {
-  constructor(@inject(INTERFACE_NAME.ProductService) private productService: IProductService) {
-    
-  }
+  constructor(@inject(INTERFACE_NAME.ProductService) private productService: IProductService) {}
 
   async getProduct(req: Request, res: Response, next: NextFunction) {
     try {
@@ -44,10 +42,10 @@ export class ProductController {
 
   async createProduct(req: Request, res: Response, next: NextFunction) {
     try {
-      const createProductDto: CreateProductDto = req.body;
+      const createProductDto = <CreateProductDto>req.body;
       const userId = req.userId;
       if (req.file) {
-        createProductDto.image = req.file.path
+        createProductDto.image = `https://${'tttn2k2'}.s3.${'ap-southeast-1'}.amazonaws.com/productfiles/${req.file.originalname}`;
       }
       const data = await this.productService.createProduct(createProductDto, userId);
       const response = {
@@ -65,7 +63,7 @@ export class ProductController {
   async updateProduct(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const updateProductDto: UpdateProductDto = req.body;
+      const updateProductDto = <UpdateProductDto>req.body;
 
       const data = await this.productService.updateProduct(parseInt(id), updateProductDto);
       const response = {
@@ -99,8 +97,7 @@ export class ProductController {
 
   async uploadImage(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params
-
+      const { id } = req.params;
     } catch (error) {
       logger.error('Upload Image Product failed', error);
       next(error);

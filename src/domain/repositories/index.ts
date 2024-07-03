@@ -8,3 +8,5 @@ export * from './productDetailRepository';
 export * from './productItemRepository';
 export * from './brandRepository';
 export * from './categoryRepository';
+export * from './cartRepository';
+export * from './cartItemRepository';

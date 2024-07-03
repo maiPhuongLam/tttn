@@ -1,5 +1,5 @@
+import { CreateCategoryDto, UpdateCategoryDto } from 'src/application/dtos';
 import { Category } from 'src/infrastructure/database/schemas';
-import { CreateCategoryDto, UpdateCategoryDto } from '../dtos';
 
 export interface ICategoryService {
   getCategories(): Promise<Category[]>;
