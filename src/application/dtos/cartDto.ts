@@ -9,13 +9,9 @@ export const createCartSchema = z.object({
 
 export type CreateCartDto = TypeOf<typeof createCartSchema>['body'];
 
-export const updateBrandSchema = z.object({
+export const updateCartSchema = z.object({
   params: idParamsSchema,
-  body: z
-    .object({ 
-      name: z.string({ required_error: 'name brand is required' }),
-    })
-    .partial(),
+  body: createCartSchema.optional(),
 });
 
-export type UpdateBrandDto = TypeOf<typeof updateBrandSchema>['body'];
+export type UpdateCartDto = TypeOf<typeof updateCartSchema>['body'];

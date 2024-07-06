@@ -24,4 +24,13 @@ export const INTERFACE_NAME = {
   CategoryRepository: Symbol.for('CategoryRepository'),
   CategoryService: Symbol.for('CategoryService'),
   CategoryController: Symbol.for('CategoryController'),
+  CartRepository: Symbol.for('CartRepository'),
+  CartService: Symbol.for('CartService'),
+  CartController: Symbol.for('CartController'),
+  CartItemRepository: Symbol.for('CartItemRepository'),
+  CartItemService: Symbol.for('CartItemService'),
+  CartItemController: Symbol.for('CartItemController'),
+  ProductItemRepository: Symbol.for('ProductItemRepository'),
+  ProductItemService: Symbol.for('ProductItemService'),
+  ProductItemController: Symbol.for('ProductItemController'),
 };

@@ -12,13 +12,20 @@ import {
 import { InferSelectModel } from 'drizzle-orm';
 import { products } from './product';
 
+export const productItemStatusEnum = pgEnum('product_item_request_status', [
+  'locked',
+  'unlock',
+  'sold',
+]);
 export const productItems = pgTable(
   'product_items',
   {
     id: serial('id').primaryKey(),
-    SKU: varchar('name', { length: 256 }).notNull().unique(),
+    SKU: varchar('sku', { length: 256 }).notNull().unique(),
     quantityInStock: integer('qty_in_stock').notNull(),
+    status: productItemStatusEnum('status').notNull(),
     price: real('price').notNull(),
+    color: varchar('color').notNull(),
     image: text('image').notNull(),
     productId: integer('product_id').references(() => products.id),
     createdAt: timestamp('created_at').notNull().defaultNow(),

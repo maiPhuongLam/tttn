@@ -45,7 +45,7 @@ import {
   BrandController,
   CategoryController,
   ProductController,
-} from 'src/api/controllers';
+} from 'src/presentation/controllers';
 
 const container = new Container();
 

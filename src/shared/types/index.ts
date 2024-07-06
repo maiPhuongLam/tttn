@@ -1,3 +1,3 @@
-export * from './baseCreateEnityType';
-export * from './baseUpdateEntityType';
+export * from './basePropsType';
+export * from './baseUpdatePropsType';
 export * from './tokenType';

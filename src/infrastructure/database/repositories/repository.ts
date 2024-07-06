@@ -1,5 +1,5 @@
 import { IRepository } from 'src/domain/repositories';
-import { BaseCreateEntityType } from 'src/shared/types';
+import { BasePropsType } from 'src/shared/types';
 import { DB } from '../connect';
 import { eq } from 'drizzle-orm';
 import { injectable, unmanaged } from 'inversify';
@@ -35,7 +35,7 @@ export class Repository<T> implements IRepository<T> {
     }
   }
 
-  async add(data: BaseCreateEntityType<T>): Promise<T> {
+  async add(data: BasePropsType<T>): Promise<T> {
     try {
       const [result] = (await this.db
         .insert(this.table)
@@ -49,7 +49,7 @@ export class Repository<T> implements IRepository<T> {
     }
   }
 
-  async update(id: number, data: Partial<BaseCreateEntityType<T>>): Promise<T> {
+  async update(id: number, data: Partial<BasePropsType<T>>): Promise<T> {
     try {
       const [result] = (await this.db
         .update(this.table)

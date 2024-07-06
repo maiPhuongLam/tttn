@@ -1,9 +1,9 @@
-import { BaseCreateEntityType, BaseUpdateEntityType } from 'src/shared/types';
+import { BasePropsType } from 'src/shared/types';
 
 export interface IRepository<T> {
   findAll(): Promise<T[]>;
   findById(id: number): Promise<T | null>;
-  add(data: BaseCreateEntityType<T>): Promise<T>;
-  update(id: number, data: BaseUpdateEntityType<T>): Promise<T>;
+  add(data: BasePropsType<T>): Promise<T>;
+  update(id: number, data: Partial<BasePropsType<T>>): Promise<T>;
   delete(id: number): Promise<T>;
 }

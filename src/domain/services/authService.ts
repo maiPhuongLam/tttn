@@ -1,7 +1,24 @@
-import { LoginDto, RegisterDto } from 'src/application/dtos';
 import { User } from 'src/infrastructure/database/schemas';
 import { UserRoles } from 'src/shared/enums';
 import { TokenType } from 'src/shared/types';
+type LoginDto = {
+  email: string;
+  password: string;
+};
+
+type RegisterDto = {
+  email: string;
+  password: string;
+  name: string;
+  phoneNumber: string;
+  role: UserRoles;
+  address: {
+    streetAddress: string;
+    wardOrCommune: string;
+    district: string;
+    cityOrProvince: string;
+  };
+};
 
 export interface IAuthService {
   register(registerDto: RegisterDto): Promise<User>;

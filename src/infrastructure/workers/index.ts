@@ -32,7 +32,7 @@ const uploadToCloudinaryWorker = new Worker('image-upload', uploadImageProduct, 
 // Helper function to attach event listeners to workers
 const attachListeners = (worker: Worker) => {
   worker.on('completed', (job: Job) => {
-    console.log(`Job ${job.id} has been completed successfully`);
+    logger.info(`Job ${job.id} has been completed successfully`);
   });
   worker.on('failed', (job: Job | undefined, err: any) => {
     logger.error(`Job ${job?.id} has failed with error:`, err);

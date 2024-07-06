@@ -23,7 +23,6 @@ export const addRole = async (job: Job) => {
 export const uploadImageProduct = async (job: Job) => {
   const { imagePath, product } = job.data;
   try {
-    
     const [updatedProduct] = await DB.update(products)
       .set({ image: imagePath })
       .where(eq(products.id, product.id))

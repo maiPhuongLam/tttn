@@ -3,9 +3,9 @@ import { IProductDetailRepository } from 'src/domain/repositories';
 import { ProductDetail } from 'src/infrastructure/database/schemas';
 import { INTERFACE_NAME } from 'src/shared/constants';
 import { IProductDetailService } from 'src/domain/services';
-import { CreateProductDetailDto, UpdateProductDetailDto } from '../dtos';
 import { NotFoundError } from 'src/shared/errors';
 import logger from 'src/infrastructure/logger';
+import { CreateProductDetailDto, UpdateProductDetailDto } from '../dtos';
 
 @injectable()
 export class ProductDetailService implements IProductDetailService {

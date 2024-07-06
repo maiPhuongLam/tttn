@@ -1,6 +1,13 @@
-import { CreateAddressDto } from 'src/application/dtos';
 import { Address } from 'src/infrastructure/database/schemas';
+import { BasePropsType } from 'src/shared/types';
+
+type CreateAddressDto = {
+  streetAddress: string;
+  wardOrCommune: string;
+  district: string;
+  cityOrProvince: string;
+};
 
 export interface IAddressService {
-  createAddress(createAddressDto: CreateAddressDto): Promise<Address>;
+  createAddress(createAddressDto: BasePropsType<Address>): Promise<Address>;
 }

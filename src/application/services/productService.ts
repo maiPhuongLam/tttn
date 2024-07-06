@@ -3,16 +3,10 @@ import { IProductRepository } from 'src/domain/repositories';
 import { Product } from 'src/infrastructure/database/schemas';
 import { INTERFACE_NAME } from 'src/shared/constants';
 import { NotFoundError } from 'src/shared/errors';
-import { CreateProductDto, UpdateProductDto } from '../dtos';
 import { IAdminService, IProductDetailService, IProductService } from 'src/domain/services';
-import {
-  deleteProductIndex,
-  indexProduct,
-  searchProductsByName,
-  updateProductIndex,
-} from 'src/shared/utils';
 import myQueue from 'src/infrastructure/workers';
 import logger from 'src/infrastructure/logger';
+import { CreateProductDto, UpdateProductDto } from '../dtos';
 
 @injectable()
 export class ProductService implements IProductService {
@@ -61,7 +55,6 @@ export class ProductService implements IProductService {
         //   url: ""
         // }
       });
-      await indexProduct(product);
       // if (createProductDto.image) {
       //   const imagePath = createProductDto.image;
       //   await myQueue.add('image-upload', { imagePath, product });
@@ -80,7 +73,6 @@ export class ProductService implements IProductService {
         ...updateProductDto,
         releaseDate: new Date(updateProductDto.releaseDate!),
       });
-      await updateProductIndex(updatedProduct);
       return updatedProduct;
     } catch (error) {
       logger.error('Error in updateProduct:', error);
@@ -92,7 +84,6 @@ export class ProductService implements IProductService {
     try {
       await this.getOneProduct(id);
       const deletedProduct = await this.productRepository.delete(id);
-      await deleteProductIndex(id);
       return deletedProduct;
     } catch (error) {
       logger.error('Error in deleteProduct:', error);
@@ -100,13 +91,13 @@ export class ProductService implements IProductService {
     }
   }
 
-  async searchProducts(query: string): Promise<Product[]> {
-    try {
-      const products = (await searchProductsByName(query)) as Product[];
-      return products;
-    } catch (error) {
-      logger.error('Error in searchProducts:', error);
-      throw error;
-    }
-  }
+  // async searchProducts(query: string): Promise<Product[]> {
+  //   try {
+  //     const products = (await searchProductsByName(query)) as Product[];
+  //     return products;
+  //   } catch (error) {
+  //     logger.error('Error in searchProducts:', error);
+  //     throw error;
+  //   }
+  // }
 }

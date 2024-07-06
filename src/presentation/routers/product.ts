@@ -32,13 +32,13 @@ productRouter.post('/upload-image', upload.single('image'), async (req: Request,
   }
 
   const file = req.file;
-  console.log("FIle", file);
+  console.log('FIle', file);
   const contentType = file.mimetype;
   const filename = file.originalname;
 
   try {
     const putUrl = await putObjectUrl(file, contentType);
-    console.log("putUrl", putUrl);
+    console.log('putUrl', putUrl);
 
     const imageUrl = `https://${'tttn2k2'}.s3.${'ap-southeast-1'}.amazonaws.com/productfiles/${filename}`;
 
@@ -51,7 +51,7 @@ productRouter.post('/upload-image', upload.single('image'), async (req: Request,
 
     res.json(putUrl);
   } catch (error) {
-    console.error("Image upload failed:", error);
+    console.error('Image upload failed:', error);
     res.status(500).send('Image upload failed');
   }
 });

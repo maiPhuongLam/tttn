@@ -1,5 +1,5 @@
 import { pgTable, serial, timestamp, integer, index } from 'drizzle-orm/pg-core';
-import { InferSelectModel } from 'drizzle-orm';
+import { InferSelectModel, InferInsertModel } from 'drizzle-orm';
 import { users } from './user';
 
 export const admins = pgTable(

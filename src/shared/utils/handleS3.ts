@@ -14,18 +14,24 @@ export const getObjectUrl = async (key: string) => {
   return url;
 };
 
-export const putObjectUrl = async (file: Express.Multer.File, contentType: string): Promise<any> => {
+export const putObjectUrl = async (
+  file: Express.Multer.File,
+  contentType: string,
+): Promise<string> => {
   const params = new PutObjectCommand({
     Bucket: configuration.BUCKET_NAME,
     Key: '/productfiles/' + file.originalname,
-    ContentType: "image/jpeg",
-    Body: file.buffer
+    ContentType: 'image/jpeg',
+    Body: file.buffer,
   });
 
-  const result = await s3Client.send(params)
-  const signedUrl = new GetObjectCommand({ Bucket: configuration.BUCKET_NAME, Key: '/productfiles/' + file.originalname,})
+  const result = await s3Client.send(params);
+  const signedUrl = new GetObjectCommand({
+    Bucket: configuration.BUCKET_NAME,
+    Key: '/productfiles/' + file.originalname,
+  });
   const url = await getSignedUrl(s3Client, signedUrl, { expiresIn: 3600 });
-    console.log(url);
+  console.log(url);
   return url;
 };
 

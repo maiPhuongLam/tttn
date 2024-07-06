@@ -1,5 +1,5 @@
 import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
-import { InferSelectModel } from 'drizzle-orm';
+import { InferColumnsDataTypes, InferInsertModel, InferSelectModel, Column } from 'drizzle-orm';
 
 export const addresses = pgTable('addresses', {
   id: serial('id').primaryKey(),
