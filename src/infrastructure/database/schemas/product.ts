@@ -1,16 +1,5 @@
-import {
-  pgTable,
-  serial,
-  text,
-  timestamp,
-  varchar,
-  integer,
-  pgEnum,
-  real,
-  json,
-  index,
-} from 'drizzle-orm/pg-core';
-import { InferSelectModel, relations } from 'drizzle-orm';
+import { pgTable, serial, text, timestamp, varchar, integer, index } from 'drizzle-orm/pg-core';
+import { InferSelectModel, relations, sql } from 'drizzle-orm';
 import { productDetails } from './productDetail';
 import { brands } from './brand';
 import { categories } from './category';
@@ -34,7 +23,11 @@ export const products = pgTable(
     return {
       idIdx: index('products_id_idx').on(table.id),
       nameIdx: index('products_name_idx').on(table.name),
-      featureId: index('products_feature_id_idx').on(table.name),
+      featureIdx: index('products_feature_id_idx').on(table.name),
+      nameSearchIdx: index('name_search_idx').using(
+        'gin',
+        sql`to_tsvector('english', ${table.name})`,
+      ),
     };
   },
 );

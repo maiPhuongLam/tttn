@@ -2,30 +2,23 @@
 import { Job, Queue, Worker } from 'bullmq';
 import logger from '../logger';
 import { addRole, uploadImageProduct } from 'src/shared/utils';
+import configuration from 'src/config/configuration';
+import redisConnection from '../redis';
 
 // Create a new queue
 const myQueue = new Queue('myQueue', {
-  connection: {
-    host: '127.0.0.1',
-    port: 6379,
-  },
+  connection: redisConnection,
 });
 
 // Define the first worker process for handling roles
 const roleWorker = new Worker('myQueue', addRole, {
-  connection: {
-    host: '127.0.0.1',
-    port: 6379,
-  },
+  connection: redisConnection,
   removeOnFail: { count: 0 },
 });
 
 // Define the second worker process for uploading to Cloudinary
 const uploadToCloudinaryWorker = new Worker('image-upload', uploadImageProduct, {
-  connection: {
-    host: '127.0.0.1',
-    port: 6379,
-  },
+  connection: redisConnection,
   removeOnFail: { count: 0 },
 });
 

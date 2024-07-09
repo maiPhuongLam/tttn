@@ -17,6 +17,7 @@ import { productDetails } from './productDetail';
 import { warrantyCases } from './warrantyCase';
 import { warrantyCasesPolices } from './warrantyCasePolicy';
 import { warrantyDetails } from './warrantyDetail';
+import { productSerials } from './productSerial';
 
 const addressRelations = relations(addresses, ({ one }) => ({
   user: one(users),
@@ -100,12 +101,20 @@ const productRelations = relations(products, ({ one, many }) => ({
     references: [categories.id],
   }),
   productItems: many(productItems),
+  productSerials: many(productSerials),
 }));
 
 const productItemRelations = relations(productItems, ({ one, many }) => ({
   product: one(products, {
     fields: [productItems.productId],
     references: [products.id],
+  }),
+}));
+
+const productSerialRelations = relations(productSerials, ({ one }) => ({
+  productItem: one(productItems, {
+    fields: [productSerials.productItemId],
+    references: [productItems.productId],
   }),
 }));
 

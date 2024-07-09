@@ -1,6 +1,6 @@
 {
-  "id": "4d5410db-7e08-48b5-b0b7-f816d922b723",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "72e12908-5cd6-44c2-b930-b70ecd116e6a",
+  "prevId": "4d5410db-7e08-48b5-b0b7-f816d922b723",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -797,6 +797,21 @@
           "isUnique": false,
           "concurrently": false,
           "method": "btree",
+          "with": {}
+        },
+        "name_search_idx": {
+          "name": "name_search_idx",
+          "columns": [
+            {
+              "expression": "to_tsvector('english', \"name\")",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "gin",
           "with": {}
         }
       },

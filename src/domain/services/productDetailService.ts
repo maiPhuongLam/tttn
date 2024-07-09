@@ -5,8 +5,6 @@ type CreateProductDetailDto = {
   battery: string;
   camera: string;
   processor: string;
-  ram: string;
-  storage: number;
   os: string;
 };
 type UpdateProductDetailDto = Partial<CreateProductDetailDto>;

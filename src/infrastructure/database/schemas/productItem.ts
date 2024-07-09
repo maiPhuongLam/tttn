@@ -26,6 +26,8 @@ export const productItems = pgTable(
     status: productItemStatusEnum('status').notNull(),
     price: real('price').notNull(),
     color: varchar('color').notNull(),
+    storage: varchar('storage').notNull(),
+    ram: varchar('ram').notNull(),
     image: text('image').notNull(),
     productId: integer('product_id').references(() => products.id),
     createdAt: timestamp('created_at').notNull().defaultNow(),

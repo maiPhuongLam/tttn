@@ -1,12 +1,19 @@
 {
-  "version": "5",
-  "dialect": "pg",
+  "version": "7",
+  "dialect": "postgresql",
   "entries": [
     {
       "idx": 0,
-      "version": "5",
-      "when": 1719680321736,
-      "tag": "0000_lazy_power_pack",
+      "version": "7",
+      "when": 1720536243280,
+      "tag": "0000_quick_zarda",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1720541081558,
+      "tag": "0001_dazzling_the_professor",
       "breakpoints": true
     }
   ]

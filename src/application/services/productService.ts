@@ -17,8 +17,11 @@ export class ProductService implements IProductService {
     @inject(INTERFACE_NAME.AdminService) private adminService: IAdminService,
   ) {}
 
-  async getProducts(): Promise<Product[]> {
+  async getProducts(filter: any): Promise<Product[]> {
     try {
+      if (filter) {
+        return await this.productRepository.filter(filter)
+      }
       return await this.productRepository.findAll();
     } catch (error) {
       logger.error('Error in getProducts:', error);
@@ -91,13 +94,13 @@ export class ProductService implements IProductService {
     }
   }
 
-  // async searchProducts(query: string): Promise<Product[]> {
-  //   try {
-  //     const products = (await searchProductsByName(query)) as Product[];
-  //     return products;
-  //   } catch (error) {
-  //     logger.error('Error in searchProducts:', error);
-  //     throw error;
-  //   }
-  // }
+  async getProductByName(name: string): Promise<Product[]> {
+    try {
+      const products = this.productRepository.filter(name)
+      return products;
+    } catch (error) {
+      logger.error('Error in searchProducts:', error);
+      throw error;
+    }
+  }
 }

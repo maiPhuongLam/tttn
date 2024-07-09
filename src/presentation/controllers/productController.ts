@@ -27,7 +27,10 @@ export class ProductController {
 
   async getProducts(req: Request, res: Response, next: NextFunction) {
     try {
-      const data = await this.productService.getProducts();
+      const { name = "" } = req.query;
+      console.log(name);
+      
+      const data = await this.productService.getProducts({ name: name.toString() });
       const response = {
         success: true,
         message: 'Get products is successful',
@@ -98,6 +101,25 @@ export class ProductController {
   async uploadImage(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
+    } catch (error) {
+      logger.error('Upload Image Product failed', error);
+      next(error);
+    }
+  }
+
+  async searchProductbyName(req: Request, res: Response, next: NextFunction) {
+    try {
+      logger.error("ERRO")
+      const name = req.query.name as string;
+      logger.error(name)
+      const data = await this.productService.getProductByName(name.toString());
+      const response = {
+        success: true,
+        message: 'Delete product is successful',
+        data,
+      };
+      return res.status(STATUS_CODES.OK).json(response);
+
     } catch (error) {
       logger.error('Upload Image Product failed', error);
       next(error);

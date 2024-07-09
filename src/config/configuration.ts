@@ -16,7 +16,7 @@ interface Config {
   REDIS_HOST: string;
   REDIS_PORT: number;
   REDIS_PASSWORD: string;
-  REDIS_URI: string;
+  REDIS_URL: string;
   CLOUD_NAME: string;
   API_KEY: string;
   API_SECRET: string;
@@ -38,7 +38,7 @@ const configuration: Config = {
   REDIS_HOST: process.env.REDIS_HOST!,
   REDIS_PORT: +process.env.REDIS_PORT!,
   REDIS_PASSWORD: process.env.REDIS_PASSWORD!,
-  REDIS_URI: process.env.REDIS_URI!,
+  REDIS_URL: process.env.REDIS_URL!,
   CLOUD_NAME: process.env.CLOUD_NAME!,
   API_KEY: process.env.API_KEY!,
   API_SECRET: process.env.API_SECRET!,

@@ -1,5 +1,19 @@
 import { ProductItem } from 'src/infrastructure/database/schemas';
-import { BasePropsType } from 'src/shared/types';
+type CreateProductItemDto = {
+  createdAt: Date;
+  updatedAt: Date;
+  SKU: string;
+  quantityInStock: number;
+  status: 'locked' | 'unlock' | 'sold';
+  ram: string;
+  storage: number;
+  price: number;
+  color: string;
+  image: string;
+  productId: number | null;
+};
+
+type UpdateProductItemDto = Partial<CreateProductItemDto>;
 
 export interface IProductItemService {
   getProductItems(): Promise<ProductItem[]>;

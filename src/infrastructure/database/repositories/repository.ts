@@ -14,6 +14,8 @@ export class Repository<T> implements IRepository<T> {
   constructor(@unmanaged() table: PgTableWithColumns<any>) {
     this.table = table;
     this.db = DB; // Initialize the DB connection
+    console.log(this.db);
+    
   }
 
   async findAll(): Promise<T[]> {

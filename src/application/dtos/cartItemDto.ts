@@ -10,17 +10,16 @@ export const cartItemBody = {
 };
 
 export const createCartItemSchema = z.object({
-  body: z.object(cartItemBody)
-})
+  body: z.object(cartItemBody),
+});
 
 // Tạo kiểu TypeScript từ schema
 export type CreateCartItemDto = z.infer<typeof createCartItemSchema>['body'];
 
 export const updateCartItemSchema = z.object({
   params: idParamsSchema,
-  body: z.object(cartItemBody).partial()
-})
+  body: z.object(cartItemBody).partial(),
+});
 
 // Tạo kiểu TypeScript từ schema
 export type UpdateCartItemDto = z.infer<typeof updateCartItemSchema>['body'];
-

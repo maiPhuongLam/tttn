@@ -7,8 +7,6 @@ export const productDetailBody = {
   battery: z.string({ required_error: 'battery is required' }),
   camera: z.string({ required_error: 'camera is required' }),
   processor: z.string({ required_error: 'processor is required' }),
-  ram: z.string({ required_error: 'ram is required' }),
-  storage: z.number({ required_error: 'storage is required' }),
   os: z.string({ required_error: 'os is required' }),
 };
 

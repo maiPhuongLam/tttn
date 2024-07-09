@@ -1,7 +1,7 @@
 import { User } from 'src/infrastructure/database/schemas';
 import { UserRoles } from 'src/shared/enums';
 
-type CreateUserDto = {
+type CreateUserData = {
   email: string;
   password: string;
   name: string;
@@ -14,9 +14,9 @@ type CreateUserDto = {
     cityOrProvince: string;
   };
 };
-type UpdateUserDto = Partial<CreateUserDto>;
+type UpdateUserData = Partial<CreateUserData>;
 
 export interface IUserService {
-  createUser(createUserDto: CreateUserDto): Promise<User>;
-  updateUser(updateUserDto: UpdateUserDto): Promise<User>;
+  createUser(createUserData: CreateUserData): Promise<User>;
+  updateUser(updateUserData: UpdateUserData): Promise<User>;
 }

@@ -16,8 +16,6 @@ export const productDetails = pgTable('product_details', {
   battery: varchar('battery').notNull(),
   camera: varchar('camera').notNull(),
   processor: varchar('processor').notNull(),
-  ram: varchar('ram').notNull(),
-  storage: integer('storage').notNull(),
   os: varchar('os').notNull(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),

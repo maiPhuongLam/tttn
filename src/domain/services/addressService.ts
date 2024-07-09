@@ -9,5 +9,5 @@ type CreateAddressDto = {
 };
 
 export interface IAddressService {
-  createAddress(createAddressDto: BasePropsType<Address>): Promise<Address>;
+  createAddress(createAddressDto: CreateAddressDto): Promise<Address>;
 }
