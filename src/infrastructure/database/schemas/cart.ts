@@ -18,7 +18,7 @@ export const carts = pgTable(
   {
     id: serial('id').primaryKey(),
     customerId: integer('customer_id')
-      .references(() => customers.id, { onDelete: 'cascade' })
+      .references(() => customers.id, { onDelete: 'cascade', onUpdate: 'cascade' })
       .notNull(),
     cartStatus: cartStatusEnum('cart_status').notNull(),
     createdAt: timestamp('created_at').notNull().defaultNow(),

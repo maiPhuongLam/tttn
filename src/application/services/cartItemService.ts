@@ -42,7 +42,7 @@ export class CartItemService implements ICartItemService {
     try {
       await this.cartService.getOneCart(createCartDto.cartId);
       return await this.cartItemRepository.add(createCartDto);
-    } catch (error: any) {
+    } catch (error) {
       logger.error('Error Add CartItems', error);
       throw error;
     }
@@ -52,7 +52,7 @@ export class CartItemService implements ICartItemService {
     try {
       await this.getOneCartItem(id);
       return await this.cartItemRepository.delete(id);
-    } catch (error: any) {
+    } catch (error) {
       logger.error('Error Delete CartItems', error);
       throw error;
     }

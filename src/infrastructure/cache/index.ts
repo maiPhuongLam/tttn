@@ -1,55 +1,170 @@
-import redis, { RedisClientType } from 'redis';
-import { promisify } from 'util';
+import Redis from 'ioredis';
+import configuration from 'src/config/configuration';
+import logger from '../logger';
+
+export const redisConnection = new Redis({
+  host: configuration.REDIS_HOST,
+  port: configuration.REDIS_PORT,
+  maxRetriesPerRequest: null,
+});
+
+// interface IRedisCache {
+//   get(key: string): Promise<Record<string, any> | null>
+//   set()
+// }
 
 class RedisCache {
-  private client: RedisClientType;
+  private client: Redis;
 
   constructor() {
-    // Khởi tạo kết nối tới Redis
-    this.client = redis.createClient();
+    // Initialize connection to Redis
+    this.client = redisConnection;
 
-    // Cấu hình để sử dụng Promise trong RedisClient
-    this.client.get = promisify(this.client.get).bind(this.client);
-    this.client.set = promisify(this.client.set).bind(this.client);
-
-    // Lắng nghe sự kiện lỗi từ RedisClient
+    // Listen for errors from RedisClient
     this.client.on('error', (err) => {
       console.error('Redis error:', err);
     });
   }
 
-  // Phương thức để lấy dữ liệu từ cache
-  async get(key: string): Promise<any> {
-    try {
-      const data = await this.client.get(key);
-      return data ? null : data;
-    } catch (error) {
-      console.error('Error getting data from cache:', error);
-      return null;
-    }
+  // Method to get data from cache
+  set(key: string, value: any): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.client.set(key, JSON.stringify(value), (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
   }
 
-  // Phương thức để lưu dữ liệu vào cache
-  async set(key: string, data: any, expireTimeSeconds?: number): Promise<void> {
-    try {
-      const jsonData = JSON.stringify(data);
-      if (expireTimeSeconds) {
-        await this.client.set(key as string, jsonData as string, 'EX', expireTimeSeconds);
+  get(key: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.client.get(key, (err, reply) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(reply ? JSON.parse(reply) : null);
+        }
+      });
+    });
+  }
+
+  del(key: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.client.del(key, (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
+  }
+
+  hset(key: string, field: string, value: any): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.client.hset(key, field, JSON.stringify(value), (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
+  }
+
+  hget(key: string, field: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.client.hget(key, field, (err, reply) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(reply ? JSON.parse(reply) : null);
+        }
+      });
+    });
+  }
+
+  hgetAll(key: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.client.hgetall(key, (err, reply) => {
+        if (err) {
+          reject(err);
+        } else {
+          const parsedReply: { [key: string]: any } = {};
+          if (reply) {
+            Object.keys(reply).forEach((field) => {
+              parsedReply[field] = JSON.parse(reply[field]);
+            });
+          }
+          resolve(parsedReply);
+        }
+      });
+    });
+  }
+
+  lpush(key: string, value: any): Promise<number> {
+    return new Promise((resolve, reject) => {
+      this.client.lpush(key, JSON.stringify(value), (err, length) => {
+        if (err) {
+          reject(err);
+        } else {
+          if (typeof length === 'number') {
+            resolve(length);
+          } else {
+            reject(new Error('Unexpected response from Redis'));
+          }
+        }
+      });
+    });
+  }
+
+  lrem(key: string, count: number, value: any): Promise<number> {
+    return new Promise((resolve, reject) => {
+      this.client.lrem(key, count, JSON.stringify(value), (err, removedCount) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(removedCount ?? 0); // Thêm ?? 0 để đảm bảo resolved với một giá trị number
+        }
+      });
+    });
+  }
+
+  linsert(key: string, before: boolean, pivot: any, value: any): Promise<number> {
+    return new Promise((resolve, reject) => {
+      if (before) {
+        this.client.linsert(
+          key,
+          'BEFORE',
+          JSON.stringify(pivot),
+          JSON.stringify(value),
+          (err, length) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(length ?? 0);
+            }
+          },
+        );
       } else {
-        await this.client.set(key, jsonDataString);
+        this.client.linsert(
+          key,
+          'AFTER',
+          JSON.stringify(pivot),
+          JSON.stringify(value),
+          (err, length) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(length ?? 0);
+            }
+          },
+        );
       }
-    } catch (error) {
-      console.error('Error setting data in cache:', error);
-    }
-  }
-
-  // Phương thức để xóa dữ liệu từ cache
-  async del(key: string): Promise<void> {
-    try {
-      await this.client.del(key);
-    } catch (error) {
-      console.error('Error deleting data from cache:', error);
-    }
+    });
   }
 }
 

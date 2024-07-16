@@ -2,8 +2,7 @@
 import { Job, Queue, Worker } from 'bullmq';
 import logger from '../logger';
 import { addRole, uploadImageProduct } from 'src/shared/utils';
-import configuration from 'src/config/configuration';
-import redisConnection from '../redis';
+import { redisConnection } from '../cache';
 
 // Create a new queue
 const myQueue = new Queue('myQueue', {
@@ -11,13 +10,13 @@ const myQueue = new Queue('myQueue', {
 });
 
 // Define the first worker process for handling roles
-const roleWorker = new Worker('myQueue', addRole, {
+const roleWorker = new Worker('role', addRole, {
   connection: redisConnection,
   removeOnFail: { count: 0 },
 });
 
 // Define the second worker process for uploading to Cloudinary
-const uploadToCloudinaryWorker = new Worker('image-upload', uploadImageProduct, {
+const uploadFile = new Worker('image-upload', uploadImageProduct, {
   connection: redisConnection,
   removeOnFail: { count: 0 },
 });
@@ -34,6 +33,6 @@ const attachListeners = (worker: Worker) => {
 
 // Attach event listeners to both workers
 attachListeners(roleWorker);
-attachListeners(uploadToCloudinaryWorker);
+attachListeners(uploadFile);
 
 export default myQueue;

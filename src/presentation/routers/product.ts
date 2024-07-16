@@ -26,34 +26,10 @@ productRouter.patch(
   controller.updateProduct.bind(controller),
 );
 productRouter.delete('/:id', auth, roles(['admin']), controller.deleteProduct.bind(controller));
-productRouter.post('/upload-image', upload.single('image'), async (req: Request, res: Response) => {
-  if (!req.file) {
-    return res.status(400).send('No file uploaded.');
-  }
-
-  const file = req.file;
-  console.log('FIle', file);
-  const contentType = file.mimetype;
-  const filename = file.originalname;
-
-  try {
-    const putUrl = await putObjectUrl(file, contentType);
-    console.log('putUrl', putUrl);
-
-    const imageUrl = `https://${'tttn2k2'}.s3.${'ap-southeast-1'}.amazonaws.com/productfiles/${filename}`;
-
-    // const [updatedProduct] = await DB.update(products).set({
-    //   image: {
-    //     public_id: `productfiles/${filename}`,
-    //     url: imageUrl
-    //   }
-    // }).where(eq(products.id, product.id)).returning().execute();
-
-    res.json(putUrl);
-  } catch (error) {
-    console.error('Image upload failed:', error);
-    res.status(500).send('Image upload failed');
-  }
-});
+productRouter.post(
+  '/upload-image',
+  upload.single('image'),
+  controller.uploadImage.bind(controller),
+);
 
 export default productRouter;

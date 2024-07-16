@@ -8,6 +8,7 @@ import {
   pgEnum,
   real,
   index,
+  boolean,
 } from 'drizzle-orm/pg-core';
 import { InferSelectModel } from 'drizzle-orm';
 import { products } from './product';
@@ -29,7 +30,13 @@ export const productItems = pgTable(
     storage: varchar('storage').notNull(),
     ram: varchar('ram').notNull(),
     image: text('image').notNull(),
-    productId: integer('product_id').references(() => products.id),
+    isDelete: boolean('is_delete').default(false).notNull(),
+    productId: integer('product_id')
+      .references(() => products.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+      })
+      .notNull(),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
   },

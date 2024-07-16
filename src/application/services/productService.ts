@@ -1,13 +1,16 @@
 import { inject, injectable } from 'inversify';
-import { IProductRepository } from 'src/domain/repositories';
+import {
+  IProductRepository,
+  ProductFilters,
+  RepoResponseGetProducts,
+} from 'src/domain/repositories';
 import { Product } from 'src/infrastructure/database/schemas';
 import { INTERFACE_NAME } from 'src/shared/constants';
 import { NotFoundError } from 'src/shared/errors';
 import { IAdminService, IProductDetailService, IProductService } from 'src/domain/services';
-import myQueue from 'src/infrastructure/workers';
 import logger from 'src/infrastructure/logger';
 import { CreateProductDto, UpdateProductDto } from '../dtos';
-
+import cache from 'src/infrastructure/cache';
 @injectable()
 export class ProductService implements IProductService {
   constructor(
@@ -17,14 +20,16 @@ export class ProductService implements IProductService {
     @inject(INTERFACE_NAME.AdminService) private adminService: IAdminService,
   ) {}
 
-  async getProducts(filter: any): Promise<Product[]> {
+  async getProducts(filter: ProductFilters): Promise<Product[] | RepoResponseGetProducts> {
     try {
-      if (filter) {
-        return await this.productRepository.filter(filter)
-      }
-      return await this.productRepository.findAll();
+      const data = await this.productRepository.filter(filter);
+      data.products = data.products.map((product) => ({
+        ...product,
+        name: `${product.name + ' ' + (product.storage || '') + ' ' + (product.color || '')}`.trim(),
+      }));
+      return data;
     } catch (error) {
-      logger.error('Error in getProducts:', error);
+      logger.error('Error in Get Products:', error);
       throw error;
     }
   }
@@ -36,9 +41,9 @@ export class ProductService implements IProductService {
         throw new NotFoundError(`Product with id = ${id} is not found`);
       }
 
-      return product;
+      return { ...product };
     } catch (error) {
-      logger.error('Error in getOneProduct:', error);
+      logger.error('Error in Get One Product:', error);
       throw error;
     }
   }
@@ -53,18 +58,11 @@ export class ProductService implements IProductService {
         releaseDate: new Date(productData.releaseDate),
         featureId: feature.id,
         adminId: admin.id,
-        // image: {
-        //   public_id: "",
-        //   url: ""
-        // }
+        isDelete: false,
       });
-      // if (createProductDto.image) {
-      //   const imagePath = createProductDto.image;
-      //   await myQueue.add('image-upload', { imagePath, product });
-      // }
       return product;
     } catch (error) {
-      logger.error('Error in createProduct:', error); // Log lỗi tại đây
+      logger.error('Error in Create Product:', error); // Log lỗi tại đây
       throw error;
     }
   }
@@ -78,7 +76,21 @@ export class ProductService implements IProductService {
       });
       return updatedProduct;
     } catch (error) {
-      logger.error('Error in updateProduct:', error);
+      logger.error('Error in Update Product:', error);
+      throw error;
+    }
+  }
+
+  async softDeleteProduct(id: number): Promise<Product> {
+    try {
+      await this.getOneProduct(id);
+      const updatedProduct = await this.productRepository.update(id, {
+        isDelete: true,
+      });
+      await cache.del(`product:${id}`);
+      return updatedProduct;
+    } catch (error) {
+      logger.error('Error in Soft Delete Product:', error);
       throw error;
     }
   }
@@ -87,19 +99,10 @@ export class ProductService implements IProductService {
     try {
       await this.getOneProduct(id);
       const deletedProduct = await this.productRepository.delete(id);
+      await cache.del(`product:${id}`);
       return deletedProduct;
     } catch (error) {
-      logger.error('Error in deleteProduct:', error);
-      throw error;
-    }
-  }
-
-  async getProductByName(name: string): Promise<Product[]> {
-    try {
-      const products = this.productRepository.filter(name)
-      return products;
-    } catch (error) {
-      logger.error('Error in searchProducts:', error);
+      logger.error('Error in Delete Product:', error);
       throw error;
     }
   }

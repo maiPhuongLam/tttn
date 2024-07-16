@@ -1,4 +1,14 @@
-import { pgTable, serial, text, timestamp, varchar, integer, index } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  serial,
+  text,
+  timestamp,
+  varchar,
+  integer,
+  index,
+  boolean,
+  real,
+} from 'drizzle-orm/pg-core';
 import { InferSelectModel, relations, sql } from 'drizzle-orm';
 import { productDetails } from './productDetail';
 import { brands } from './brand';
@@ -11,11 +21,19 @@ export const products = pgTable(
     name: varchar('name', { length: 256 }).notNull().unique(),
     // image: json('image').$type<{ public_id: string, url: string }>().default({ public_id: "", url: "" }).notNull(),
     image: text('image').notNull(),
+    originalPrice: real('original_price').notNull(),
     adminId: integer('admin_id').references(() => admins.id),
-    brandId: integer('brand_id').references(() => brands.id),
-    categoryId: integer('category_id').references(() => categories.id),
+    brandId: integer('brand_id').references(() => brands.id, {
+      onDelete: 'cascade',
+      onUpdate: 'cascade',
+    }),
+    categoryId: integer('category_id').references(() => categories.id, {
+      onDelete: 'cascade',
+      onUpdate: 'cascade',
+    }),
     featureId: integer('feature_id').references(() => productDetails.id),
     releaseDate: timestamp('release_date').notNull().defaultNow(),
+    isDelete: boolean('is_delete').default(false),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
   },

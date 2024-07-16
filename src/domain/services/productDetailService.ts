@@ -17,5 +17,6 @@ export interface IProductDetailService {
     id: number,
     updateProductDetailDto: UpdateProductDetailDto,
   ): Promise<ProductDetail>;
+  softDeleteProductDetail(id: number): Promise<ProductDetail>;
   deleteProductDetail(id: number): Promise<ProductDetail>;
 }

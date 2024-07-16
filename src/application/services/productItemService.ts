@@ -1,12 +1,12 @@
 import { inject, injectable } from 'inversify';
-import { CreateProductItemDto, UpdateProductItemDto } from '../dtos';
-import { IProductItemRepository } from 'src/domain/repositories';
-import { IProductItemService } from 'src/domain/services';
-
+import { IProductItemRepository, ProductDetailResponse } from 'src/domain/repositories';
 import { ProductItem } from 'src/infrastructure/database/schemas';
 import logger from 'src/infrastructure/logger';
 import { INTERFACE_NAME } from 'src/shared/constants';
 import { NotFoundError } from 'src/shared/errors';
+import cache from 'src/infrastructure/cache'; // Assuming RedisCache or similar
+import { CreateProductItemDto, UpdateProductItemDto } from '../dtos';
+import { IProductItemService } from 'src/domain/services';
 
 @injectable()
 export class ProductItemService implements IProductItemService {
@@ -15,37 +15,15 @@ export class ProductItemService implements IProductItemService {
     private productItemRepository: IProductItemRepository,
   ) {}
 
-  async getProductItems(): Promise<ProductItem[]> {
+  async createProductItem(createProductItemDto: CreateProductItemDto): Promise<ProductItem> {
     try {
-      return await this.productItemRepository.findAll();
+      const productItem = await this.productItemRepository.add({
+        ...createProductItemDto,
+        isDelete: false,
+      });
+      return productItem;
     } catch (error) {
-      logger.error('');
-      throw error;
-    }
-  }
-
-  async getOneProductItem(id: number): Promise<ProductItem> {
-    try {
-      const product = await this.productItemRepository.findById(id);
-      if (!product) {
-        throw new NotFoundError(`Prodict Item ${id} is not found`);
-      }
-
-      return product;
-    } catch (error) {
-      logger.error('Error in get One Product Item', error);
-      throw error;
-    }
-  }
-
-  async createProductItem(
-    createProductItemDto: CreateProductItemDto,
-    userId: number,
-  ): Promise<ProductItem> {
-    try {
-      return await this.productItemRepository.add(createProductItemDto);
-    } catch (error) {
-      logger.error('');
+      logger.error('Error in createProductItem:', error);
       throw error;
     }
   }
@@ -56,9 +34,58 @@ export class ProductItemService implements IProductItemService {
   ): Promise<ProductItem> {
     try {
       await this.getOneProductItem(id);
-      return await this.productItemRepository.update(id, updateProductItemDto);
+      const updatedProductItem = await this.productItemRepository.update(id, updateProductItemDto);
+      return updatedProductItem;
     } catch (error) {
-      logger.error('');
+      logger.error(`Error in updateProductItem ${id}:`, error);
+      throw error;
+    }
+  }
+
+  async getProductItems(): Promise<ProductItem[]> {
+    try {
+      return await this.productItemRepository.findAll();
+    } catch (error) {
+      logger.error('Error in getProductItems:', error);
+      throw error;
+    }
+  }
+
+  async getOneProductItem(id: number): Promise<ProductItem> {
+    try {
+      const cacheKey = `productItem:${id}`;
+      const productItem = await this.productItemRepository.findById(id);
+      if (!productItem) {
+        throw new NotFoundError(`ProductItem with id ${id} not found.`);
+      }
+      return productItem;
+    } catch (error) {
+      logger.error(`Error in getOneProductItem ${id}:`, error);
+      throw error;
+    }
+  }
+
+  async getProductItemDetail(id: number): Promise<ProductDetailResponse> {
+    try {
+      const productItem = await this.productItemRepository.detail(id);
+      if (!productItem) {
+        throw new NotFoundError(`ProductItem with id ${id} not found.`);
+      }
+      return productItem;
+    } catch (error) {
+      logger.error(`Error in getOneProductItem ${id}:`, error);
+      throw error;
+    }
+  }
+
+  async softDeleteProductItem(id: number): Promise<ProductItem> {
+    try {
+      await this.getOneProductItem(id);
+      const updatedProductItem = await this.productItemRepository.update(id, { isDelete: true });
+      await cache.del(`productItem:${id}`);
+      return updatedProductItem;
+    } catch (error) {
+      logger.error(`Error in softDeleteProductItem ${id}:`, error);
       throw error;
     }
   }
@@ -66,9 +93,24 @@ export class ProductItemService implements IProductItemService {
   async deleteProductItem(id: number): Promise<ProductItem> {
     try {
       await this.getOneProductItem(id);
-      return await this.productItemRepository.delete(id);
+      const deletedProductItem = await this.productItemRepository.delete(id);
+      await cache.del(`productItem:${id}`);
+      return deletedProductItem;
     } catch (error) {
-      logger.error('');
+      logger.error(`Error in deleteProductItem ${id}:`, error);
+      throw error;
+    }
+  }
+
+  async getProductItemDetailByProductId(productId: number): Promise<ProductDetailResponse[]> {
+    try {
+      const productItem = await this.productItemRepository.detailForProductId(productId);
+      if (!productItem) {
+        throw new NotFoundError(`ProductItem with productId ${productId} not found.`);
+      }
+      return productItem;
+    } catch (error) {
+      logger.error(`Error in getProductItemDetailByProductId ${productId}:`, error);
       throw error;
     }
   }

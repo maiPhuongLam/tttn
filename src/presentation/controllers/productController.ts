@@ -4,6 +4,7 @@ import { CreateProductDto, UpdateProductDto } from 'src/application/dtos';
 import { IProductService } from 'src/domain/services';
 import logger from 'src/infrastructure/logger';
 import { INTERFACE_NAME, STATUS_CODES } from 'src/shared/constants';
+import { putObjectUrl } from 'src/shared/utils';
 
 @injectable()
 export class ProductController {
@@ -27,10 +28,8 @@ export class ProductController {
 
   async getProducts(req: Request, res: Response, next: NextFunction) {
     try {
-      const { name = "" } = req.query;
-      console.log(name);
-      
-      const data = await this.productService.getProducts({ name: name.toString() });
+      const filter = req.query;
+      const data = await this.productService.getProducts(filter);
       const response = {
         success: true,
         message: 'Get products is successful',
@@ -99,30 +98,40 @@ export class ProductController {
   }
 
   async uploadImage(req: Request, res: Response, next: NextFunction) {
+    if (!req.file) {
+      return res.status(400).send('No file uploaded.');
+    }
+
+    const file = req.file;
+    const contentType = file.mimetype;
+    const filename = file.originalname;
+
     try {
-      const { id } = req.params;
+      const putUrl = await putObjectUrl(file, contentType);
+      res.json(putUrl);
+      res.status(201).json(putUrl);
     } catch (error) {
-      logger.error('Upload Image Product failed', error);
+      console.error('Image upload failed:', error);
       next(error);
     }
   }
 
-  async searchProductbyName(req: Request, res: Response, next: NextFunction) {
-    try {
-      logger.error("ERRO")
-      const name = req.query.name as string;
-      logger.error(name)
-      const data = await this.productService.getProductByName(name.toString());
-      const response = {
-        success: true,
-        message: 'Delete product is successful',
-        data,
-      };
-      return res.status(STATUS_CODES.OK).json(response);
+  // async searchProductbyName(req: Request, res: Response, next: NextFunction) {
+  //   try {
+  //     // logger.error("ERRO")
+  //     // const name = req.query.name as string;
+  //     // logger.error(name)
+  //     // const data = await this.productService.getProductByName(name.toString());
+  //     // const response = {
+  //     //   success: true,
+  //     //   message: 'Delete product is successful',
+  //     //   data,
+  //     // };
+  //     // return res.status(STATUS_CODES.OK).json(response);
 
-    } catch (error) {
-      logger.error('Upload Image Product failed', error);
-      next(error);
-    }
-  }
+  //   } catch (error) {
+  //     logger.error('Upload Image Product failed', error);
+  //     next(error);
+  //   }
+  // }
 }

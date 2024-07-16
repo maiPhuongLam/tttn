@@ -6,6 +6,7 @@ import {
   ICategoryRepository,
   ICustomerRepository,
   IProductDetailRepository,
+  IProductItemRepository,
   IProductRepository,
   IUserRepository,
 } from 'src/domain/repositories';
@@ -17,6 +18,7 @@ import {
   ICategoryService,
   ICustomerService,
   IProductDetailService,
+  IProductItemService,
   IProductService,
 } from 'src/domain/services';
 import { INTERFACE_NAME } from 'src/shared/constants';
@@ -27,6 +29,7 @@ import {
   CategoryRepository,
   CustomerRepository,
   ProductDetailRepository,
+  ProductItemRepository,
   ProductRepository,
   UserRepository,
 } from '../database/repositories';
@@ -38,6 +41,7 @@ import {
   CategoryService,
   CustomerService,
   ProductDetailService,
+  ProductItemService,
   ProductService,
 } from 'src/application/services';
 import {
@@ -45,6 +49,7 @@ import {
   BrandController,
   CategoryController,
   ProductController,
+  ProductItemController,
 } from 'src/presentation/controllers';
 
 const container = new Container();
@@ -61,6 +66,11 @@ container.bind<IAdminService>(INTERFACE_NAME.AdminService).to(AdminService);
 container.bind<IProductRepository>(INTERFACE_NAME.ProductRepository).to(ProductRepository);
 container.bind<IProductService>(INTERFACE_NAME.ProductService).to(ProductService);
 container.bind(INTERFACE_NAME.ProductController).to(ProductController);
+container
+  .bind<IProductItemRepository>(INTERFACE_NAME.ProductItemRepository)
+  .to(ProductItemRepository);
+container.bind<IProductItemService>(INTERFACE_NAME.ProductItemService).to(ProductItemService);
+container.bind(INTERFACE_NAME.ProductItemController).to(ProductItemController);
 container
   .bind<IProductDetailRepository>(INTERFACE_NAME.ProductDetailRepository)
   .to(ProductDetailRepository);
