@@ -1,13 +1,22 @@
-import { pgTable, serial, varchar, integer, timestamp, index } from 'drizzle-orm/pg-core';
+import { pgTable, serial, varchar, integer, timestamp, index, pgEnum } from 'drizzle-orm/pg-core';
 import { productItems } from './productItem';
 import { InferSelectModel } from 'drizzle-orm';
+
+export const productSerialStatusEnum = pgEnum('product_serial_status', [
+  'inventory',
+  'under warrantying',
+  'sold',
+]);
 
 export const productSerials = pgTable(
   'serial_numbers',
   {
     id: serial('id').primaryKey(),
     serialNumber: varchar('serial_number', { length: 100 }).notNull().unique(),
-    productItemId: integer('product_item_id').references(() => productItems.id),
+    productItemId: integer('product_item_id')
+      .references(() => productItems.id)
+      .notNull(),
+    status: productSerialStatusEnum('status').notNull(),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
   },

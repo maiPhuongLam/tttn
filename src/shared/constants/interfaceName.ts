@@ -33,4 +33,12 @@ export const INTERFACE_NAME = {
   ProductItemRepository: Symbol.for('ProductItemRepository'),
   ProductItemService: Symbol.for('ProductItemService'),
   ProductItemController: Symbol.for('ProductItemController'),
+  ProductSerialRepository: Symbol.for('ProductSerialRepository'),
+  ProductSerialService: Symbol.for('ProductSerialService'),
+  ProductSerialController: Symbol.for('ProductSerialController'),
+  OrderRepository: Symbol.for('OrderRepository'),
+  OrderService: Symbol.for('OrderService'),
+  OrderController: Symbol.for('OrderController'),
+  OrderDetailRepository: Symbol.for('OrderDetailRepository'),
+  OrderDetailService: Symbol.for('OrderDetailService'),
 };

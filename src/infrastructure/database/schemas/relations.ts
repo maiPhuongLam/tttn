@@ -74,6 +74,7 @@ const orderRelations = relations(orders, ({ one, many }) => ({
     fields: [orders.customerId],
     references: [customers.id],
   }),
+  orderDetails: many(orderDetails),
 }));
 
 const orderDetailRelations = relations(orderDetails, ({ one, many }) => ({
@@ -81,9 +82,9 @@ const orderDetailRelations = relations(orderDetails, ({ one, many }) => ({
     fields: [orderDetails.orderId],
     references: [orders.id],
   }),
-  productItem: one(productItems, {
-    fields: [orderDetails.productItemId],
-    references: [productItems.id],
+  productSerial: one(productSerials, {
+    fields: [orderDetails.productSerial],
+    references: [productSerials.serialNumber],
   }),
 }));
 
@@ -101,7 +102,6 @@ const productRelations = relations(products, ({ one, many }) => ({
     references: [categories.id],
   }),
   productItems: many(productItems),
-  productSerials: many(productSerials),
 }));
 
 const productItemRelations = relations(productItems, ({ one, many }) => ({
@@ -109,6 +109,7 @@ const productItemRelations = relations(productItems, ({ one, many }) => ({
     fields: [productItems.productId],
     references: [products.id],
   }),
+  productSerials: many(productSerials),
 }));
 
 const productSerialRelations = relations(productSerials, ({ one }) => ({

@@ -1,5 +1,9 @@
 import { inject, injectable } from 'inversify';
-import { IProductItemRepository, ProductDetailResponse } from 'src/domain/repositories';
+import {
+  IProductItemRepository,
+  ProductDetailResponse,
+  SKUResponse,
+} from 'src/domain/repositories';
 import { ProductItem } from 'src/infrastructure/database/schemas';
 import logger from 'src/infrastructure/logger';
 import { INTERFACE_NAME } from 'src/shared/constants';
@@ -7,6 +11,8 @@ import { NotFoundError } from 'src/shared/errors';
 import cache from 'src/infrastructure/cache'; // Assuming RedisCache or similar
 import { CreateProductItemDto, UpdateProductItemDto } from '../dtos';
 import { IProductItemService } from 'src/domain/services';
+import { addJobToQueue } from 'src/infrastructure/workers';
+import { WorkerNames } from 'src/shared/enums';
 
 @injectable()
 export class ProductItemService implements IProductItemService {
@@ -15,12 +21,31 @@ export class ProductItemService implements IProductItemService {
     private productItemRepository: IProductItemRepository,
   ) {}
 
+  async getOneProductitemBySku(sku: string): Promise<SKUResponse> {
+    try {
+      const productItem = await this.productItemRepository.findBySKU(sku);
+      if (!productItem) {
+        throw new NotFoundError('ProductItem not found');
+      }
+
+      return productItem;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async createProductItem(createProductItemDto: CreateProductItemDto): Promise<ProductItem> {
     try {
       const productItem = await this.productItemRepository.add({
         ...createProductItemDto,
         isDelete: false,
       });
+
+      await addJobToQueue(WorkerNames.CREATE_PRODUCT_ITEM_SERIAL, {
+        productItemId: productItem.id,
+        stock: productItem.quantityInStock,
+      });
+
       return productItem;
     } catch (error) {
       logger.error('Error in createProductItem:', error);

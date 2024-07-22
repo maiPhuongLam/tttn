@@ -21,7 +21,18 @@ export type ProductDetailResponse = {
   isDelete: boolean | null;
 };
 
+export type SKUResponse = {
+  id: number;
+  SKU: string;
+  price: number;
+  name: string;
+  color: string;
+  ram: string;
+  storage: string;
+};
+
 export interface IProductItemRepository extends IRepository<ProductItem> {
+  findBySKU(SKU: string): Promise<SKUResponse | null>;
   detail(id: number): Promise<ProductDetailResponse>;
   detailForProductId(id: number): Promise<ProductDetailResponse[]>;
 }

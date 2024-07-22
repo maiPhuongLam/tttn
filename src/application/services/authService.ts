@@ -1,14 +1,14 @@
 import { inject, injectable } from 'inversify';
 import { IAdminService, IAuthService, ICustomerService } from 'src/domain/services';
 import { INTERFACE_NAME } from 'src/shared/constants';
-import { UserRoles } from 'src/shared/enums';
+import { UserRoles, WorkerNames } from 'src/shared/enums';
 import { TokenType } from 'src/shared/types';
 import { User } from 'src/infrastructure/database/schemas';
 import { BadRequestError } from 'src/shared/errors';
 import { compare, hash, signAccessToken, signRefreshToken } from 'src/shared/utils';
 import { IAddressService } from 'src/domain/services/addressService';
 import { IUserRepository } from 'src/domain/repositories';
-import myQueue from 'src/infrastructure/workers';
+import { addJobToQueue } from 'src/infrastructure/workers';
 import { LoginDto, RegisterDto } from '../dtos';
 
 @injectable()
@@ -39,11 +39,10 @@ export class AuthService implements IAuthService {
         addressId: userAddress.id,
         rt: null,
       });
-      await myQueue.add('role', {
+      await addJobToQueue(WorkerNames.ROLE, {
         role: registerDto.role,
         userId: user.id,
       });
-
       return user;
     } catch (error) {
       throw error;

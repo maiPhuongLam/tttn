@@ -3,11 +3,16 @@ import {
   IAddressRepository,
   IAdminRepository,
   IBrandRepository,
+  ICartItemRepository,
+  ICartRepository,
   ICategoryRepository,
   ICustomerRepository,
+  IOrderDetailRepository,
+  IOrderRepository,
   IProductDetailRepository,
   IProductItemRepository,
   IProductRepository,
+  IProductSerialRepository,
   IUserRepository,
 } from 'src/domain/repositories';
 import {
@@ -15,10 +20,15 @@ import {
   IAdminService,
   IAuthService,
   IBrandService,
+  ICartItemService,
+  ICartService,
   ICategoryService,
   ICustomerService,
+  IOrderDetailService,
+  IOrderService,
   IProductDetailService,
   IProductItemService,
+  IProductSerialService,
   IProductService,
 } from 'src/domain/services';
 import { INTERFACE_NAME } from 'src/shared/constants';
@@ -26,11 +36,16 @@ import {
   AddressRepository,
   AdminRepository,
   BrandRepository,
+  CartItemRepository,
+  CartRepository,
   CategoryRepository,
   CustomerRepository,
+  OrderDetailRepository,
+  OrderRepository,
   ProductDetailRepository,
   ProductItemRepository,
   ProductRepository,
+  ProductSerialRepository,
   UserRepository,
 } from '../database/repositories';
 import {
@@ -38,16 +53,23 @@ import {
   AdminService,
   AuthService,
   BrandService,
+  CartItemService,
+  CartService,
   CategoryService,
   CustomerService,
+  OrderDetailService,
+  OrderService,
   ProductDetailService,
   ProductItemService,
+  ProductSerialService,
   ProductService,
 } from 'src/application/services';
 import {
   AuthController,
   BrandController,
+  CartController,
   CategoryController,
+  OrderController,
   ProductController,
   ProductItemController,
 } from 'src/presentation/controllers';
@@ -75,11 +97,28 @@ container
   .bind<IProductDetailRepository>(INTERFACE_NAME.ProductDetailRepository)
   .to(ProductDetailRepository);
 container.bind<IProductDetailService>(INTERFACE_NAME.ProductDetailService).to(ProductDetailService);
+container
+  .bind<IProductSerialRepository>(INTERFACE_NAME.ProductSerialRepository)
+  .to(ProductSerialRepository);
+container.bind<IProductSerialService>(INTERFACE_NAME.ProductSerialService).to(ProductSerialService);
+// container.bind(INTERFACE_NAME.ProductSerialController).to(ProductSerialController);
 container.bind<IBrandRepository>(INTERFACE_NAME.BrandRepository).to(BrandRepository);
 container.bind<IBrandService>(INTERFACE_NAME.BrandService).to(BrandService);
 container.bind(INTERFACE_NAME.BrandController).to(BrandController);
 container.bind<ICategoryRepository>(INTERFACE_NAME.CategoryRepository).to(CategoryRepository);
 container.bind<ICategoryService>(INTERFACE_NAME.CategoryService).to(CategoryService);
 container.bind(INTERFACE_NAME.CategoryController).to(CategoryController);
+container.bind<ICartRepository>(INTERFACE_NAME.CartRepository).to(CartRepository);
+container.bind<ICartService>(INTERFACE_NAME.CartService).to(CartService);
+container.bind(INTERFACE_NAME.CartController).to(CartController);
+container.bind<ICartItemRepository>(INTERFACE_NAME.CartItemRepository).to(CartItemRepository);
+container.bind<ICartItemService>(INTERFACE_NAME.CartItemService).to(CartItemService);
+container
+  .bind<IOrderDetailRepository>(INTERFACE_NAME.OrderDetailRepository)
+  .to(OrderDetailRepository);
+container.bind<IOrderDetailService>(INTERFACE_NAME.OrderDetailService).to(OrderDetailService);
+container.bind<IOrderRepository>(INTERFACE_NAME.OrderRepository).to(OrderRepository);
+container.bind<IOrderService>(INTERFACE_NAME.OrderService).to(OrderService);
+container.bind(INTERFACE_NAME.OrderController).to(OrderController);
 
 export default container;

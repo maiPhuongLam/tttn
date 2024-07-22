@@ -6,6 +6,7 @@ import logger from './infrastructure/logger';
 import configuration from './config/configuration';
 import dotenv from 'dotenv';
 import appRouter from './presentation/routers';
+import rawBodyParser from './presentation/middlewares/rawBody';
 
 dotenv.config();
 function start() {
@@ -14,7 +15,9 @@ function start() {
   const baseURL = configuration.BASE_URL || `http://localhost:${port}`;
 
   app.use(cors());
-  app.use(express.json());
+  // app.use(express.raw({ type: 'application/json' }));
+  // app.use(express.json());
+  app.use(rawBodyParser)
   app.use(express.urlencoded({ extended: true }));
   app.set('trust proxy', 1);
 

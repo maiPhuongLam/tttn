@@ -51,7 +51,7 @@ export class CartService implements ICartService {
         throw new BadRequestError(`Customer ${customerId} have another cart, can not create cart`);
       }
 
-      return await this.cartRepository.add(createCartDto);
+      return await this.cartRepository.add({ cartStatus: createCartDto.status, customerId });
     } catch (error) {
       throw error;
     }

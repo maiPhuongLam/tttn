@@ -1,7 +1,7 @@
 import express from 'express';
 import container from 'src/infrastructure/di';
 import { INTERFACE_NAME } from 'src/shared/constants';
-import { BrandController } from '../controllers/brandController'; // Assuming you have a BrandController
+import { BrandController } from '../controllers'; // Assuming you have a BrandController
 import { auth, roles } from '../middlewares';
 
 const brandRouter = express.Router();

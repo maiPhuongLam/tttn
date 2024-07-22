@@ -3,6 +3,7 @@ import { ICustomerRepository } from 'src/domain/repositories';
 import { ICustomerService } from 'src/domain/services';
 import { Customer } from 'src/infrastructure/database/schemas';
 import { INTERFACE_NAME } from 'src/shared/constants';
+import { NotFoundError } from 'src/shared/errors';
 
 @injectable()
 export class CustomerService implements ICustomerService {
@@ -26,17 +27,27 @@ export class CustomerService implements ICustomerService {
     }
   }
 
-  async getById(id: number): Promise<Customer | null> {
+  async getById(id: number): Promise<Customer> {
     try {
-      return await this.customerRepository.findById(id);
+      const customer = await this.customerRepository.findById(id);
+      if (!customer) {
+        throw new NotFoundError('Customer not found');
+      }
+
+      return customer;
     } catch (error) {
       throw error;
     }
   }
 
-  async getByUserId(userId: number): Promise<Customer | null> {
+  async getByUserId(userId: number): Promise<Customer> {
     try {
-      return await this.customerRepository.findByUserId(userId);
+      const customer = await this.customerRepository.findByUserId(userId);
+      if (!customer) {
+        throw new NotFoundError('Customer not found');
+      }
+
+      return customer;
     } catch (error) {
       throw error;
     }

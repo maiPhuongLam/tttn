@@ -26,6 +26,12 @@ interface Config {
   REGION: string;
   S3_ACCESS_KEY: string;
   S3_SECRET_KEY: string;
+  PUBLIC_KEY: string;
+  SECRET_KEY: string;
+  WEBHOOK_SECRET: string;
+  APP_PREFIX: string;
+  SUCCESS_URL: string;
+  CANCEL_URL: string;
 }
 
 const configuration: Config = {
@@ -48,6 +54,12 @@ const configuration: Config = {
   REGION: process.env.REGION!,
   S3_ACCESS_KEY: process.env.S3_ACCESS_KEY!,
   S3_SECRET_KEY: process.env.S3_SECRET_KEY!,
+  PUBLIC_KEY: process.env.PUBLIC_KEY!,
+  SECRET_KEY: process.env.SECRET_KEY!,
+  WEBHOOK_SECRET: process.env.WEBHOOK_SECRET!,
+  APP_PREFIX: process.env.APP_PREFIX!,
+  SUCCESS_URL: process.env.SUCCESS_URL!,
+  CANCEL_URL: process.env.CANCEL_URL!,
 };
 
 export default configuration;

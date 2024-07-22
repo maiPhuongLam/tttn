@@ -26,17 +26,17 @@ export class ProductDetailService {
   async getOneProductDetail(id: number): Promise<ProductDetail | null> {
     try {
       const cacheKey = `productDetail:${id}`;
-      const cachedData = await cache.get({ key: cacheKey });
-      if (cachedData) {
-        return cachedData;
-      }
+      // const cachedData = await cache.get({ key: cacheKey });
+      // if (cachedData) {
+      //   return cachedData;
+      // }
 
       const productDetail = await this.productDetailRepository.findById(id);
       if (!productDetail) {
         throw new NotFoundError(`ProductDetail with id ${id} not found.`);
       }
 
-      await cache.set({ key: cacheKey }, productDetail);
+      // await cache.set({ key: cacheKey }, productDetail);
       return productDetail;
     } catch (error) {
       logger.error(`Error in getOneProductDetail ${id}:`, error);
@@ -69,7 +69,7 @@ export class ProductDetailService {
         id,
         updateProductDetailDto,
       );
-      await cache.set({ key: `productDetail:${id}` }, updatedProductDetail);
+      // await cache.set({ key: `productDetail:${id}` }, updatedProductDetail);
       return updatedProductDetail;
     } catch (error) {
       logger.error(`Error in updateProductDetail ${id}:`, error);

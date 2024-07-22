@@ -6,6 +6,8 @@ import { errorHandler } from '../middlewares';
 import brandRouter from './brand';
 import categoryRouter from './category';
 import productItemRouter from './productItem';
+import cartRouter from './cart';
+import orderRouter from './order';
 
 const appRouter = (app: Express) => {
   app.use('/health', healthRouter);
@@ -14,6 +16,8 @@ const appRouter = (app: Express) => {
   app.use('/categories', categoryRouter);
   app.use('/products', productRouter);
   app.use('/product-items', productItemRouter);
+  app.use('/cart', cartRouter);
+  app.use('/orders', orderRouter);
   app.use(errorHandler);
 };
 

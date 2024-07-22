@@ -8,7 +8,7 @@ type CreateCartItemData = {
 };
 
 export interface ICartItemService {
-  getCartItems(cartId: number): Promise<CartItem[]>;
+  getCartItems(userId: number): Promise<{ cartId: number; items: CartItem[] }>;
   getOneCartItem(id: number): Promise<CartItem>;
   addCartItem(createCartData: CreateCartItemData): Promise<CartItem>;
   deleteCartItem(id: number): Promise<CartItem>;

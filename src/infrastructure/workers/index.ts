@@ -1,25 +1,37 @@
-// Import necessary modules
 import { Job, Queue, Worker } from 'bullmq';
 import logger from '../logger';
-import { addRole, uploadImageProduct } from 'src/shared/utils';
+import { addRole, createCart, createProductItemSerial, uploadImageProduct } from 'src/shared/utils';
 import { redisConnection } from '../cache';
+import { WorkerNames } from 'src/shared/enums';
 
-// Create a new queue
-const myQueue = new Queue('myQueue', {
-  connection: redisConnection,
-});
+// Create a single queue
+const jobQueue = new Queue('jobQueue', { connection: redisConnection });
 
-// Define the first worker process for handling roles
-const roleWorker = new Worker('role', addRole, {
-  connection: redisConnection,
-  removeOnFail: { count: 0 },
-});
-
-// Define the second worker process for uploading to Cloudinary
-const uploadFile = new Worker('image-upload', uploadImageProduct, {
-  connection: redisConnection,
-  removeOnFail: { count: 0 },
-});
+// Worker to process jobs from the queue
+const jobWorker = new Worker(
+  'jobQueue',
+  async (job: Job) => {
+    switch (job.name) {
+      case WorkerNames.ROLE:
+        await addRole(job);
+        break;
+      case WorkerNames.IMAGE_UPLOAD:
+        await uploadImageProduct(job);
+        break;
+      case WorkerNames.CREATE_PRODUCT_ITEM_SERIAL:
+        await createProductItemSerial(job);
+        break;
+      default:
+        logger.error(`Unknown job type: ${job.name}`);
+        throw new Error(`Unknown job type: ${job.name}`);
+    }
+  },
+  {
+    connection: redisConnection,
+    removeOnFail: { count: 0 },
+    removeOnComplete: { count: 300 },
+  },
+);
 
 // Helper function to attach event listeners to workers
 const attachListeners = (worker: Worker) => {
@@ -31,8 +43,19 @@ const attachListeners = (worker: Worker) => {
   });
 };
 
-// Attach event listeners to both workers
-attachListeners(roleWorker);
-attachListeners(uploadFile);
+// Attach event listeners to the worker
+attachListeners(jobWorker);
 
-export default myQueue;
+export default jobQueue;
+
+// Function to add jobs to the queue
+export const addJobToQueue = async (jobType: WorkerNames, data: any) => {
+  logger.info(jobType);
+  const t = await jobQueue.add(jobType, data);
+  logger.info(t.name);
+};
+
+// Example usage
+// addJobToQueue(WorkerNames.ROLE, { /* role data */ });
+// addJobToQueue(WorkerNames.IMAGE_UPLOAD, { /* image upload data */ });
+// addJobToQueue(WorkerNames.CREATE_PRODUCT_ITEM_SERIAL, { /* product item serial data */ });

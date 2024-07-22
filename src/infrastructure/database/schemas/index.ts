@@ -10,6 +10,7 @@ export * from './orderDetail';
 export * from './product';
 export * from './productDetail';
 export * from './productItem';
+export * from './productSerial';
 export * from './user';
 export * from './warrantyCase';
 export * from './warrantyCasePolicy';

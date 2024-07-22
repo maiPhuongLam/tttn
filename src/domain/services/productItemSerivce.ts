@@ -1,5 +1,5 @@
 import { ProductItem } from 'src/infrastructure/database/schemas';
-import { ProductDetailResponse } from '../repositories';
+import { ProductDetailResponse, SKUResponse } from '../repositories';
 type CreateProductItemDto = {
   SKU: string;
   quantityInStock: number;
@@ -17,6 +17,7 @@ type UpdateProductItemDto = Partial<CreateProductItemDto>;
 export interface IProductItemService {
   getProductItems(): Promise<ProductItem[]>;
   getOneProductItem(id: number): Promise<ProductItem>;
+  getOneProductitemBySku(sku: string): Promise<SKUResponse>;
   createProductItem(createProductItemDto: CreateProductItemDto): Promise<ProductItem>;
   updateProductItem(id: number, updateProductItemDto: UpdateProductItemDto): Promise<ProductItem>;
   softDeleteProductItem(id: number): Promise<ProductItem>;

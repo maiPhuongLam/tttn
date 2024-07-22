@@ -3,6 +3,7 @@ import { BasePropsType } from 'src/shared/types';
 
 type CreateCartDto = {
   customerId: number;
+  status: 'active' | 'inactive' | 'expired' | 'saved';
 };
 type UpdateCartDto = Partial<CreateCartDto>;
 
