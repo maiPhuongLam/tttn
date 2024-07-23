@@ -17,7 +17,7 @@ export class OrderController {
         message: 'Checkout success',
         data,
       };
-      return res.status(STATUS_CODES.CREATED).json(response);
+      return res.status(STATUS_CODES.OK).json(response);
     } catch (error) {
       next(error);
     }
@@ -33,7 +33,7 @@ export class OrderController {
         message: 'webhook handler success',
         data,
       };
-      return res.status(STATUS_CODES.CREATED).json(response);
+      return res.status(STATUS_CODES.OK).json(response);
     } catch (error) {
       next(error);
     }
