@@ -5,3 +5,4 @@ export * from './productController';
 export * from './productItemController';
 export * from './cartController';
 export * from './orderController';
+export * from './warrantyController';

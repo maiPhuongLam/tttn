@@ -11,6 +11,7 @@ import {
 import { InferSelectModel } from 'drizzle-orm';
 import { products } from './product';
 import { customers } from './customer';
+import { productSerials } from './productSerial';
 
 export const warrantyRequestStatusEnum = pgEnum('warranty_request_status', ['admin', 'customer']);
 
@@ -21,6 +22,9 @@ export const warrantyRequests = pgTable('warranty_requests', {
     .notNull(),
   productId: integer('product_id')
     .references(() => products.id)
+    .notNull(),
+  productSerial: varchar('product_serial')
+    .references(() => productSerials.serialNumber)
     .notNull(),
   issueDescription: text('issue_description').notNull(),
   status: warrantyRequestStatusEnum('status').notNull(),

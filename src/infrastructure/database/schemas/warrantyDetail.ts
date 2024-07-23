@@ -1,7 +1,7 @@
 import { pgTable, serial, text, timestamp, varchar, integer, real } from 'drizzle-orm/pg-core';
 import { InferSelectModel } from 'drizzle-orm';
-import { warrantyRequests } from './warrantyRequest';
 import { warrantyPolicies } from './warrantyPolicy';
+import { warrantyRequests } from './warrantyRequest';
 
 export const warrantyDetails = pgTable('warranty_details', {
   id: serial('id').primaryKey(),

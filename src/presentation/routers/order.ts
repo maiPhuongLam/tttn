@@ -11,5 +11,7 @@ const controller = container.get<OrderController>(INTERFACE_NAME.OrderController
 
 orderRouter.post('/checkout', auth, roles(['customer']), controller.checkout.bind(controller));
 orderRouter.post('/webhooks', controller.webhook.bind(controller));
+orderRouter.get('/:id', controller.getDetailsOrder.bind(controller));
+orderRouter.get('/', auth, roles(['customer']), controller.getCustomerOrders.bind(controller));
 
 export default orderRouter;

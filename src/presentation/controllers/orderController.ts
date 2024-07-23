@@ -7,6 +7,50 @@ import logger from 'src/infrastructure/logger';
 export class OrderController {
   constructor(@inject(INTERFACE_NAME.OrderService) private orderService: IOrderService) {}
 
+  async getCustomerOrders(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.userId;
+      const data = await this.orderService.getCustomerOrders(userId);
+      const response = {
+        success: true,
+        message: 'Get orders of customer is successful',
+        data,
+      };
+      return res.status(STATUS_CODES.OK).json(response);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getDetailsOrder(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const data = await this.orderService.getOneOder(+id);
+      const response = {
+        success: true,
+        message: 'Get orders detail of customer is successful',
+        data,
+      };
+      return res.status(STATUS_CODES.OK).json(response);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getAllOrders(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await this.orderService.getOrders('');
+      const response = {
+        success: true,
+        message: 'Get orders is successful',
+        data,
+      };
+      return res.status(STATUS_CODES.OK).json(response);
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async checkout(req: Request, res: Response, next: NextFunction) {
     try {
       const body = req.body;
@@ -14,11 +58,12 @@ export class OrderController {
       const data = await this.orderService.checkout(body, userId);
       const response = {
         success: true,
-        message: 'Checkout success',
+        message: 'Checkout is successful',
         data,
       };
       return res.status(STATUS_CODES.OK).json(response);
     } catch (error) {
+      logger.error(`Error checkout ${error}`);
       next(error);
     }
   }
@@ -30,11 +75,12 @@ export class OrderController {
       const data = await this.orderService.webhookHandler(body, signature);
       const response = {
         success: true,
-        message: 'webhook handler success',
+        message: 'webhook handler is successful',
         data,
       };
       return res.status(STATUS_CODES.OK).json(response);
     } catch (error) {
+      logger.error(`Error webhook ${error}`);
       next(error);
     }
   }

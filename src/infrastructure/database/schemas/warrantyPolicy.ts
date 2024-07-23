@@ -3,7 +3,7 @@ import { InferSelectModel } from 'drizzle-orm';
 import { products } from './product';
 import { admins } from './admin';
 
-export const warrantyPolicies = pgTable('warranty_requests', {
+export const warrantyPolicies = pgTable('warranty_polices', {
   id: serial('id').primaryKey(),
   productId: integer('product_id')
     .references(() => products.id)

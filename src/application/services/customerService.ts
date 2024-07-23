@@ -42,11 +42,7 @@ export class CustomerService implements ICustomerService {
 
   async getByUserId(userId: number): Promise<Customer> {
     try {
-      const customer = await this.customerRepository.findByUserId(userId);
-      if (!customer) {
-        throw new NotFoundError('Customer not found');
-      }
-
+      const customer = await this.customerRepository.findByUserId(userId)!;
       return customer;
     } catch (error) {
       throw error;

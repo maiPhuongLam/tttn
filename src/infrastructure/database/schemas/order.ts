@@ -9,6 +9,7 @@ export const orderStatusEnum = pgEnum('order_status', [
   'shiped',
   'delivered',
   'cancelled',
+  'completed',
   'refunded',
   'returned',
 ]);

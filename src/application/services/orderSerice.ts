@@ -57,19 +57,22 @@ export class OrderService implements IOrderService {
   }
   async getCustomerOrders(userId: number): Promise<OrderRepsonse[]> {
     try {
-      const result: OrderRepsonse[] = [];
       const customer = await this.customerService.getByUserId(userId);
       const orders = await this.orderRepository.findByCustomerId(customer.id);
       if (orders.length === 0) {
-        throw new NotFoundError('Customer not have order');
+        throw new NotFoundError('Customer has no orders');
       }
 
-      orders.map(async (order: Order) => {
-        const details = await this.orderDetailService.getOrderDetails(order.id);
-        result.push({ order, details });
-      });
+      const orderResponses = await Promise.all(
+        orders.map(async (order) => {
+          const details = await this.orderDetailService.getOrderDetails(order.id);
+          console.log(details);
 
-      return result;
+          return { order, details };
+        }),
+      );
+
+      return orderResponses;
     } catch (error) {
       logger.error(`${error}`);
       throw error;
@@ -138,20 +141,25 @@ export class OrderService implements IOrderService {
   }
 
   async webhookHandler(body: any, sig: string): Promise<void> {
-    let event: Stripe.Event;
-
     try {
-      event = this.stripe.webhooks.constructEvent(body, sig, configuration.WEBHOOK_SECRET);
-    } catch (err: any) {
-      logger.error(`Webhook Error: ${err.message}`);
-      throw new BadRequestError(`Webhook Error: ${err.message}`);
-    }
-    logger.info('webhookHandler');
-    logger.info(event.type);
-    // Handle the event
-    if (event.type === 'checkout.session.completed') {
-      const session = event.data.object;
-      await this.handleCompletedCheckoutSession(session);
+      let event: Stripe.Event;
+
+      try {
+        event = this.stripe.webhooks.constructEvent(body, sig, configuration.WEBHOOK_SECRET);
+      } catch (err: any) {
+        logger.error(`Webhook Error: ${err.message}`);
+        throw new BadRequestError(`Webhook Error: ${err.message}`);
+      }
+      logger.info('webhookHandler');
+      logger.info(event.type);
+      // Handle the event
+      if (event.type === 'checkout.session.completed') {
+        const session = event.data.object;
+        await this.handleCompletedCheckoutSession(session);
+      }
+    } catch (error) {
+      logger.error(error);
+      throw error;
     }
   }
 
@@ -182,9 +190,11 @@ export class OrderService implements IOrderService {
           price: item.price.unit_amount / 100,
         };
         await this.orderDetailService.createOrderDetail(orderDetailData);
-        await this.productSerialService.updateProductSerial(productSerials[0].id, {
-          status: ProductSerialEnum.SOLD,
-        });
+        for (let i = 0; i < item.quantity; i++) {
+          await this.productSerialService.updateProductSerial(productSerials[i].id, {
+            status: ProductSerialEnum.SOLD,
+          });
+        }
         const productItem = await this.productItemService.getOneProductItem(
           productSerials[0].productItemId,
         );

@@ -102,6 +102,7 @@ const productRelations = relations(products, ({ one, many }) => ({
     references: [categories.id],
   }),
   productItems: many(productItems),
+  warrantieRequests: many(warrantyRequests),
 }));
 
 const productItemRelations = relations(productItems, ({ one, many }) => ({
@@ -112,11 +113,12 @@ const productItemRelations = relations(productItems, ({ one, many }) => ({
   productSerials: many(productSerials),
 }));
 
-const productSerialRelations = relations(productSerials, ({ one }) => ({
+const productSerialRelations = relations(productSerials, ({ one, many }) => ({
   productItem: one(productItems, {
     fields: [productSerials.productItemId],
     references: [productItems.productId],
   }),
+  warrantieRequests: many(warrantyRequests),
 }));
 
 const productDetailRelations = relations(productDetails, ({ one }) => ({
@@ -180,9 +182,13 @@ const warrantyRequestRelations = relations(warrantyRequests, ({ many, one }) => 
     fields: [warrantyRequests.customerId],
     references: [customers.id],
   }),
-  products: one(products, {
+  product: one(products, {
     fields: [warrantyRequests.productId],
     references: [products.id],
+  }),
+  productSerial: one(productSerials, {
+    fields: [warrantyRequests.productSerial],
+    references: [productSerials.serialNumber],
   }),
   warrantyDetail: many(warrantyDetails),
 }));

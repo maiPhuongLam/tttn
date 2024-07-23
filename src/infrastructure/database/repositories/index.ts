@@ -13,3 +13,7 @@ export * from './cartRepository';
 export * from './cartItemRepository';
 export * from './orderRepository';
 export * from './orderDetailRepository';
+export * from './warrantyCaseRepository';
+export * from './warrantyDetailRepository';
+export * from './warrantyPolicyRepository';
+export * from './warrantyRequestRepository';

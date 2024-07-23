@@ -14,6 +14,7 @@ import {
   IProductRepository,
   IProductSerialRepository,
   IUserRepository,
+  IWarrantyCaseRepository,
 } from 'src/domain/repositories';
 import {
   IAddressService,
@@ -47,6 +48,7 @@ import {
   ProductRepository,
   ProductSerialRepository,
   UserRepository,
+  WarrantyCaseRepository,
 } from '../database/repositories';
 import {
   AddressService,
@@ -63,6 +65,7 @@ import {
   ProductItemService,
   ProductSerialService,
   ProductService,
+  WarrantyCaseService,
 } from 'src/application/services';
 import {
   AuthController,
@@ -72,6 +75,7 @@ import {
   OrderController,
   ProductController,
   ProductItemController,
+  WarrantyController,
 } from 'src/presentation/controllers';
 
 const container = new Container();
@@ -120,5 +124,10 @@ container.bind<IOrderDetailService>(INTERFACE_NAME.OrderDetailService).to(OrderD
 container.bind<IOrderRepository>(INTERFACE_NAME.OrderRepository).to(OrderRepository);
 container.bind<IOrderService>(INTERFACE_NAME.OrderService).to(OrderService);
 container.bind(INTERFACE_NAME.OrderController).to(OrderController);
+container
+  .bind<IWarrantyCaseRepository>(INTERFACE_NAME.WarrantyCaseRepository)
+  .to(WarrantyCaseRepository);
+container.bind(INTERFACE_NAME.WarrantyCaseService).to(WarrantyCaseService);
+container.bind(INTERFACE_NAME.WarrantyController).to(WarrantyController);
 
 export default container;
