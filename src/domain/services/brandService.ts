@@ -1,9 +1,9 @@
 import { Brand } from 'src/infrastructure/database/schemas';
 
-type CreateBrandDto = {
+export type CreateBrandDto = {
   name: string;
 };
-type UpdateBrandDto = Partial<CreateBrandDto>;
+export type UpdateBrandDto = Partial<CreateBrandDto>;
 
 export interface IBrandService {
   getBrands(): Promise<Brand[]>;

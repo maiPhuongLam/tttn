@@ -9,7 +9,7 @@ import { compare, hash, signAccessToken, signRefreshToken } from 'src/shared/uti
 import { IAddressService } from 'src/domain/services/addressService';
 import { IUserRepository } from 'src/domain/repositories';
 import { addJobToQueue } from 'src/infrastructure/workers';
-import { LoginDto, RegisterDto } from '../dtos';
+import { LoginDto, RegisterDto } from 'src/domain/services';
 
 @injectable()
 export class AuthService implements IAuthService {

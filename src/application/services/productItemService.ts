@@ -9,8 +9,11 @@ import logger from 'src/infrastructure/logger';
 import { INTERFACE_NAME } from 'src/shared/constants';
 import { NotFoundError } from 'src/shared/errors';
 import cache from 'src/infrastructure/cache'; // Assuming RedisCache or similar
-import { CreateProductItemDto, UpdateProductItemDto } from '../dtos';
-import { IProductItemService } from 'src/domain/services';
+import {
+  IProductItemService,
+  CreateProductItemDto,
+  UpdateProductItemDto,
+} from 'src/domain/services';
 import { addJobToQueue } from 'src/infrastructure/workers';
 import { WorkerNames } from 'src/shared/enums';
 

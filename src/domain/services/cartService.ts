@@ -1,11 +1,11 @@
 import { Cart } from 'src/infrastructure/database/schemas';
 import { BasePropsType } from 'src/shared/types';
 
-type CreateCartDto = {
+export type CreateCartDto = {
   customerId: number;
   status: 'active' | 'inactive' | 'expired' | 'saved';
 };
-type UpdateCartDto = Partial<CreateCartDto>;
+export type UpdateCartDto = Partial<CreateCartDto>;
 
 export interface ICartService {
   getCarts(): Promise<Cart[]>;

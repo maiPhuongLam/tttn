@@ -1,7 +1,6 @@
 import { inject, injectable } from 'inversify';
-import { CreateCartDto, UpdateCartDto } from '../dtos';
 import { ICartRepository } from 'src/domain/repositories';
-import { ICartService } from 'src/domain/services';
+import { ICartService, CreateCartDto, UpdateCartDto } from 'src/domain/services';
 import { Cart } from 'src/infrastructure/database/schemas';
 import { INTERFACE_NAME } from 'src/shared/constants';
 import { BadRequestError, NotFoundError } from 'src/shared/errors';

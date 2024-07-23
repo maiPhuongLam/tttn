@@ -1,7 +1,7 @@
 import { Address } from 'src/infrastructure/database/schemas';
 import { BasePropsType } from 'src/shared/types';
 
-type CreateAddressDto = {
+export type CreateAddressDto = {
   streetAddress: string;
   wardOrCommune: string;
   district: string;

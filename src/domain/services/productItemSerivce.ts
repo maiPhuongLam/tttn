@@ -1,6 +1,6 @@
 import { ProductItem } from 'src/infrastructure/database/schemas';
 import { ProductDetailResponse, SKUResponse } from '../repositories';
-type CreateProductItemDto = {
+export type CreateProductItemDto = {
   SKU: string;
   quantityInStock: number;
   status: 'locked' | 'unlock' | 'sold';
@@ -9,10 +9,10 @@ type CreateProductItemDto = {
   price: number;
   color: string;
   image: string;
-  productId: number | null;
+  productId: number;
 };
 
-type UpdateProductItemDto = Partial<CreateProductItemDto>;
+export type UpdateProductItemDto = Partial<CreateProductItemDto>;
 
 export interface IProductItemService {
   getProductItems(): Promise<ProductItem[]>;

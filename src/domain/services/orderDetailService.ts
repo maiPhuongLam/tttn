@@ -14,7 +14,7 @@ export type UpdateOrderDetailDto = Partial<CreateOrderDetailDto>;
 export interface IOrderDetailService {
   createOrderDetail(createOrderDetailDto: BasePropsType<OrderDetail>): Promise<OrderDetail>;
   getOrderDetails(orderId: number): Promise<OrderDetail[]>;
-  getOneOrderDetail(id: number): Promise<OrderDetail | null>;
+  getOneOrderDetail(id: number): Promise<OrderDetail>;
   // getOneOrderDetailBySerial(serial: string): Promise<OrderDetail | null>
   updateOrderDetail(id: number, updateOrderDetailDto: UpdateOrderDetailDto): Promise<OrderDetail>;
   deleteOrderDetail(id: number): Promise<OrderDetail>;

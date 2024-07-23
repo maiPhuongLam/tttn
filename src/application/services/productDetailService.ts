@@ -5,10 +5,14 @@ import { INTERFACE_NAME } from 'src/shared/constants';
 import { NotFoundError } from 'src/shared/errors';
 import logger from 'src/infrastructure/logger';
 import cache from 'src/infrastructure/cache'; // Assuming RedisCache or similar
-import { CreateProductDetailDto, UpdateProductDetailDto } from '../dtos';
+import {
+  IProductDetailService,
+  CreateProductDetailDto,
+  UpdateProductDetailDto,
+} from 'src/domain/services';
 
 @injectable()
-export class ProductDetailService {
+export class ProductDetailService implements IProductDetailService {
   constructor(
     @inject(INTERFACE_NAME.ProductDetailRepository)
     private productDetailRepository: IProductDetailRepository,

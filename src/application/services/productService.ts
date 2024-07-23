@@ -7,9 +7,14 @@ import {
 import { Product } from 'src/infrastructure/database/schemas';
 import { INTERFACE_NAME } from 'src/shared/constants';
 import { NotFoundError } from 'src/shared/errors';
-import { IAdminService, IProductDetailService, IProductService } from 'src/domain/services';
+import {
+  IAdminService,
+  IProductDetailService,
+  IProductService,
+  CreateProductDto,
+  UpdateProductDto,
+} from 'src/domain/services';
 import logger from 'src/infrastructure/logger';
-import { CreateProductDto, UpdateProductDto } from '../dtos';
 import cache from 'src/infrastructure/cache';
 @injectable()
 export class ProductService implements IProductService {

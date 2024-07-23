@@ -7,4 +7,6 @@ import { BasePropsType } from 'src/shared/types';
 //   detail: BasePropsType<OrderDetail>
 // }
 
-export interface IOrderRepository extends IRepository<Order> {}
+export interface IOrderRepository extends IRepository<Order> {
+  findByCustomerId(customerId: number): Promise<Order[]>;
+}

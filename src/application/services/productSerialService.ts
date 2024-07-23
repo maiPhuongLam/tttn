@@ -7,7 +7,6 @@ import {
 } from 'src/domain/services/productSerialService';
 import { ProductSerial } from 'src/infrastructure/database/schemas';
 import { INTERFACE_NAME } from 'src/shared/constants';
-import { ProductSerialEnum } from 'src/shared/enums';
 import { NotFoundError } from 'src/shared/errors';
 
 @injectable()

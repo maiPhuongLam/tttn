@@ -17,7 +17,7 @@ function start() {
   app.use(cors());
   // app.use(express.raw({ type: 'application/json' }));
   // app.use(express.json());
-  app.use(rawBodyParser)
+  app.use(rawBodyParser);
   app.use(express.urlencoded({ extended: true }));
   app.set('trust proxy', 1);
 

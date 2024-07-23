@@ -1,12 +1,13 @@
 import { Product } from 'src/infrastructure/database/schemas';
 import { RepoResponseGetProducts } from '../repositories';
 
-type CreateProductDto = {
+export type CreateProductDto = {
   name: string;
   brandId: number;
   categoryId: number;
   releaseDate: Date;
   image: string;
+  originalPrice: number;
   features: {
     screenSize: string;
     battery: string;
@@ -15,7 +16,7 @@ type CreateProductDto = {
     os: string;
   };
 };
-type UpdateProductDto = Partial<CreateProductDto>;
+export type UpdateProductDto = Partial<CreateProductDto>;
 
 export interface IProductService {
   getProducts(filter: any): Promise<Product[] | RepoResponseGetProducts>;

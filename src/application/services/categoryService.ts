@@ -1,7 +1,11 @@
 import { injectable, inject } from 'inversify';
-import { CreateCategoryDto, UpdateCategoryDto } from '../dtos';
 import { ICategoryRepository } from 'src/domain/repositories';
-import { IAdminService, ICategoryService } from 'src/domain/services';
+import {
+  IAdminService,
+  ICategoryService,
+  CreateCategoryDto,
+  UpdateCategoryDto,
+} from 'src/domain/services';
 import { Category } from 'src/infrastructure/database/schemas';
 import { INTERFACE_NAME } from 'src/shared/constants';
 import { NotFoundError } from 'src/shared/errors';

@@ -28,7 +28,7 @@ export class ProductSerialRepository
       filtersArray.push(eq(productSerials.status, filters.status));
     }
 
-    const query = this.db.select().from(productSerials)
+    const query = this.db.select().from(productSerials);
 
     if (filtersArray.length === 1) {
       return await query.where(filtersArray[0]);

@@ -1,13 +1,13 @@
 import { ProductDetail } from 'src/infrastructure/database/schemas';
 
-type CreateProductDetailDto = {
+export type CreateProductDetailDto = {
   screenSize: string;
   battery: string;
   camera: string;
   processor: string;
   os: string;
 };
-type UpdateProductDetailDto = Partial<CreateProductDetailDto>;
+export type UpdateProductDetailDto = Partial<CreateProductDetailDto>;
 
 export interface IProductDetailService {
   getProductDetails(): Promise<ProductDetail[]>;

@@ -1,10 +1,10 @@
 import { Category } from 'src/infrastructure/database/schemas';
 import { CategoryName } from 'src/shared/enums/category';
 
-type CreateCategoryDto = {
+export type CreateCategoryDto = {
   name: CategoryName;
 };
-type UpdateCategoryDto = Partial<CreateCategoryDto>;
+export type UpdateCategoryDto = Partial<CreateCategoryDto>;
 
 export interface ICategoryService {
   getCategories(): Promise<Category[]>;

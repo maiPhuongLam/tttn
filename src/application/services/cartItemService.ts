@@ -1,11 +1,11 @@
 import { inject, injectable } from 'inversify';
-import { CreateCartItemDto } from '../dtos';
 import { ICartItemRepository } from 'src/domain/repositories';
 import {
   ICartItemService,
   ICartService,
   ICustomerService,
   IProductItemService,
+  CreateCartItemDto,
 } from 'src/domain/services';
 import { CartItem } from 'src/infrastructure/database/schemas';
 import logger from 'src/infrastructure/logger';

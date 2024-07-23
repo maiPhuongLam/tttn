@@ -25,10 +25,8 @@ export class OrderController {
 
   async webhook(req: Request, res: Response, next: NextFunction) {
     try {
-      let signature = req.headers["stripe-signature"] as string;
-      const body = req.rawBody!
-      console.log(body)
-      console.log(signature)
+      let signature = req.headers['stripe-signature'] as string;
+      const body = req.rawBody!;
       const data = await this.orderService.webhookHandler(body, signature);
       const response = {
         success: true,
@@ -39,5 +37,5 @@ export class OrderController {
     } catch (error) {
       next(error);
     }
-  } 
+  }
 }

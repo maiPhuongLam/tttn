@@ -2,8 +2,7 @@ import { inject, injectable } from 'inversify';
 import { IAddressRepository } from 'src/domain/repositories';
 import { Address } from 'src/infrastructure/database/schemas';
 import { INTERFACE_NAME } from 'src/shared/constants';
-import { IAddressService } from 'src/domain/services/addressService';
-import { CreateAddressDto } from '../dtos';
+import { CreateAddressDto, IAddressService } from 'src/domain/services';
 
 @injectable()
 export class AddressService implements IAddressService {

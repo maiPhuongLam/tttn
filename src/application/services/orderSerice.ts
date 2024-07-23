@@ -3,20 +3,22 @@ import Stripe from 'stripe';
 import configuration from 'src/config/configuration';
 import { INTERFACE_NAME } from 'src/shared/constants';
 import { IOrderRepository } from 'src/domain/repositories';
-import { BasePropsType } from 'src/shared/types';
 import {
   CheckoutDto,
   ICustomerService,
   IOrderDetailService,
+  IOrderService,
   IProductItemService,
   IProductSerialService,
+  OrderRepsonse,
 } from 'src/domain/services';
 import { BadRequestError, NotFoundError } from 'src/shared/errors';
 import { OrderStatusEnum, ProductSerialEnum } from 'src/shared/enums';
 import logger from 'src/infrastructure/logger';
+import { Order } from 'src/infrastructure/database/schemas';
 
 @injectable()
-export class OrderService {
+export class OrderService implements IOrderService {
   private stripe: Stripe;
   constructor(
     @inject(INTERFACE_NAME.OrderRepository) private orderRepository: IOrderRepository,
@@ -29,6 +31,62 @@ export class OrderService {
     this.stripe = new Stripe(configuration.SECRET_KEY, {
       apiVersion: '2024-06-20',
     });
+  }
+
+  async getOrders(filter: any): Promise<Order[]> {
+    try {
+      const orders = await this.orderRepository.findAll();
+      return orders;
+    } catch (error) {
+      logger.error(`${error}`);
+      throw error;
+    }
+  }
+  async getOneOder(id: number): Promise<OrderRepsonse> {
+    try {
+      const order = await this.orderRepository.findById(id);
+      if (!order) {
+        throw new NotFoundError('Order not found');
+      }
+      const orderDetails = await this.orderDetailService.getOrderDetails(order.id);
+      return { order, details: orderDetails };
+    } catch (error) {
+      logger.error(`${error}`);
+      throw error;
+    }
+  }
+  async getCustomerOrders(userId: number): Promise<OrderRepsonse[]> {
+    try {
+      const result: OrderRepsonse[] = [];
+      const customer = await this.customerService.getByUserId(userId);
+      const orders = await this.orderRepository.findByCustomerId(customer.id);
+      if (orders.length === 0) {
+        throw new NotFoundError('Customer not have order');
+      }
+
+      orders.map(async (order: Order) => {
+        const details = await this.orderDetailService.getOrderDetails(order.id);
+        result.push({ order, details });
+      });
+
+      return result;
+    } catch (error) {
+      logger.error(`${error}`);
+      throw error;
+    }
+  }
+  async updateStatusOrder(id: number, status: OrderStatusEnum): Promise<Order> {
+    try {
+      const order = await this.orderRepository.findById(id);
+      if (!order) {
+        throw new NotFoundError('Order not found');
+      }
+
+      return await this.orderRepository.update(id, { orderStatus: status });
+    } catch (error) {
+      logger.error(`${error}`);
+      throw error;
+    }
   }
 
   async checkout(checkoutDto: CheckoutDto, userId: number): Promise<string> {
@@ -72,24 +130,24 @@ export class OrderService {
         cancel_url: configuration.CANCEL_URL,
       });
       console.log(session);
-      
+
       return session.url || '';
     } catch (error) {
       throw error;
     }
   }
 
-  async webhookHandler(body: any, sig: string) {
+  async webhookHandler(body: any, sig: string): Promise<void> {
     let event: Stripe.Event;
 
     try {
       event = this.stripe.webhooks.constructEvent(body, sig, configuration.WEBHOOK_SECRET);
     } catch (err: any) {
-      logger.error(`Webhook Error: ${err.message}`)
-      throw new BadRequestError(`Webhook Error: ${err.message}`)
+      logger.error(`Webhook Error: ${err.message}`);
+      throw new BadRequestError(`Webhook Error: ${err.message}`);
     }
-    logger.info('webhookHandler')
-    logger.info(event.type)
+    logger.info('webhookHandler');
+    logger.info(event.type);
     // Handle the event
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
@@ -97,13 +155,13 @@ export class OrderService {
     }
   }
 
-  private async handleCompletedCheckoutSession(session: any) {
+  private async handleCompletedCheckoutSession(session: any): Promise<void> {
     const lineItems = await this.stripe.checkout.sessions.listLineItems(session.id);
     const orderData = {
       customerId: session.metadata.customer_id,
       totalPrice: session.amount_total / 100,
       orderDate: new Date(),
-      orderStatus: OrderStatusEnum.PENDING,
+      orderStatus: OrderStatusEnum.PROCESSING,
       checkoutSessionId: session.id,
       stripePaymentIntentId: session.payment_intent,
     };
@@ -127,8 +185,12 @@ export class OrderService {
         await this.productSerialService.updateProductSerial(productSerials[0].id, {
           status: ProductSerialEnum.SOLD,
         });
-        const productItem = await this.productItemService.getOneProductItem(productSerials[0].productItemId)
-        await this.productItemService.updateProductItem(productSerials[0].productItemId, { quantityInStock: productItem.quantityInStock - item.quantity})
+        const productItem = await this.productItemService.getOneProductItem(
+          productSerials[0].productItemId,
+        );
+        await this.productItemService.updateProductItem(productSerials[0].productItemId, {
+          quantityInStock: productItem.quantityInStock - item.quantity,
+        });
       }
     }
 
