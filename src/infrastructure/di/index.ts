@@ -15,6 +15,7 @@ import {
   IProductSerialRepository,
   IUserRepository,
   IWarrantyCaseRepository,
+  IWarrantyPolicyRepository,
 } from 'src/domain/repositories';
 import {
   IAddressService,
@@ -31,6 +32,7 @@ import {
   IProductItemService,
   IProductSerialService,
   IProductService,
+  IWarrantyPolicyService,
 } from 'src/domain/services';
 import { INTERFACE_NAME } from 'src/shared/constants';
 import {
@@ -49,6 +51,7 @@ import {
   ProductSerialRepository,
   UserRepository,
   WarrantyCaseRepository,
+  WarrantyPolicyRepository,
 } from '../database/repositories';
 import {
   AddressService,
@@ -66,6 +69,7 @@ import {
   ProductSerialService,
   ProductService,
   WarrantyCaseService,
+  WarrantyPolicyService,
 } from 'src/application/services';
 import {
   AuthController,
@@ -129,5 +133,9 @@ container
   .to(WarrantyCaseRepository);
 container.bind(INTERFACE_NAME.WarrantyCaseService).to(WarrantyCaseService);
 container.bind(INTERFACE_NAME.WarrantyController).to(WarrantyController);
+container
+  .bind<IWarrantyPolicyRepository>(INTERFACE_NAME.WarrantyPolicyRepository)
+  .to(WarrantyPolicyRepository);
+container.bind<IWarrantyPolicyService>(INTERFACE_NAME.WarrantyPolicyService).to(WarrantyPolicyService);
 
 export default container;

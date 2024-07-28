@@ -11,13 +11,19 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- CREATE TYPE "public"."order_status" AS ENUM('pending', 'processing', 'shiped', 'delivered', 'cancelled', 'refunded', 'returned');
+ CREATE TYPE "public"."order_status" AS ENUM('pending', 'processing', 'shiped', 'delivered', 'cancelled', 'complete', 'refunded', 'returned');
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  CREATE TYPE "public"."product_item_request_status" AS ENUM('locked', 'unlock', 'sold');
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ CREATE TYPE "public"."product_serial_status" AS ENUM('inventory', 'under warrantying', 'sold');
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -91,9 +97,11 @@ CREATE TABLE IF NOT EXISTS "customers" (
 CREATE TABLE IF NOT EXISTS "orders" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"customer_id" integer NOT NULL,
-	"total_amount" real NOT NULL,
+	"total_price" real NOT NULL,
 	"order_date" timestamp DEFAULT now() NOT NULL,
 	"order_status" "order_status" NOT NULL,
+	"checkout_session_id" varchar NOT NULL,
+	"payment_intent_id" varchar NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
@@ -101,8 +109,8 @@ CREATE TABLE IF NOT EXISTS "orders" (
 CREATE TABLE IF NOT EXISTS "order_details" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"order_id" integer NOT NULL,
-	"product_item_id" integer NOT NULL,
-	"quanity" integer NOT NULL,
+	"product_serial" varchar NOT NULL,
+	"quantity" integer NOT NULL,
 	"price" real NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
@@ -112,11 +120,13 @@ CREATE TABLE IF NOT EXISTS "products" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"name" varchar(256) NOT NULL,
 	"image" text NOT NULL,
+	"original_price" real NOT NULL,
 	"admin_id" integer,
 	"brand_id" integer,
 	"category_id" integer,
 	"feature_id" integer,
 	"release_date" timestamp DEFAULT now() NOT NULL,
+	"is_delete" boolean DEFAULT false,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "products_name_unique" UNIQUE("name")
@@ -128,6 +138,7 @@ CREATE TABLE IF NOT EXISTS "product_details" (
 	"battery" varchar NOT NULL,
 	"camera" varchar NOT NULL,
 	"processor" varchar NOT NULL,
+	"is_delete" boolean DEFAULT false,
 	"os" varchar NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
@@ -143,10 +154,21 @@ CREATE TABLE IF NOT EXISTS "product_items" (
 	"storage" varchar NOT NULL,
 	"ram" varchar NOT NULL,
 	"image" text NOT NULL,
-	"product_id" integer,
+	"is_delete" boolean DEFAULT false NOT NULL,
+	"product_id" integer NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "product_items_sku_unique" UNIQUE("sku")
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "serial_numbers" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"serial_number" varchar(100) NOT NULL,
+	"product_item_id" integer NOT NULL,
+	"status" "product_serial_status" NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "serial_numbers_serial_number_unique" UNIQUE("serial_number")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "users" (
@@ -189,24 +211,23 @@ CREATE TABLE IF NOT EXISTS "warranty_details" (
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "warranty_polices" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"product_id" integer NOT NULL,
+	"warranty_period" integer NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "warranty_requests" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"customer_id" integer NOT NULL,
-	"product_id" integer NOT NULL,
+	"product_serial" varchar NOT NULL,
 	"issue_description" text NOT NULL,
 	"status" "warranty_request_status" NOT NULL,
 	"request_date" timestamp DEFAULT now() NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "serial_numbers" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"serial_number" varchar(100) NOT NULL,
-	"product_item_id" integer,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL,
-	CONSTRAINT "serial_numbers_serial_number_unique" UNIQUE("serial_number")
 );
 --> statement-breakpoint
 DO $$ BEGIN
@@ -222,7 +243,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "carts" ADD CONSTRAINT "carts_customer_id_customers_id_fk" FOREIGN KEY ("customer_id") REFERENCES "public"."customers"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "carts" ADD CONSTRAINT "carts_customer_id_customers_id_fk" FOREIGN KEY ("customer_id") REFERENCES "public"."customers"("id") ON DELETE cascade ON UPDATE cascade;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -264,7 +285,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "order_details" ADD CONSTRAINT "order_details_product_item_id_product_items_id_fk" FOREIGN KEY ("product_item_id") REFERENCES "public"."product_items"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "order_details" ADD CONSTRAINT "order_details_product_serial_serial_numbers_serial_number_fk" FOREIGN KEY ("product_serial") REFERENCES "public"."serial_numbers"("serial_number") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -276,13 +297,13 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "products" ADD CONSTRAINT "products_brand_id_brands_id_fk" FOREIGN KEY ("brand_id") REFERENCES "public"."brands"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "products" ADD CONSTRAINT "products_brand_id_brands_id_fk" FOREIGN KEY ("brand_id") REFERENCES "public"."brands"("id") ON DELETE cascade ON UPDATE cascade;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "products" ADD CONSTRAINT "products_category_id_categories_id_fk" FOREIGN KEY ("category_id") REFERENCES "public"."categories"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "products" ADD CONSTRAINT "products_category_id_categories_id_fk" FOREIGN KEY ("category_id") REFERENCES "public"."categories"("id") ON DELETE cascade ON UPDATE cascade;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -294,7 +315,13 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "product_items" ADD CONSTRAINT "product_items_product_id_products_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "product_items" ADD CONSTRAINT "product_items_product_id_products_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id") ON DELETE cascade ON UPDATE cascade;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "serial_numbers" ADD CONSTRAINT "serial_numbers_product_item_id_product_items_id_fk" FOREIGN KEY ("product_item_id") REFERENCES "public"."product_items"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -312,7 +339,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "warranty_cases_polices" ADD CONSTRAINT "warranty_cases_polices_warranty_policy_id_warranty_requests_id_fk" FOREIGN KEY ("warranty_policy_id") REFERENCES "public"."warranty_requests"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "warranty_cases_polices" ADD CONSTRAINT "warranty_cases_polices_warranty_policy_id_warranty_polices_id_fk" FOREIGN KEY ("warranty_policy_id") REFERENCES "public"."warranty_polices"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -330,7 +357,19 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "warranty_details" ADD CONSTRAINT "warranty_details_warranty_policy_id_warranty_requests_id_fk" FOREIGN KEY ("warranty_policy_id") REFERENCES "public"."warranty_requests"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "warranty_details" ADD CONSTRAINT "warranty_details_warranty_policy_id_warranty_polices_id_fk" FOREIGN KEY ("warranty_policy_id") REFERENCES "public"."warranty_polices"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "warranty_polices" ADD CONSTRAINT "warranty_polices_product_id_products_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "warranty_polices" ADD CONSTRAINT "warranty_polices_product_id_admins_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."admins"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -342,13 +381,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "warranty_requests" ADD CONSTRAINT "warranty_requests_product_id_products_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "serial_numbers" ADD CONSTRAINT "serial_numbers_product_item_id_product_items_id_fk" FOREIGN KEY ("product_item_id") REFERENCES "public"."product_items"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "warranty_requests" ADD CONSTRAINT "warranty_requests_product_serial_serial_numbers_serial_number_fk" FOREIGN KEY ("product_serial") REFERENCES "public"."serial_numbers"("serial_number") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -360,16 +393,21 @@ CREATE INDEX IF NOT EXISTS "carts_customer_id_idx" ON "carts" USING btree ("id")
 CREATE INDEX IF NOT EXISTS "categories_id_idx" ON "categories" USING btree ("id");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "customers_id_idx" ON "customers" USING btree ("id");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "orders_id_idx" ON "orders" USING btree ("id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "orders_customer_id_idx" ON "orders" USING btree ("id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "order_details_products_id_idx" ON "order_details" USING btree ("id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "order_details_products_order_id_idx" ON "order_details" USING btree ("order_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "order_details_products_produdct_serial_id_idx" ON "order_details" USING btree ("product_serial");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "products_id_idx" ON "products" USING btree ("id");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "products_name_idx" ON "products" USING btree ("name");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "products_feature_id_idx" ON "products" USING btree ("name");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "name_search_idx" ON "products" USING gin (to_tsvector('english', "name"));--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "product_items_id_idx" ON "product_items" USING btree ("id");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "product_items_SKU_idx" ON "product_items" USING btree ("sku");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "product_items_product_id_idx" ON "product_items" USING btree ("product_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "serial_numbers_id_idx" ON "serial_numbers" USING btree ("id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "serial_numbers_serial_number_idx" ON "serial_numbers" USING btree ("serial_number");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "serial_numbers_product_item_id_idx" ON "serial_numbers" USING btree ("product_item_id");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "users_id_idx" ON "users" USING btree ("id");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "users_email_idx" ON "users" USING btree ("email");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "users_phone_number_idx" ON "users" USING btree ("phone_number");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "users_name_idx" ON "users" USING btree ("name");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "serial_numbers_id_idx" ON "serial_numbers" USING btree ("id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "serial_numbers_serial_number_idx" ON "serial_numbers" USING btree ("serial_number");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "serial_numbers_product_item_id_idx" ON "serial_numbers" USING btree ("product_item_id");
+CREATE INDEX IF NOT EXISTS "users_name_idx" ON "users" USING btree ("name");

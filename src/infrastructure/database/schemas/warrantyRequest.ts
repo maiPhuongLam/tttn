@@ -9,19 +9,16 @@ import {
   pgEnum,
 } from 'drizzle-orm/pg-core';
 import { InferSelectModel } from 'drizzle-orm';
-import { products } from './product';
 import { customers } from './customer';
 import { productSerials } from './productSerial';
+import { warrantyCases } from './warrantyCase';
 
-export const warrantyRequestStatusEnum = pgEnum('warranty_request_status', ['admin', 'customer']);
+export const warrantyRequestStatusEnum = pgEnum('warranty_request_status', ['pending', 'warrantying', "refused", "successed"]);
 
 export const warrantyRequests = pgTable('warranty_requests', {
   id: serial('id').primaryKey(),
   customerId: integer('customer_id')
     .references(() => customers.id)
-    .notNull(),
-  productId: integer('product_id')
-    .references(() => products.id)
     .notNull(),
   productSerial: varchar('product_serial')
     .references(() => productSerials.serialNumber)

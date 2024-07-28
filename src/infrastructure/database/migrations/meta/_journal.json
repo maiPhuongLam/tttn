@@ -5,15 +5,22 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1720536243280,
-      "tag": "0000_quick_zarda",
+      "when": 1721752168561,
+      "tag": "0000_faithful_norrin_radd",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1720541081558,
-      "tag": "0001_dazzling_the_professor",
+      "when": 1721753294441,
+      "tag": "0001_bumpy_dust",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1722174491059,
+      "tag": "0002_perpetual_hardball",
       "breakpoints": true
     }
   ]

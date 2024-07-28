@@ -30,4 +30,25 @@ warrantyRouter.delete(
   controller.deleteWarrantyCase.bind(controller),
 );
 
+warrantyRouter.post(
+  '/cases',
+  auth,
+  roles(['admin']),
+  controller.addWarrantyPolicy.bind(controller),
+);
+warrantyRouter.get('/policies/:id', auth, roles(['admin']), controller.getWarrantyPolicy.bind(controller));
+warrantyRouter.get('/policies', auth, controller.getWarrantyPolicies.bind(controller));
+// warrantyRouter.patch(
+//   '/policies/:id',
+//   auth,
+//   roles(['admin']),
+//   controller.updateWarrantyCase.bind(controller),
+// );
+warrantyRouter.delete(
+  '/policies/:id',
+  auth,
+  roles(['admin']),
+  controller.deleteWarrantyPolicy.bind(controller),
+);
+
 export default warrantyRouter;

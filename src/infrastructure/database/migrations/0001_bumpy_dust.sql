@@ -1,0 +1,1 @@
+ALTER TABLE "warranty_polices" ADD COLUMN "description" text NOT NULL;

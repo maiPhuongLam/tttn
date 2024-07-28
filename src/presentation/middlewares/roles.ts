@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express';
-import { User } from 'src/infrastructure/database/schemas';
 
 export const roles = (roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {

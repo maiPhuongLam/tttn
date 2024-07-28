@@ -12,4 +12,8 @@ export * from './cartService';
 export * from './cartItemService';
 export * from './orderSerice';
 export * from './orderDetailService';
-export * from './warranyCaseService';
+export * from './warrantyCaseService';
+export * from './warrantyPolicyService';
+export * from './warrantyDetailService';
+export * from './warrantyRequestService';
+

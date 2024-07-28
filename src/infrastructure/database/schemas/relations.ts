@@ -102,7 +102,8 @@ const productRelations = relations(products, ({ one, many }) => ({
     references: [categories.id],
   }),
   productItems: many(productItems),
-  warrantieRequests: many(warrantyRequests),
+  warrantyRequests: many(warrantyRequests),
+  warrantyPolicies: many(warrantyPolicies)
 }));
 
 const productItemRelations = relations(productItems, ({ one, many }) => ({
@@ -181,10 +182,6 @@ const warrantyRequestRelations = relations(warrantyRequests, ({ many, one }) => 
   customer: one(customers, {
     fields: [warrantyRequests.customerId],
     references: [customers.id],
-  }),
-  product: one(products, {
-    fields: [warrantyRequests.productId],
-    references: [products.id],
   }),
   productSerial: one(productSerials, {
     fields: [warrantyRequests.productSerial],

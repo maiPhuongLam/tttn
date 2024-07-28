@@ -1,6 +1,6 @@
 {
-  "id": "4da46b43-6915-418e-a780-c3f27859341e",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "f5085f1b-ff81-4d9c-a0ea-ed93ad3e8b71",
+  "prevId": "f09505c1-db31-46c4-93fc-5b3c7b3ac53f",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1690,6 +1690,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "warranty_period": {
           "name": "warranty_period",
           "type": "integer",
@@ -1889,8 +1895,10 @@
       "name": "warranty_request_status",
       "schema": "public",
       "values": [
-        "admin",
-        "customer"
+        "pending",
+        "warrantying",
+        "refused",
+        "successed"
       ]
     }
   },

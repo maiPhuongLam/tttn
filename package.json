@@ -6,8 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "NODE_ENV=dev ts-node-dev --poll -r tsconfig-paths/register --respawn --transpile-only src/index.ts",
-    "start": "NODE_ENV=prod node -r nodemon/register -r tsconfig-paths/register ./dist",
-    "build": "tsc",
+    "start": "NODE_ENV=prod node -r tsconfig-paths/register dist/index.js",
+    "build": "rimraf ./dist && tsc && tsc-alias",
     "format": "prettier --write **/*.ts",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
@@ -40,12 +40,14 @@
     "pg": "^8.12.0",
     "redis": "^4.6.15",
     "reflect-metadata": "^0.2.2",
+    "rimraf": "^6.0.1",
     "stripe": "^16.2.0",
     "ts-node-dev": "^2.0.0",
     "tslib": "^2.6.3",
     "tsx": "^4.15.5",
     "typescript": "^5.4.5",
     "uuid": "^10.0.0",
+    "win-node-env": "^0.6.1",
     "winston": "^3.13.0",
     "zod": "^3.23.8"
   },
@@ -65,6 +67,7 @@
     "@types/uuid": "^10.0.0",
     "drizzle-kit": "^0.22.8",
     "prettier": "^3.3.2",
+    "tsc-alias": "^1.8.10",
     "tsconfig-paths": "^4.2.0"
   }
 }
