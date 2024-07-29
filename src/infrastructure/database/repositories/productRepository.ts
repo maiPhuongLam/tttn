@@ -29,12 +29,13 @@ export class ProductRepository extends Repository<Product> implements IProductRe
       })
       .from(products)
       .orderBy(products.name)
-      .leftJoin(productItems, eq(productItems.productId, products.id));
+      .innerJoin(productItems, eq(productItems.productId, products.id));
     const conditions = [
       gte(products.originalPrice, minPrice),
       lte(products.originalPrice, maxPrice),
     ];
-
+    console.log(baseQuery);
+    
     if (name) {
       conditions.push(
         sql`to_tsvector('english', ${products.name}) @@ phraseto_tsquery('english', ${name})`,
@@ -58,17 +59,9 @@ export class ProductRepository extends Repository<Product> implements IProductRe
             .offset(offset)
         : baseQuery.limit(pageSize).offset(offset);
 
-    const [productsResult, countResult] = await Promise.all([
-      query,
-      this.db
-        .select({ count: sql<number>`cast(count(${products.id}) as integer)` })
-        .from(products)
-        .where(and(...conditions)),
-    ]);
-
-    const totalCount = countResult[0].count;
+    const productsResult = await query
+    const totalCount = productsResult.length
     const totalPages = Math.ceil(totalCount / pageSize);
-
     return {
       products: productsResult,
       count: totalCount,
