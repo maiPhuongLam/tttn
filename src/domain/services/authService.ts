@@ -25,4 +25,5 @@ export interface IAuthService {
   login(loginDto: LoginDto): Promise<TokenType>;
   logout(userId: number): Promise<boolean>;
   refreshToken(userId: number, refreshToken: string, role: UserRoles): Promise<TokenType>;
+  me(userId: number): Promise<User>;
 }

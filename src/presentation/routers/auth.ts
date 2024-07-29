@@ -21,5 +21,11 @@ authRouter.post(
   validationResource(refreshTokenSchema),
   controller.refreshToken.bind(controller),
 );
+authRouter.get(
+  '/me',
+  auth,
+  controller.me.bind(controller),
+);
+
 
 export default authRouter;

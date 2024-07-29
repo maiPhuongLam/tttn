@@ -4,7 +4,7 @@ import { INTERFACE_NAME } from 'src/shared/constants';
 import { UserRoles, WorkerNames } from 'src/shared/enums';
 import { TokenType } from 'src/shared/types';
 import { User } from 'src/infrastructure/database/schemas';
-import { BadRequestError } from 'src/shared/errors';
+import { BadRequestError, NotFoundError } from 'src/shared/errors';
 import { compare, hash, signAccessToken, signRefreshToken } from 'src/shared/utils';
 import { IAddressService } from 'src/domain/services/addressService';
 import { IUserRepository } from 'src/domain/repositories';
@@ -17,6 +17,8 @@ export class AuthService implements IAuthService {
     @inject(INTERFACE_NAME.UserRepository) private userRepository: IUserRepository,
     @inject(INTERFACE_NAME.AddressService) private addressService: IAddressService,
     @inject(INTERFACE_NAME.CustomerService) private customerService: ICustomerService,
+    @inject(INTERFACE_NAME.AdminService) private adminService: IAdminService,
+
   ) {}
 
   async register(registerDto: RegisterDto): Promise<User> {
@@ -97,6 +99,19 @@ export class AuthService implements IAuthService {
     } catch (error) {
       throw error;
     }
+  }
+
+  async me(userId: number): Promise<User> {
+    try {
+      const user = await this.userRepository.findById(userId)
+      if (!user) {
+        throw new NotFoundError('User not found')
+      }
+      
+      return user
+    } catch (error) {
+      throw error
+    } 
   }
 
   private async checkAdminOrCustomer(userId: number): Promise<UserRoles> {
