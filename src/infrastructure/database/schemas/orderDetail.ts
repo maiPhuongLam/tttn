@@ -4,7 +4,7 @@ import {
   timestamp,
   integer,
   pgEnum,
-  real,
+  decimal,
   index,
   varchar,
 } from 'drizzle-orm/pg-core';
@@ -23,7 +23,7 @@ export const orderDetails = pgTable(
       .references(() => productSerials.serialNumber)
       .notNull(),
     quantity: integer('quantity').notNull(),
-    price: real('price').notNull(),
+    price: decimal('price', { precision: 10, scale: 0 }).notNull(),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
   },

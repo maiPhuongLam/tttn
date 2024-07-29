@@ -7,7 +7,7 @@ const productItemBody = {
   status: z.enum(['locked', 'unlock', 'sold']),
   SKU: z.string(),
   quantityInStock: z.number(),
-  price: z.number(),
+  price: z.string(),
   color: z.string(),
   ram: z.string({ required_error: 'ram is required' }),
   storage: z.string({ required_error: 'storage is required' }),

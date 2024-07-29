@@ -21,7 +21,7 @@ export const signAccessToken = (id: number, role: UserRoles): string => {
 };
 
 export const signRefreshToken = (id: number, role: UserRoles): string => {
-  const payload = { id };
+  const payload = { id, role };
   const options = { expiresIn: '7d' };
   return jwt.sign(payload, JWT_REFRESH_SECRET_KEY, options);
 };
@@ -30,8 +30,8 @@ export const verifyAccessToken = (token: string): { id: number; role: UserRoles 
   return jwt.verify(token, JWT_ACCESS_SECRET_KEY) as { id: number; role: UserRoles };
 };
 
-export const verifyRefreshToken = (token: string): { id: number } => {
-  return jwt.verify(token, JWT_REFRESH_SECRET_KEY) as { id: number };
+export const verifyRefreshToken = (token: string): { id: number; role: UserRoles } => {
+  return jwt.verify(token, JWT_REFRESH_SECRET_KEY) as { id: number; role: UserRoles};
 };
 
 // Middleware to verify access token from the request
@@ -49,3 +49,19 @@ export const verifyAccessTokenFromRequest = (req: Request): { id: number; role: 
     throw new UnAuthorizedError(error.message);
   }
 };
+
+export const verifyRefreshTokenFromRequest = (req: Request): { id: number; role: UserRoles } => {
+  const refresh_token = req.query.refresh_token as string
+  if (!refresh_token) {
+    throw new UnAuthorizedError('Missing refresh_token');
+  }
+
+  try {
+    return verifyRefreshToken(refresh_token);
+  } catch (error: any) {
+    logger.error('Error verify refresh token from request');
+    throw new UnAuthorizedError(error.message);
+  }
+};
+
+

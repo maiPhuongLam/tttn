@@ -108,7 +108,6 @@ export class ProductController {
 
     try {
       const putUrl = await putObjectUrl(file, contentType);
-      res.json(putUrl);
       res.status(201).json(putUrl);
     } catch (error) {
       console.error('Image upload failed:', error);

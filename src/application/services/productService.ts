@@ -92,7 +92,6 @@ export class ProductService implements IProductService {
       const updatedProduct = await this.productRepository.update(id, {
         isDelete: true,
       });
-      await cache.del(`product:${id}`);
       return updatedProduct;
     } catch (error) {
       logger.error('Error in Soft Delete Product:', error);
@@ -104,7 +103,6 @@ export class ProductService implements IProductService {
     try {
       await this.getOneProduct(id);
       const deletedProduct = await this.productRepository.delete(id);
-      await cache.del(`product:${id}`);
       return deletedProduct;
     } catch (error) {
       logger.error('Error in Delete Product:', error);

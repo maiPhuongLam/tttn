@@ -1,5 +1,5 @@
 {
-  "id": "4da46b43-6915-418e-a780-c3f27859341e",
+  "id": "de59c366-1c9b-4938-bfc9-7ef84cd82227",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -1690,6 +1690,18 @@
           "primaryKey": false,
           "notNull": true
         },
+        "admin_id": {
+          "name": "admin_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "warranty_period": {
           "name": "warranty_period",
           "type": "integer",
@@ -1726,12 +1738,12 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "warranty_polices_product_id_admins_id_fk": {
-          "name": "warranty_polices_product_id_admins_id_fk",
+        "warranty_polices_admin_id_admins_id_fk": {
+          "name": "warranty_polices_admin_id_admins_id_fk",
           "tableFrom": "warranty_polices",
           "tableTo": "admins",
           "columnsFrom": [
-            "product_id"
+            "admin_id"
           ],
           "columnsTo": [
             "id"
@@ -1862,7 +1874,7 @@
         "shiped",
         "delivered",
         "cancelled",
-        "complete",
+        "completed",
         "refunded",
         "returned"
       ]
@@ -1889,8 +1901,10 @@
       "name": "warranty_request_status",
       "schema": "public",
       "values": [
-        "admin",
-        "customer"
+        "pending",
+        "warrantying",
+        "refused",
+        "successed"
       ]
     }
   },

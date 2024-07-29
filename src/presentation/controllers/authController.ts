@@ -60,9 +60,8 @@ export class AuthController {
 
   async refreshToken(req: Request, res: Response, next: NextFunction) {
     try {
-      const { userId, role, body } = req;
-      const { refreshToken } = <RefreshTokenDto>body;
-      const data = await this.authService.refreshToken(userId, refreshToken, role);
+      const refreshToken = req.query.refresh_token as string
+      const data = await this.authService.refreshToken(req.userId, refreshToken, req.role);
       return res.status(STATUS_CODES.OK).json(BaseResponse.success('Refresh token successfully', data));
     } catch (error) {
       logger.error('Refresh token error', error);

@@ -6,7 +6,7 @@ export type CreateProductItemDto = {
   status: 'locked' | 'unlock' | 'sold';
   ram: string;
   storage: string;
-  price: number;
+  price: string;
   color: string;
   image: string;
   productId: number;

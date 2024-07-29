@@ -11,7 +11,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- CREATE TYPE "public"."order_status" AS ENUM('pending', 'processing', 'shiped', 'delivered', 'cancelled', 'complete', 'refunded', 'returned');
+ CREATE TYPE "public"."order_status" AS ENUM('pending', 'processing', 'shiped', 'delivered', 'cancelled', 'completed', 'refunded', 'returned');
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -29,7 +29,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- CREATE TYPE "public"."warranty_request_status" AS ENUM('admin', 'customer');
+ CREATE TYPE "public"."warranty_request_status" AS ENUM('pending', 'warrantying', 'refused', 'successed');
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -214,6 +214,8 @@ CREATE TABLE IF NOT EXISTS "warranty_details" (
 CREATE TABLE IF NOT EXISTS "warranty_polices" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"product_id" integer NOT NULL,
+	"admin_id" integer NOT NULL,
+	"description" text NOT NULL,
 	"warranty_period" integer NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
@@ -369,7 +371,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "warranty_polices" ADD CONSTRAINT "warranty_polices_product_id_admins_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."admins"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "warranty_polices" ADD CONSTRAINT "warranty_polices_admin_id_admins_id_fk" FOREIGN KEY ("admin_id") REFERENCES "public"."admins"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

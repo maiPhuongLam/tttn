@@ -6,7 +6,7 @@ import {
   varchar,
   integer,
   pgEnum,
-  real,
+  decimal,
 } from 'drizzle-orm/pg-core';
 import { InferSelectModel } from 'drizzle-orm';
 import { carts } from './cart';
@@ -21,7 +21,7 @@ export const cartItems = pgTable('cart_items', {
     .references(() => productItems.id)
     .notNull(),
   quantity: integer('quantity').notNull(),
-  price: real('price').notNull(),
+  price: decimal('price', { precision: 10, scale: 0 }).notNull(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });

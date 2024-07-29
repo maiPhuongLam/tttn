@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1721752168561,
-      "tag": "0000_faithful_norrin_radd",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1721753294441,
-      "tag": "0001_bumpy_dust",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1722174491059,
-      "tag": "0002_perpetual_hardball",
+      "when": 1722225702958,
+      "tag": "0000_past_harry_osborn",
       "breakpoints": true
     }
   ]

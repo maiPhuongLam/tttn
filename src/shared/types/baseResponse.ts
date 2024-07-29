@@ -1,17 +1,21 @@
 export class BaseResponse<T> {
   success: boolean;
+  message?: string;
   data?: T;
   error?: Error;
-  message?: string;
 
   constructor(success: boolean, data?: T, error?: Error, message?: string) {
     this.success = success;
+    this.message = message;
     this.data = data;
     this.error = error;
-    this.message = message;
   }
 
   static success<T>(message: string, data: T): BaseResponse<T> {
     return new BaseResponse(true, data, undefined, message);
+  }
+
+  static error(message: string, error: Error) {
+    return new BaseResponse(false, undefined, error, message);
   }
 }

@@ -30,8 +30,7 @@ export const putObjectUrl = async (
     Bucket: configuration.BUCKET_NAME,
     Key: '/productfiles/' + file.originalname,
   });
-  const url = await getSignedUrl(s3Client, signedUrl, { expiresIn: 3600 });
-  console.log(url);
+  const url = await getSignedUrl(s3Client, signedUrl);
   return url;
 };
 

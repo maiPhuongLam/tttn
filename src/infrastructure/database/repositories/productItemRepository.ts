@@ -32,7 +32,7 @@ export class ProductItemRepository
           storage: productItems.storage,
         })
         .from(productItems)
-        .fullJoin(products, eq(products.id, productItems.productId))
+        .innerJoin(products, eq(products.id, productItems.productId))
         .where(eq(productItems.SKU, SKU));
 
       if (
@@ -84,7 +84,7 @@ export class ProductItemRepository
         isDelete: productItems.isDelete,
       })
       .from(productItems)
-      .leftJoin(products, eq(productItems.productId, products.id))
+      .innerJoin(products, eq(productItems.productId, products.id))
       .innerJoin(productDetails, eq(products.featureId, productDetails.id))
       .where(eq(productItems.id, id))
       .execute();
@@ -115,7 +115,7 @@ export class ProductItemRepository
         isDelete: productItems.isDelete,
       })
       .from(productItems)
-      .leftJoin(products, eq(productItems.productId, products.id))
+      .innerJoin(products, eq(productItems.productId, products.id))
       .innerJoin(productDetails, eq(products.featureId, productDetails.id))
       .where(eq(productItems.productId, productId))
       .execute();

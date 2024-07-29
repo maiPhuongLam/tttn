@@ -1,4 +1,4 @@
-import { pgTable, serial, timestamp, integer, pgEnum, real, index } from 'drizzle-orm/pg-core';
+import { pgTable, serial, timestamp, integer, pgEnum, decimal, index } from 'drizzle-orm/pg-core';
 import { InferSelectModel } from 'drizzle-orm';
 import { customers } from './customer';
 import { varchar } from 'drizzle-orm/pg-core';
@@ -9,7 +9,7 @@ export const orderStatusEnum = pgEnum('order_status', [
   'shiped',
   'delivered',
   'cancelled',
-  'complete',
+  'completed',
   'refunded',
   'returned',
 ]);
@@ -21,7 +21,7 @@ export const orders = pgTable(
     customerId: integer('customer_id')
       .references(() => customers.id, { onDelete: 'cascade' })
       .notNull(),
-    totalPrice: real('total_price').notNull(),
+    totalPrice: decimal('total_price', { precision: 10, scale: 0 }).notNull(),
     orderDate: timestamp('order_date').notNull().defaultNow(),
     orderStatus: orderStatusEnum('order_status').notNull(),
     checkoutSessionId: varchar('checkout_session_id').notNull(),

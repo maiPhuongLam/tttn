@@ -8,7 +8,7 @@ export const warrantyPolicies = pgTable('warranty_polices', {
   productId: integer('product_id')
     .references(() => products.id)
     .notNull(),
-  adminId: integer('product_id')
+  adminId: integer('admin_id')
     .references(() => admins.id)
     .notNull(),
   description: text('description').notNull(),

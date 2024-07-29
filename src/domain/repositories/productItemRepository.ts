@@ -7,7 +7,7 @@ export type ProductDetailResponse = {
   sku: string;
   quantityInStock: number;
   status: 'locked' | 'unlock' | 'sold';
-  price: number;
+  price: string;
   color: string;
   storage: string;
   ram: string;
@@ -24,7 +24,7 @@ export type ProductDetailResponse = {
 export type SKUResponse = {
   id: number;
   SKU: string;
-  price: number;
+  price: string;
   name: string;
   color: string;
   ram: string;

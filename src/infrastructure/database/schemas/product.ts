@@ -7,7 +7,7 @@ import {
   integer,
   index,
   boolean,
-  real,
+  decimal
 } from 'drizzle-orm/pg-core';
 import { InferSelectModel, relations, sql } from 'drizzle-orm';
 import { productDetails } from './productDetail';
@@ -21,7 +21,7 @@ export const products = pgTable(
     name: varchar('name', { length: 256 }).notNull().unique(),
     // image: json('image').$type<{ public_id: string, url: string }>().default({ public_id: "", url: "" }).notNull(),
     image: text('image').notNull(),
-    originalPrice: real('original_price').notNull(),
+    originalPrice: decimal('original_price', { precision: 9, scale: 0 }).notNull(),
     adminId: integer('admin_id').references(() => admins.id),
     brandId: integer('brand_id').references(() => brands.id, {
       onDelete: 'cascade',

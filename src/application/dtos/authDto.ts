@@ -17,9 +17,9 @@ export const registerSchema = z.object({
 export type RegisterDto = TypeOf<typeof registerSchema>['body'];
 
 export const refreshTokenSchema = z.object({
-  body: z.object({
-    refreshToken: z.string({ required_error: 'refresh token is required' }),
+  query: z.object({
+    refresh_token: z.string({ required_error: 'refresh token is required' }),
   }),
 });
 
-export type RefreshTokenDto = TypeOf<typeof refreshTokenSchema>['body'];
+export type RefreshTokenDto = TypeOf<typeof refreshTokenSchema>['query'];

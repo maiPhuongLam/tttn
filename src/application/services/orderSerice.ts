@@ -108,7 +108,7 @@ export class OrderService implements IOrderService {
               name: productItem.name,
               metadata: { sku: productItem.SKU, prodictItemId: productItem.id },
             },
-            unit_amount: Math.round(productItem.price * 100),
+            unit_amount: Math.round(Number(productItem.price) * 100),
           },
           quantity: checkoutDto[i].quantity,
         });
@@ -167,7 +167,7 @@ export class OrderService implements IOrderService {
     const lineItems = await this.stripe.checkout.sessions.listLineItems(session.id);
     const orderData = {
       customerId: session.metadata.customer_id,
-      totalPrice: session.amount_total / 100,
+      totalPrice: (Number(session.amount_total) / 100).toString(),
       orderDate: new Date(),
       orderStatus: OrderStatusEnum.PROCESSING,
       checkoutSessionId: session.id,
@@ -187,7 +187,7 @@ export class OrderService implements IOrderService {
           orderId: order.id,
           productSerial: productSerials[0].serialNumber,
           quantity: item.quantity,
-          price: item.price.unit_amount / 100,
+          price: (Number(item.price.unit_amount) / 100).toString(),
         };
         await this.orderDetailService.createOrderDetail(orderDetailData);
         for (let i = 0; i < item.quantity; i++) {

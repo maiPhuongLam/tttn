@@ -31,7 +31,7 @@ warrantyRouter.delete(
 );
 
 warrantyRouter.post(
-  '/cases',
+  '/policies',
   auth,
   roles(['admin']),
   controller.addWarrantyPolicy.bind(controller),

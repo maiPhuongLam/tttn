@@ -13,7 +13,6 @@ export class ProductRepository extends Repository<Product> implements IProductRe
   constructor() {
     super(products);
   }
-
   async filter(filters: ProductFilters): Promise<RepoResponseGetProducts> {
     const { name, brandId, page = 1, pageSize = 12, minPrice = 0, maxPrice = 200000000 } = filters;
     let baseQuery = this.db
@@ -26,13 +25,14 @@ export class ProductRepository extends Repository<Product> implements IProductRe
         color: productItems.color,
         price: productItems.price,
         itemId: productItems.id,
+        originalPrice: products.originalPrice
       })
       .from(products)
       .orderBy(products.name)
       .innerJoin(productItems, eq(productItems.productId, products.id));
     const conditions = [
-      gte(products.originalPrice, minPrice),
-      lte(products.originalPrice, maxPrice),
+      // gte(products.originalPrice, sql`${minPrice}::numeric`),
+      // lte(products.originalPrice, sql`${maxPrice}::numeric`),
     ];
     
     if (name) {

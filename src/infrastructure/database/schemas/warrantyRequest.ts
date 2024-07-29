@@ -5,7 +5,6 @@ import {
   timestamp,
   varchar,
   integer,
-  real,
   pgEnum,
 } from 'drizzle-orm/pg-core';
 import { InferSelectModel } from 'drizzle-orm';

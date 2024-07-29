@@ -2,7 +2,7 @@ import { CartItem } from 'src/infrastructure/database/schemas';
 
 export type CreateCartItemDto = {
   cartId: number;
-  price: number;
+  price: string;
   productItemId: number;
   quantity: number;
 };

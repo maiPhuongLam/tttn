@@ -8,7 +8,7 @@
     "dev": "NODE_ENV=dev ts-node-dev --poll -r tsconfig-paths/register --respawn --transpile-only src/index.ts",
     "start": "NODE_ENV=prod node -r tsconfig-paths/register dist/index.js",
     "build": "rimraf ./dist && tsc && tsc-alias",
-    "format": "prettier --write **/*.ts",
+    "format": "prettier --write **/*.ts", 
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:migrate": "drizzle-kit migrate",

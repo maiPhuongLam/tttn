@@ -3,7 +3,8 @@ import { WarrantyPolicy } from 'src/infrastructure/database/schemas';
 export type CreateWarrantyPolicyDto = {
   productId: number;
   warrantyPeriod: number;
-  description: string
+  description: string;
+  warrantyCaseId: number;
 }
 
 export type updateWarrantyPolicyDto = Partial<CreateWarrantyPolicyDto>

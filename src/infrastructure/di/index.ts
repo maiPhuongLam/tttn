@@ -68,6 +68,7 @@ import {
   ProductItemService,
   ProductSerialService,
   ProductService,
+  StatisticService,
   WarrantyCaseService,
   WarrantyPolicyService,
 } from 'src/application/services';
@@ -79,6 +80,7 @@ import {
   OrderController,
   ProductController,
   ProductItemController,
+  StatisticController,
   WarrantyController,
 } from 'src/presentation/controllers';
 
@@ -137,5 +139,7 @@ container
   .bind<IWarrantyPolicyRepository>(INTERFACE_NAME.WarrantyPolicyRepository)
   .to(WarrantyPolicyRepository);
 container.bind<IWarrantyPolicyService>(INTERFACE_NAME.WarrantyPolicyService).to(WarrantyPolicyService);
+container.bind('StatisticService').to(StatisticService);
+container.bind('StatisticController').to(StatisticController);
 
 export default container;

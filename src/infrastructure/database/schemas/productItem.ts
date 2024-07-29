@@ -6,7 +6,7 @@ import {
   varchar,
   integer,
   pgEnum,
-  real,
+  decimal,
   index,
   boolean,
 } from 'drizzle-orm/pg-core';
@@ -25,7 +25,7 @@ export const productItems = pgTable(
     SKU: varchar('sku', { length: 256 }).notNull().unique(),
     quantityInStock: integer('qty_in_stock').notNull(),
     status: productItemStatusEnum('status').notNull(),
-    price: real('price').notNull(),
+    price: decimal('price', { precision: 10, scale: 0 }).notNull(),
     color: varchar('color').notNull(),
     storage: varchar('storage').notNull(),
     ram: varchar('ram').notNull(),

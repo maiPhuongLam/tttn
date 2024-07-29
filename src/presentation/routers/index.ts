@@ -9,6 +9,7 @@ import productItemRouter from './productItem';
 import cartRouter from './cart';
 import orderRouter from './order';
 import warrantyRouter from './warranty';
+import statisticRouter from './statistic';
 
 const appRouter = (app: Express) => {
   app.use('/health', healthRouter);
@@ -20,6 +21,8 @@ const appRouter = (app: Express) => {
   app.use('/cart', cartRouter);
   app.use('/orders', orderRouter);
   app.use('/warranty', warrantyRouter);
+  app.use('/statistic', statisticRouter);
+
   app.use(errorHandler);
 };
 

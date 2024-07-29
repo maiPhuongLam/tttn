@@ -7,7 +7,7 @@ export type CreateProductDto = {
   categoryId: number;
   releaseDate: Date;
   image: string;
-  originalPrice: number;
+  originalPrice: string;
   features: {
     screenSize: string;
     battery: string;
