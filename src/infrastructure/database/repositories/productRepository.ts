@@ -31,8 +31,8 @@ export class ProductRepository extends Repository<Product> implements IProductRe
       .orderBy(products.name)
       .innerJoin(productItems, eq(productItems.productId, products.id));
     const conditions = [
-      // gte(products.originalPrice, sql`${minPrice}::numeric`),
-      // lte(products.originalPrice, sql`${maxPrice}::numeric`),
+      gte(products.originalPrice, sql`${minPrice}::numeric`),
+      lte(products.originalPrice, sql`${maxPrice}::numeric`),
     ];
     
     if (name) {
