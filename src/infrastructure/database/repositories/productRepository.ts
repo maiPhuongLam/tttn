@@ -34,7 +34,6 @@ export class ProductRepository extends Repository<Product> implements IProductRe
       gte(products.originalPrice, minPrice),
       lte(products.originalPrice, maxPrice),
     ];
-    console.log(baseQuery);
     
     if (name) {
       conditions.push(
@@ -59,9 +58,20 @@ export class ProductRepository extends Repository<Product> implements IProductRe
             .offset(offset)
         : baseQuery.limit(pageSize).offset(offset);
 
-    const productsResult = await query
-    const totalCount = productsResult.length
+    const [productsResult, countResult] = await Promise.all([
+      query,
+      this.db
+        .select({ 
+          count: sql<number>`cast(count(${products.id}) as integer)` 
+        })
+        .from(products)
+        .innerJoin(productItems, eq(productItems.productId, products.id))
+        .where(and(...conditions))
+    ]);
+  
+    const totalCount = countResult[0].count;
     const totalPages = Math.ceil(totalCount / pageSize);
+      
     return {
       products: productsResult,
       count: totalCount,
