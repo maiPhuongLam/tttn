@@ -3,7 +3,7 @@ import { idParamsSchema } from './userDto';
 
 // Định nghĩa schema cho CartItem
 export const cartItemBody = {
-  price: z.number(),
+  price: z.string(),
   cartId: z.number(),
   productItemId: z.number(),
   quantity: z.number(),

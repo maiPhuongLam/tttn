@@ -67,7 +67,7 @@ export class CartItemService implements ICartItemService {
     }
   }
 
-  async addCartItem(createCartItemDto: CreateCartItemDto): Promise<CartItem> {
+  async updateCartItem(createCartItemDto: CreateCartItemDto): Promise<CartItem> {
     try {
       await this.cartService.getOneCart(createCartItemDto.cartId);
       const item = await this.getOneCartItemByProductItemId(createCartItemDto.productItemId);
@@ -83,6 +83,7 @@ export class CartItemService implements ICartItemService {
       throw error;
     }
   }
+
 
   async deleteCartItem(id: number): Promise<CartItem> {
     try {

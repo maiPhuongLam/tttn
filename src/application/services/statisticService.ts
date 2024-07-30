@@ -115,4 +115,6 @@ export class StatisticService {
       revenue: row.revenue,
     }));
   }
+
+  
 }
