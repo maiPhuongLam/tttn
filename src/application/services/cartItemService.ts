@@ -56,10 +56,6 @@ export class CartItemService implements ICartItemService {
   async getOneCartItemByProductItemId(itemId: number): Promise<CartItem> {
     try {
       const cartItem = await this.cartItemRepository.findByproductItemId(itemId);
-      if (!cartItem) {
-        throw new NotFoundError('Cart Item not found');
-      }
-
       return cartItem;
     } catch (error) {
       logger.error('Error get cart item ByProductItemId', error);
