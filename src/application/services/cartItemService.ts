@@ -66,11 +66,14 @@ export class CartItemService implements ICartItemService {
   async updateCartItem(createCartItemDto: CreateCartItemDto): Promise<CartItem> {
     try {
       await this.cartService.getOneCart(createCartItemDto.cartId);
+      logger.info(111)
       const item = await this.getOneCartItemByProductItemId(createCartItemDto.productItemId);
       if (item) {
+        logger.info(typeof item.price)
+        logger.info(typeof createCartItemDto.price)
         return await this.cartItemRepository.update(item.id, {
           quantity: item.quantity + createCartItemDto.quantity,
-          price: item.price + createCartItemDto.price,
+          price: (Number(item.price) + Number(createCartItemDto.price)).toString(),
         });
       }
       return await this.cartItemRepository.add(createCartItemDto);
