@@ -17,6 +17,7 @@ export class CartItemRepository extends Repository<CartItem> implements ICartIte
       return await this.db.select()
         .from(cartItems)
         .where(eq(cartItems.cartId, cartId))
+        .orderBy(cartItems.createdAt)
         // .innerJoin(productItems, eq(cartItems.productItemId, productItems.id));
       
       // const result = [cartItem].map(item => {
