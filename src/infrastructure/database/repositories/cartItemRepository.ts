@@ -1,9 +1,10 @@
 import { injectable } from 'inversify';
 import { Repository } from './repository';
-import { ICartItemRepository } from 'src/domain/repositories';
-import { CartItem, cartItems, productItems } from '../schemas';
+import { FindByCartIdResponse, ICartItemRepository } from 'src/domain/repositories';
+import { CartItem, cartItems, ProductItem, productItems } from '../schemas';
 import logger from 'src/infrastructure/logger';
 import { eq } from 'drizzle-orm';
+
 
 @injectable()
 export class CartItemRepository extends Repository<CartItem> implements ICartItemRepository {
@@ -11,9 +12,19 @@ export class CartItemRepository extends Repository<CartItem> implements ICartIte
     super(cartItems);
   }
 
-  async findByCartId(cartId: number): Promise<CartItem[]> {
+  async findByCartId(cartId: number): Promise<FindByCartIdResponse[]> {
     try {
-      return await this.db.select().from(cartItems).where(eq(cartItems.cartId, cartId)).execute();
+      const query = await this.db.select()
+        .from(cartItems)
+        .where(eq(cartItems.cartId, cartId))
+        .innerJoin(productItems, eq(cartItems.productItemId, productItems.id));
+      
+      const result = query.map(data => {
+        return {
+          cartItem: { ...data.cart_items, productItem: data.product_items }
+        }
+      })
+      return result
     } catch (error) {
       logger.error('Error in findCartId', error);
       throw error;

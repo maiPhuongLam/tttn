@@ -1,7 +1,10 @@
-import { CartItem } from 'src/infrastructure/database/schemas';
+import { CartItem, ProductItem } from 'src/infrastructure/database/schemas';
 import { IRepository } from './repository';
+export type FindByCartIdResponse = {
+  cartItem: CartItem & { productItem: ProductItem }
+}
 
 export interface ICartItemRepository extends IRepository<CartItem> {
-  findByCartId(cartId: number): Promise<CartItem[]>;
+  findByCartId(cartId: number): Promise<FindByCartIdResponse[]>;
   findByproductItemId(itemId: number): Promise<CartItem>;
 }

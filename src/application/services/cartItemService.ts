@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import { ICartItemRepository } from 'src/domain/repositories';
+import { FindByCartIdResponse, ICartItemRepository } from 'src/domain/repositories';
 import {
   ICartItemService,
   ICartService,
@@ -21,7 +21,7 @@ export class CartItemService implements ICartItemService {
     @inject(INTERFACE_NAME.CartService) private cartService: ICartService,
   ) {}
 
-  async getCartItems(userId: number): Promise<{ cartId: number; items: CartItem[] }> {
+  async getCartItems(userId: number): Promise<{ cartId: number; items: FindByCartIdResponse[] }> {
     try {
       const customer = await this.customerService.getByUserId(userId);
       if (!customer) {
