@@ -7,4 +7,5 @@ export type FindByCartIdResponse = {
 export interface ICartItemRepository extends IRepository<CartItem> {
   findByCartId(cartId: number): Promise<CartItem[]>;
   findByproductItemId(itemId: number): Promise<CartItem>;
+  findByproductItemIdAndCartId(itemId: number, cartId: number): Promise<CartItem>;
 }

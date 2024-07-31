@@ -65,9 +65,9 @@ export class CartItemService implements ICartItemService {
     }
   }
 
-  async getOneCartItemByProductItemId(itemId: number): Promise<CartItem> {
+  async getOneCartItemByProductItemIdAndCartId(itemId: number, cartId: number): Promise<CartItem> {
     try {
-      const cartItem = await this.cartItemRepository.findByproductItemId(itemId);
+      const cartItem = await this.cartItemRepository.findByproductItemIdAndCartId(itemId, cartId);
       return cartItem;
     } catch (error) {
       logger.error('Error get cart item ByProductItemId', error);
@@ -78,16 +78,18 @@ export class CartItemService implements ICartItemService {
   async updateCartItem(createCartItemDto: CreateCartItemDto): Promise<CartItem> {
     try {
       await this.cartService.getOneCart(createCartItemDto.cartId);
-      const item = await this.getOneCartItemByProductItemId(createCartItemDto.productItemId);
+      const item = await this.getOneCartItemByProductItemIdAndCartId(createCartItemDto.productItemId, createCartItemDto.cartId);
       if (item) {
         if (createCartItemDto.quantity === 0) {
           return await this.cartItemRepository.delete(item.id);
         }
+        
         return await this.cartItemRepository.update(item.id, {
           quantity: item.quantity + createCartItemDto.quantity,
           price: (Number(item.price) + Number(createCartItemDto.price)).toString(),
         });
       }
+      
       return await this.cartItemRepository.add(createCartItemDto);
     } catch (error) {
       logger.error('Error Add CartItems', error);

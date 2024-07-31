@@ -3,7 +3,7 @@ import { Repository } from './repository';
 import { FindByCartIdResponse, ICartItemRepository } from 'src/domain/repositories';
 import { CartItem, cartItems, ProductItem, productItems } from '../schemas';
 import logger from 'src/infrastructure/logger';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 
 @injectable()
 export class CartItemRepository extends Repository<CartItem> implements ICartItemRepository {
@@ -37,6 +37,20 @@ export class CartItemRepository extends Repository<CartItem> implements ICartIte
         .select()
         .from(cartItems)
         .where(eq(cartItems.productItemId, itemId))
+        .execute();
+      return item;
+    } catch (error) {
+      logger.error('Error in findCartId', error);
+      throw error;
+    }
+  }
+
+  async findByproductItemIdAndCartId(itemId: number, cartId: number): Promise<CartItem> {
+    try {
+      const [item] = await this.db
+        .select()
+        .from(cartItems)
+        .where(and(eq(cartItems.productItemId, itemId), eq(cartItems.cartId, cartId)))
         .execute();
       return item;
     } catch (error) {
