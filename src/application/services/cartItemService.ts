@@ -7,6 +7,7 @@ import {
   IProductItemService,
   CreateCartItemDto,
   GetCartItemsResponse,
+  Item,
 } from 'src/domain/services';
 import { CartItem } from 'src/infrastructure/database/schemas';
 import logger from 'src/infrastructure/logger';
@@ -32,17 +33,18 @@ export class CartItemService implements ICartItemService {
       const cart = await this.cartService.getCustomerCart(customer.id);
       await this.cartService.getOneCart(cart.id);
       const cartItems = await this.cartItemRepository.findByCartId(cart.id);
-      const itemsWithProductDetails = await Promise.all(
+      console.log(cartItems);
+      
+      const items: Item[] = await Promise.all(
         cartItems.map(async item => {
           const product = await this.productItemService.getProductItemDetail(item.productItemId);
-          const t = {
+          return {
             ...item,
             productItem: product,
-          };
-          return t
+          }
         })
       );
-      return { cartId: cart.id, items: itemsWithProductDetails };
+      return { cartId: cart.id, items: items };
     } catch (error) {
       logger.error('Error Get CartItems', error);
       throw error;

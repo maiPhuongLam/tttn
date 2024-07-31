@@ -14,7 +14,7 @@ export class CartItemRepository extends Repository<CartItem> implements ICartIte
 
   async findByCartId(cartId: number): Promise<CartItem[]> {
     try {
-      const [cartItem] = await this.db.select()
+      return await this.db.select()
         .from(cartItems)
         .where(eq(cartItems.cartId, cartId))
         // .innerJoin(productItems, eq(cartItems.productItemId, productItems.id));
@@ -24,7 +24,6 @@ export class CartItemRepository extends Repository<CartItem> implements ICartIte
       //     cartItem: { ...item.cart_items, productItem: item.product_items }
       //   }
       // })
-      return [cartItem] 
     } catch (error) {
       logger.error('Error in findCartId', error);
       throw error;

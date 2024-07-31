@@ -7,7 +7,7 @@ export type CreateCartItemDto = {
   productItemId: number;
   quantity: number;
 };
-type Item = CartItem & { productItem: ProductDetailResponse; }
+export type Item = CartItem & { productItem: ProductDetailResponse; }
 export type GetCartItemsResponse = { cartId: number, items: Item[] }
 export interface ICartItemService {
   getCartItems(userId: number): Promise<GetCartItemsResponse>;
