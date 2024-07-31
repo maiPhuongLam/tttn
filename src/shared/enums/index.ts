@@ -4,4 +4,4 @@ export * from './worker';
 export * from './cart';
 export * from './productSerialStatus';
 export * from './orderStatus';
-export * from './revenue'
+export * from './revenue';

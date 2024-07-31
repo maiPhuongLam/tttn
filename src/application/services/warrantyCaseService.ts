@@ -1,6 +1,11 @@
 import { inject, injectable } from 'inversify';
 import { IWarrantyCaseRepository } from 'src/domain/repositories';
-import { IAdminService, IWarrantyCaseService, CreateWarrantyCaseDto, UpdateWarrantyCaseDto } from 'src/domain/services';
+import {
+  IAdminService,
+  IWarrantyCaseService,
+  CreateWarrantyCaseDto,
+  UpdateWarrantyCaseDto,
+} from 'src/domain/services';
 import { WarrantyCase } from 'src/infrastructure/database/schemas';
 import { INTERFACE_NAME } from 'src/shared/constants';
 import { NotFoundError } from 'src/shared/errors';
@@ -16,11 +21,11 @@ export class WarrantyCaseService implements IWarrantyCaseService {
 
   async createWarrantyCase(
     createWarrantyCaseDto: CreateWarrantyCaseDto,
-    userId: number
+    userId: number,
   ): Promise<WarrantyCase> {
     try {
-      const admin = await this.adminService.getAdminByUserId(userId)
-      return await this.warrantyRpository.add({...createWarrantyCaseDto, adminId: admin.id });
+      const admin = await this.adminService.getAdminByUserId(userId);
+      return await this.warrantyRpository.add({ ...createWarrantyCaseDto, adminId: admin.id });
     } catch (error) {
       throw error;
     }

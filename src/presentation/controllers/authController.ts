@@ -60,9 +60,11 @@ export class AuthController {
 
   async refreshToken(req: Request, res: Response, next: NextFunction) {
     try {
-      const refreshToken = req.query.refresh_token as string
+      const refreshToken = req.query.refresh_token as string;
       const data = await this.authService.refreshToken(req.userId, refreshToken, req.role);
-      return res.status(STATUS_CODES.OK).json(BaseResponse.success('Refresh token successfully', data));
+      return res
+        .status(STATUS_CODES.OK)
+        .json(BaseResponse.success('Refresh token successfully', data));
     } catch (error) {
       logger.error('Refresh token error', error);
       next(error);
@@ -71,9 +73,11 @@ export class AuthController {
 
   async me(req: Request, res: Response, next: NextFunction) {
     try {
-      const userId = req.userId
-      const data = await this.authService.me(userId)
-      return res.status(STATUS_CODES.OK).json(BaseResponse.success('Refresh token successfully', data));
+      const userId = req.userId;
+      const data = await this.authService.me(userId);
+      return res
+        .status(STATUS_CODES.OK)
+        .json(BaseResponse.success('Refresh token successfully', data));
     } catch (error) {
       logger.error('Refresh token error', error);
       next(error);

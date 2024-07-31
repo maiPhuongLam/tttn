@@ -25,7 +25,7 @@ export class ProductRepository extends Repository<Product> implements IProductRe
         color: productItems.color,
         price: productItems.price,
         itemId: productItems.id,
-        originalPrice: products.originalPrice
+        originalPrice: products.originalPrice,
       })
       .from(products)
       .orderBy(products.name)
@@ -34,7 +34,7 @@ export class ProductRepository extends Repository<Product> implements IProductRe
       gte(products.originalPrice, sql`${minPrice}::numeric`),
       lte(products.originalPrice, sql`${maxPrice}::numeric`),
     ];
-    
+
     if (name) {
       conditions.push(
         sql`to_tsvector('english', ${products.name}) @@ phraseto_tsquery('english', ${name})`,
@@ -61,17 +61,17 @@ export class ProductRepository extends Repository<Product> implements IProductRe
     const [productsResult, countResult] = await Promise.all([
       query,
       this.db
-        .select({ 
-          count: sql<number>`cast(count(${products.id}) as integer)` 
+        .select({
+          count: sql<number>`cast(count(${products.id}) as integer)`,
         })
         .from(products)
         .innerJoin(productItems, eq(productItems.productId, products.id))
-        .where(and(...conditions))
+        .where(and(...conditions)),
     ]);
-  
+
     const totalCount = countResult[0].count;
     const totalPages = Math.ceil(totalCount / pageSize);
-      
+
     return {
       products: productsResult,
       count: totalCount,

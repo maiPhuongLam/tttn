@@ -15,7 +15,7 @@ export const productBody = {
   categoryId: z.number({ required_error: 'categoryId is required' }),
   releaseDate: dateStringToDate,
   image: z.string(),
-  originalPrice: z.number(),
+  originalPrice: z.string(),
   features: z.object(
     { ...productDetailBody },
     {

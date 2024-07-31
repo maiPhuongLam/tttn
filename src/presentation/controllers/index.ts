@@ -6,4 +6,4 @@ export * from './productItemController';
 export * from './cartController';
 export * from './orderController';
 export * from './warrantyController';
-export * from './statisticController'
+export * from './statisticController';

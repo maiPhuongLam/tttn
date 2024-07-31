@@ -7,7 +7,7 @@ import {
   integer,
   index,
   boolean,
-  decimal
+  decimal,
 } from 'drizzle-orm/pg-core';
 import { InferSelectModel, relations, sql } from 'drizzle-orm';
 import { productDetails } from './productDetail';

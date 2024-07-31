@@ -33,16 +33,15 @@ export class CartItemService implements ICartItemService {
       const cart = await this.cartService.getCustomerCart(customer.id);
       await this.cartService.getOneCart(cart.id);
       const cartItems = await this.cartItemRepository.findByCartId(cart.id);
-      console.log(cartItems);
-      
+
       const items: Item[] = await Promise.all(
-        cartItems.map(async item => {
+        cartItems.map(async (item) => {
           const product = await this.productItemService.getProductItemDetail(item.productItemId);
           return {
             ...item,
             productItem: product,
-          }
-        })
+          };
+        }),
       );
       return { cartId: cart.id, items: items };
     } catch (error) {
@@ -95,7 +94,6 @@ export class CartItemService implements ICartItemService {
       throw error;
     }
   }
-
 
   async deleteCartItem(id: number): Promise<CartItem> {
     try {

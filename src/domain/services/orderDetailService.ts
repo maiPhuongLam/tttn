@@ -1,6 +1,7 @@
 import { OrderDetail } from 'src/infrastructure/database/schemas';
 import { ProductSerialEnum } from 'src/shared/enums';
 import { BasePropsType } from 'src/shared/types';
+import { ProductDetailResponse } from '../repositories';
 
 export type CreateOrderDetailDto = {
   orderId: number;

@@ -103,7 +103,7 @@ const productRelations = relations(products, ({ one, many }) => ({
   }),
   productItems: many(productItems),
   warrantyRequests: many(warrantyRequests),
-  warrantyPolicies: many(warrantyPolicies)
+  warrantyPolicies: many(warrantyPolicies),
 }));
 
 const productItemRelations = relations(productItems, ({ one, many }) => ({

@@ -138,7 +138,9 @@ container.bind(INTERFACE_NAME.WarrantyController).to(WarrantyController);
 container
   .bind<IWarrantyPolicyRepository>(INTERFACE_NAME.WarrantyPolicyRepository)
   .to(WarrantyPolicyRepository);
-container.bind<IWarrantyPolicyService>(INTERFACE_NAME.WarrantyPolicyService).to(WarrantyPolicyService);
+container
+  .bind<IWarrantyPolicyService>(INTERFACE_NAME.WarrantyPolicyService)
+  .to(WarrantyPolicyService);
 container.bind('StatisticService').to(StatisticService);
 container.bind('StatisticController').to(StatisticController);
 

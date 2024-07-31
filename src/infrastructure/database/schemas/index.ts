@@ -17,4 +17,4 @@ export * from './warrantyCasePolicy';
 export * from './warrantyDetail';
 export * from './warrantyPolicy';
 export * from './warrantyRequest';
-export * from './relations'
+export * from './relations';

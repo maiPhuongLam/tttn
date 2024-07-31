@@ -15,7 +15,12 @@ warrantyRouter.post(
   roles(['admin']),
   controller.createWarrantyCase.bind(controller),
 );
-warrantyRouter.get('/cases/:id', auth, roles(['admin']), controller.getOneWarrantyCase.bind(controller));
+warrantyRouter.get(
+  '/cases/:id',
+  auth,
+  roles(['admin']),
+  controller.getOneWarrantyCase.bind(controller),
+);
 warrantyRouter.get('/cases', auth, roles(['admin']), controller.getWarrantyCases.bind(controller));
 warrantyRouter.patch(
   '/cases/:id',
@@ -36,7 +41,12 @@ warrantyRouter.post(
   roles(['admin']),
   controller.addWarrantyPolicy.bind(controller),
 );
-warrantyRouter.get('/policies/:id', auth, roles(['admin']), controller.getWarrantyPolicy.bind(controller));
+warrantyRouter.get(
+  '/policies/:id',
+  auth,
+  roles(['admin']),
+  controller.getWarrantyPolicy.bind(controller),
+);
 warrantyRouter.get('/policies', auth, controller.getWarrantyPolicies.bind(controller));
 // warrantyRouter.patch(
 //   '/policies/:id',

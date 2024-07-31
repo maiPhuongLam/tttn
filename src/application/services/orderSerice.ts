@@ -2,7 +2,7 @@ import { injectable, inject } from 'inversify';
 import Stripe from 'stripe';
 import configuration from 'src/config/configuration';
 import { INTERFACE_NAME } from 'src/shared/constants';
-import { IOrderRepository } from 'src/domain/repositories';
+import { IOrderRepository, IUserRepository } from 'src/domain/repositories';
 import {
   CheckoutDto,
   ICustomerService,
@@ -10,6 +10,7 @@ import {
   IOrderService,
   IProductItemService,
   IProductSerialService,
+  IUserService,
   OrderRepsonse,
 } from 'src/domain/services';
 import { BadRequestError, NotFoundError } from 'src/shared/errors';
@@ -27,6 +28,7 @@ export class OrderService implements IOrderService {
     private productSerialService: IProductSerialService,
     @inject(INTERFACE_NAME.OrderDetailService) private orderDetailService: IOrderDetailService,
     @inject(INTERFACE_NAME.CustomerService) private customerService: ICustomerService,
+    @inject(INTERFACE_NAME.UserRepository) private userRepository: IUserRepository,
   ) {
     this.stripe = new Stripe(configuration.SECRET_KEY, {
       apiVersion: '2024-06-20',
@@ -42,6 +44,7 @@ export class OrderService implements IOrderService {
       throw error;
     }
   }
+  
   async getOneOder(id: number): Promise<OrderRepsonse> {
     try {
       const order = await this.orderRepository.findById(id);
@@ -49,7 +52,7 @@ export class OrderService implements IOrderService {
         throw new NotFoundError('Order not found');
       }
       const orderDetails = await this.orderDetailService.getOrderDetails(order.id);
-      return { order, details: orderDetails };
+      return { ...order, details: orderDetails };
     } catch (error) {
       logger.error(`${error}`);
       throw error;
@@ -59,16 +62,16 @@ export class OrderService implements IOrderService {
     try {
       const customer = await this.customerService.getByUserId(userId);
       const orders = await this.orderRepository.findByCustomerId(customer.id);
-      if (orders.length === 0) {
-        throw new NotFoundError('Customer has no orders');
-      }
+      // if (orders.length === 0) {
+      //   throw new NotFoundError('Customer has no orders');
+      // }
 
       const orderResponses = await Promise.all(
         orders.map(async (order) => {
           const details = await this.orderDetailService.getOrderDetails(order.id);
           console.log(details);
 
-          return { order, details };
+          return { ...order, details };
         }),
       );
 
@@ -117,12 +120,26 @@ export class OrderService implements IOrderService {
       if (lineItems.length < 1) {
         throw new BadRequestError('These products are not available right now');
       }
-
       const customer = await this.customerService.getByUserId(userId);
+      const user = await this.userRepository.findById(userId);
+      if (!user) {
+        throw new NotFoundError('');
+      }
+      let stripeId = user.stripeId;
+      if (!stripeId) {
+        const customerStripe = await this.stripe.customers.create({
+          email: user.email,
+          name: user.name,
+        });
+        await this.userRepository.update(userId, { stripeId: customerStripe.id });
+        stripeId = customerStripe.id;
+      }
       const session = await this.stripe.checkout.sessions.create({
+        customer: stripeId,
         line_items: lineItems,
         metadata: {
           customer_id: customer.id,
+          customer_stripe_id: stripeId,
         },
         mode: 'payment',
         billing_address_collection: 'required',
@@ -135,6 +152,30 @@ export class OrderService implements IOrderService {
       console.log(session);
 
       return session.url || '';
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async historyCheckout(userId: number) {
+    try {
+      const user = await this.userRepository.findById(userId);
+      if (!user) {
+        throw new NotFoundError('');
+      }
+      let stripeId = user.stripeId;
+      if (!stripeId) {
+        const customer = await this.stripe.customers.create({
+          email: user.email,
+          name: user.name,
+        });
+        await this.userRepository.update(userId, { stripeId: customer.id });
+        stripeId = customer.id;
+      }
+      return this.stripe.billingPortal.sessions.create({
+        customer: stripeId,
+        return_url: 'http://localhost:3000',
+      });
     } catch (error) {
       throw error;
     }
@@ -175,6 +216,7 @@ export class OrderService implements IOrderService {
     };
 
     const order = await this.orderRepository.add(orderData);
+    console.log(order);
 
     for (const item of lineItems.data) {
       // const productSerial = await this.productSerialService.getOneProductSerialBySerial(item.price?.product_data?.sku);

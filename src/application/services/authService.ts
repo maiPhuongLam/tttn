@@ -18,7 +18,6 @@ export class AuthService implements IAuthService {
     @inject(INTERFACE_NAME.AddressService) private addressService: IAddressService,
     @inject(INTERFACE_NAME.CustomerService) private customerService: ICustomerService,
     @inject(INTERFACE_NAME.AdminService) private adminService: IAdminService,
-
   ) {}
 
   async register(registerDto: RegisterDto): Promise<User> {
@@ -103,15 +102,15 @@ export class AuthService implements IAuthService {
 
   async me(userId: number): Promise<User> {
     try {
-      const user = await this.userRepository.findById(userId)
+      const user = await this.userRepository.findById(userId);
       if (!user) {
-        throw new NotFoundError('User not found')
+        throw new NotFoundError('User not found');
       }
-      
-      return user
+
+      return user;
     } catch (error) {
-      throw error
-    } 
+      throw error;
+    }
   }
 
   private async checkAdminOrCustomer(userId: number): Promise<UserRoles> {

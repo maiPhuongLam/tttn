@@ -16,4 +16,4 @@ export * from './warrantyCaseService';
 export * from './warrantyPolicyService';
 export * from './warrantyDetailService';
 export * from './warrantyRequestService';
-export * from './statisticService'
+export * from './statisticService';

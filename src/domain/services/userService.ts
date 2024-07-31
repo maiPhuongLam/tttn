@@ -19,4 +19,5 @@ export type UpdateUserData = Partial<CreateUserData>;
 export interface IUserService {
   createUser(createUserData: CreateUserData): Promise<User>;
   updateUser(updateUserData: UpdateUserData): Promise<User>;
+  getUser(id: number): Promise<User>;
 }

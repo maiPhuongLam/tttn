@@ -23,6 +23,7 @@ export const users = pgTable(
       .references(() => addresses.id, { onDelete: 'cascade' })
       .notNull(),
     rt: varchar('tr', { length: 256 }).unique(),
+    stripeId: varchar('stripe_id'),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
   },

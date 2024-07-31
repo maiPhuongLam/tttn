@@ -1,18 +1,15 @@
-import {
-  pgTable,
-  serial,
-  text,
-  timestamp,
-  varchar,
-  integer,
-  pgEnum,
-} from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, timestamp, varchar, integer, pgEnum } from 'drizzle-orm/pg-core';
 import { InferSelectModel } from 'drizzle-orm';
 import { customers } from './customer';
 import { productSerials } from './productSerial';
 import { warrantyCases } from './warrantyCase';
 
-export const warrantyRequestStatusEnum = pgEnum('warranty_request_status', ['pending', 'warrantying', "refused", "successed"]);
+export const warrantyRequestStatusEnum = pgEnum('warranty_request_status', [
+  'pending',
+  'warrantying',
+  'refused',
+  'successed',
+]);
 
 export const warrantyRequests = pgTable('warranty_requests', {
   id: serial('id').primaryKey(),

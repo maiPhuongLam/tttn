@@ -1,8 +1,17 @@
 import { inject, injectable } from 'inversify';
 import { IWarrantyPolicyRepository } from 'src/domain/repositories';
-import { CreateWarrantyPolicyDto, IAdminService, IWarrantyPolicyService, updateWarrantyPolicyDto } from 'src/domain/services';
+import {
+  CreateWarrantyPolicyDto,
+  IAdminService,
+  IWarrantyPolicyService,
+  updateWarrantyPolicyDto,
+} from 'src/domain/services';
 import { DB } from 'src/infrastructure/database/connect';
-import { warrantyCasesPolices, warrantyPolicies, WarrantyPolicy } from 'src/infrastructure/database/schemas';
+import {
+  warrantyCasesPolices,
+  warrantyPolicies,
+  WarrantyPolicy,
+} from 'src/infrastructure/database/schemas';
 import { INTERFACE_NAME } from 'src/shared/constants';
 import { NotFoundError } from 'src/shared/errors'; // Assuming an error class for "Not Found" scenarios
 
@@ -15,13 +24,21 @@ export class WarrantyPolicyService implements IWarrantyPolicyService {
     private adminService: IAdminService,
   ) {}
 
-
-  async createWarrantyPolicy(createWarrantyPolicyDto: CreateWarrantyPolicyDto, userId: number): Promise<WarrantyPolicy> {
+  async createWarrantyPolicy(
+    createWarrantyPolicyDto: CreateWarrantyPolicyDto,
+    userId: number,
+  ): Promise<WarrantyPolicy> {
     try {
-      const admin = await this.adminService.getAdminByUserId(userId)
-      const warrantyPolicy = await this.warrantyPolicyRepository.add({ ...createWarrantyPolicyDto, adminId: admin.id,  });
-      await DB.insert(warrantyCasesPolices).values({ warrantyCaseId: createWarrantyPolicyDto.warrantyCaseId, warrantyPolicyId: warrantyPolicy.id})
-      return warrantyPolicy
+      const admin = await this.adminService.getAdminByUserId(userId);
+      const warrantyPolicy = await this.warrantyPolicyRepository.add({
+        ...createWarrantyPolicyDto,
+        adminId: admin.id,
+      });
+      await DB.insert(warrantyCasesPolices).values({
+        warrantyCaseId: createWarrantyPolicyDto.warrantyCaseId,
+        warrantyPolicyId: warrantyPolicy.id,
+      });
+      return warrantyPolicy;
     } catch (error) {
       throw error;
     }
@@ -51,7 +68,7 @@ export class WarrantyPolicyService implements IWarrantyPolicyService {
 
   async getWarrantyPolicies(): Promise<WarrantyPolicy[]> {
     try {
-      return await this.warrantyPolicyRepository.findAll()
+      return await this.warrantyPolicyRepository.findAll();
     } catch (error) {
       throw error;
     }

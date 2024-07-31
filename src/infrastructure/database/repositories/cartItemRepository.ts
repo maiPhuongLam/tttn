@@ -5,7 +5,6 @@ import { CartItem, cartItems, ProductItem, productItems } from '../schemas';
 import logger from 'src/infrastructure/logger';
 import { eq } from 'drizzle-orm';
 
-
 @injectable()
 export class CartItemRepository extends Repository<CartItem> implements ICartItemRepository {
   constructor() {
@@ -14,12 +13,13 @@ export class CartItemRepository extends Repository<CartItem> implements ICartIte
 
   async findByCartId(cartId: number): Promise<CartItem[]> {
     try {
-      return await this.db.select()
+      return await this.db
+        .select()
         .from(cartItems)
         .where(eq(cartItems.cartId, cartId))
-        .orderBy(cartItems.createdAt)
-        // .innerJoin(productItems, eq(cartItems.productItemId, productItems.id));
-      
+        .orderBy(cartItems.createdAt);
+      // .innerJoin(productItems, eq(cartItems.productItemId, productItems.id));
+
       // const result = [cartItem].map(item => {
       //   return {
       //     cartItem: { ...item.cart_items, productItem: item.product_items }

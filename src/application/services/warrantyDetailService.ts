@@ -11,7 +11,9 @@ export class WarrantyDetailService implements IWarrantyDetailService {
     private warrantyDetailRepository: IWarrantyDetailRepository,
   ) {}
 
-  async createWarrantyDetail(warrantyDetailData: Omit<WarrantyDetail, 'id' | 'createdAt' | 'updatedAt'>): Promise<WarrantyDetail> {
+  async createWarrantyDetail(
+    warrantyDetailData: Omit<WarrantyDetail, 'id' | 'createdAt' | 'updatedAt'>,
+  ): Promise<WarrantyDetail> {
     try {
       return await this.warrantyDetailRepository.add(warrantyDetailData);
     } catch (error) {

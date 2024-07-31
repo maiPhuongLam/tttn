@@ -12,10 +12,8 @@ export type CheckoutDto = {
   SKU: string;
 }[];
 
-export type OrderRepsonse = {
-  order: Order;
-  details: OrderDetail[];
-};
+export type OrderRepsonse = Order & { details: OrderDetail[]};
+
 
 export interface IOrderService {
   getOrders(filter: any): Promise<Order[]>;
@@ -24,4 +22,5 @@ export interface IOrderService {
   updateStatusOrder(id: number, status: OrderStatusEnum): Promise<any>;
   checkout(checkoutDto: CheckoutDto, customerId: number): Promise<string>;
   webhookHandler(body: any, sig: string): Promise<void>;
+  historyCheckout(userId: number): Promise<any>;
 }

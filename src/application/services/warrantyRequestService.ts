@@ -1,6 +1,10 @@
 import { inject, injectable } from 'inversify';
 import { IWarrantyRequestRepository } from 'src/domain/repositories'; // Interface for WarrantyRequestRepository
-import { IWarrantyRequestService, UpdateWarrantyRequestDto, CreateWarrantyRequestDto } from 'src/domain/services';
+import {
+  IWarrantyRequestService,
+  UpdateWarrantyRequestDto,
+  CreateWarrantyRequestDto,
+} from 'src/domain/services';
 import { WarrantyRequest } from 'src/infrastructure/database/schemas';
 import { NotFoundError } from 'src/shared/errors'; // Assuming an error class for "Not Found" scenarios
 import { BasePropsType } from 'src/shared/types';
@@ -12,7 +16,9 @@ export class WarrantyRequestService implements IWarrantyRequestService {
     private warrantyRequestRepository: IWarrantyRequestRepository,
   ) {}
 
-  async createWarrantyRequest(warrantyRequestData: CreateWarrantyRequestDto): Promise<WarrantyRequest> {
+  async createWarrantyRequest(
+    warrantyRequestData: CreateWarrantyRequestDto,
+  ): Promise<WarrantyRequest> {
     try {
       return await this.warrantyRequestRepository.add({
         ...warrantyRequestData,
@@ -43,7 +49,10 @@ export class WarrantyRequestService implements IWarrantyRequestService {
     }
   }
 
-  async updateWarrantyRequest(id: number, updateWarrantyRequestData: UpdateWarrantyRequestDto): Promise<WarrantyRequest> {
+  async updateWarrantyRequest(
+    id: number,
+    updateWarrantyRequestData: UpdateWarrantyRequestDto,
+  ): Promise<WarrantyRequest> {
     try {
       await this.getWarrantyRequestById(id); // Check if exists before update
       return await this.warrantyRequestRepository.update(id, updateWarrantyRequestData);

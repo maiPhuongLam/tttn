@@ -1,4 +1,4 @@
-import { verifyRefreshTokenFromRequest } from "src/shared/utils";
+import { verifyRefreshTokenFromRequest } from 'src/shared/utils';
 import { Request, Response, NextFunction } from 'express';
 
 export const refresh = (req: Request, res: Response, next: NextFunction) => {

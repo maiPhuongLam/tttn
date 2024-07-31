@@ -5,15 +5,21 @@ export type CreateWarrantyPolicyDto = {
   warrantyPeriod: number;
   description: string;
   warrantyCaseId: number;
-}
+};
 
-export type updateWarrantyPolicyDto = Partial<CreateWarrantyPolicyDto>
+export type updateWarrantyPolicyDto = Partial<CreateWarrantyPolicyDto>;
 
 export interface IWarrantyPolicyService {
-  createWarrantyPolicy(createWarrantyPolicyDto: CreateWarrantyPolicyDto, userId: number): Promise<WarrantyPolicy>;
+  createWarrantyPolicy(
+    createWarrantyPolicyDto: CreateWarrantyPolicyDto,
+    userId: number,
+  ): Promise<WarrantyPolicy>;
   getWarrantyPolicies(): Promise<WarrantyPolicy[]>;
   getWarrantyPolicyByProductId(productId: number): Promise<WarrantyPolicy[]>;
   getWarrantyPolicyById(id: number): Promise<WarrantyPolicy>;
-  updateWarrantyPolicy(id: number, updateWarrantyPolicyDto: updateWarrantyPolicyDto): Promise<WarrantyPolicy>;
+  updateWarrantyPolicy(
+    id: number,
+    updateWarrantyPolicyDto: updateWarrantyPolicyDto,
+  ): Promise<WarrantyPolicy>;
   deleteWarrantyPolicy(id: number): Promise<void>;
 }

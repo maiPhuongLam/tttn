@@ -4,4 +4,4 @@ export * from './search';
 export * from './job';
 export * from './multer';
 export * from './handleS3';
-export * from './formatDate'
+export * from './formatDate';

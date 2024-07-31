@@ -15,11 +15,12 @@ export class WarrantyPolicyRepository
 
   async findByProductId(productId: number): Promise<WarrantyPolicy[]> {
     try {
-      return await this.db.select().from(warrantyPolicies).where(eq(warrantyPolicies.productId, productId))
+      return await this.db
+        .select()
+        .from(warrantyPolicies)
+        .where(eq(warrantyPolicies.productId, productId));
     } catch (error) {
-      throw error
+      throw error;
     }
   }
-
-  
 }

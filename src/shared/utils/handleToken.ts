@@ -31,7 +31,7 @@ export const verifyAccessToken = (token: string): { id: number; role: UserRoles 
 };
 
 export const verifyRefreshToken = (token: string): { id: number; role: UserRoles } => {
-  return jwt.verify(token, JWT_REFRESH_SECRET_KEY) as { id: number; role: UserRoles};
+  return jwt.verify(token, JWT_REFRESH_SECRET_KEY) as { id: number; role: UserRoles };
 };
 
 // Middleware to verify access token from the request
@@ -51,7 +51,7 @@ export const verifyAccessTokenFromRequest = (req: Request): { id: number; role: 
 };
 
 export const verifyRefreshTokenFromRequest = (req: Request): { id: number; role: UserRoles } => {
-  const refresh_token = req.query.refresh_token as string
+  const refresh_token = req.query.refresh_token as string;
   if (!refresh_token) {
     throw new UnAuthorizedError('Missing refresh_token');
   }
@@ -63,5 +63,3 @@ export const verifyRefreshTokenFromRequest = (req: Request): { id: number; role:
     throw new UnAuthorizedError(error.message);
   }
 };
-
-

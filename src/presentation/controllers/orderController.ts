@@ -6,6 +6,16 @@ import logger from 'src/infrastructure/logger';
 @injectable()
 export class OrderController {
   constructor(@inject(INTERFACE_NAME.OrderService) private orderService: IOrderService) {}
+  async getHistory(req: Request, res: Response, next: NextFunction) {
+    try {
+      logger.error(111);
+      const userId = req.userId;
+      const data = await this.orderService.historyCheckout(userId);
+      res.status(200).json(data);
+    } catch (error) {
+      next(error);
+    }
+  }
 
   async getCustomerOrders(req: Request, res: Response, next: NextFunction) {
     try {
