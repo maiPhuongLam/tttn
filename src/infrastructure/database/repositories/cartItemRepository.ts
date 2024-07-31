@@ -12,19 +12,19 @@ export class CartItemRepository extends Repository<CartItem> implements ICartIte
     super(cartItems);
   }
 
-  async findByCartId(cartId: number): Promise<FindByCartIdResponse[]> {
+  async findByCartId(cartId: number): Promise<CartItem[]> {
     try {
-      const query = await this.db.select()
+      const [cartItem] = await this.db.select()
         .from(cartItems)
         .where(eq(cartItems.cartId, cartId))
-        .innerJoin(productItems, eq(cartItems.productItemId, productItems.id));
+        // .innerJoin(productItems, eq(cartItems.productItemId, productItems.id));
       
-      const result = query.map(data => {
-        return {
-          cartItem: { ...data.cart_items, productItem: data.product_items }
-        }
-      })
-      return result
+      // const result = [cartItem].map(item => {
+      //   return {
+      //     cartItem: { ...item.cart_items, productItem: item.product_items }
+      //   }
+      // })
+      return [cartItem] 
     } catch (error) {
       logger.error('Error in findCartId', error);
       throw error;

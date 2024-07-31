@@ -1,5 +1,5 @@
 import { CartItem } from 'src/infrastructure/database/schemas';
-import { FindByCartIdResponse } from '../repositories';
+import { FindByCartIdResponse, ProductDetailResponse } from '../repositories';
 
 export type CreateCartItemDto = {
   cartId: number;
@@ -7,9 +7,10 @@ export type CreateCartItemDto = {
   productItemId: number;
   quantity: number;
 };
-
+type Item = CartItem & { productItem: ProductDetailResponse; }
+export type GetCartItemsResponse = { cartId: number, items: Item[] }
 export interface ICartItemService {
-  getCartItems(userId: number): Promise<{ cartId: number; items: FindByCartIdResponse[] }>;
+  getCartItems(userId: number): Promise<GetCartItemsResponse>;
   getOneCartItem(id: number): Promise<CartItem>;
   updateCartItem(createCartData: CreateCartItemDto): Promise<CartItem>;
   deleteCartItem(id: number): Promise<CartItem>;
