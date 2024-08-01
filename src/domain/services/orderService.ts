@@ -6,14 +6,22 @@
 import { Order, OrderDetail } from 'src/infrastructure/database/schemas';
 import { OrderStatusEnum } from 'src/shared/enums';
 
+type ProductCartItem = {
+  name: string;
+  image: string;
+  SKU: string;
+  quantity: number;
+  productItemId: number;
+  price: string;
+};
+
 // }
 export type CheckoutDto = {
-  quantity: number;
-  SKU: string;
-}[];
+  cartId?: number;
+  productItems: ProductCartItem[];
+};
 
-export type OrderRepsonse = Order & { details: OrderDetail[]};
-
+export type OrderRepsonse = Order & { details: OrderDetail[] };
 
 export interface IOrderService {
   getOrders(filter: any): Promise<Order[]>;

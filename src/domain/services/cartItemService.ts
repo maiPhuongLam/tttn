@@ -14,5 +14,5 @@ export interface ICartItemService {
   getOneCartItem(id: number): Promise<CartItem>;
   updateCartItem(createCartData: CreateCartItemDto): Promise<CartItem>;
   deleteCartItem(id: number): Promise<CartItem>;
-  getOneCartItemByProductItemIdAndCartId(itemId: number, cartId: number): Promise<CartItem>
+  getOneCartItemByProductItemIdAndCartId(itemId: number, cartId: number): Promise<CartItem>;
 }

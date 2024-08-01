@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import { IOrderService } from 'src/domain/services';
+import { CheckoutDto, IOrderService } from 'src/domain/services';
 import { INTERFACE_NAME, STATUS_CODES } from 'src/shared/constants';
 import { Request, Response, NextFunction } from 'express';
 import logger from 'src/infrastructure/logger';
@@ -63,7 +63,9 @@ export class OrderController {
 
   async checkout(req: Request, res: Response, next: NextFunction) {
     try {
-      const body = req.body;
+      console.log(req.body);
+
+      const body = <CheckoutDto>req.body;
       const userId = req.userId;
       const data = await this.orderService.checkout(body, userId);
       const response = {

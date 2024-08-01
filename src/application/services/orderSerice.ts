@@ -16,7 +16,9 @@ import {
 import { BadRequestError, NotFoundError } from 'src/shared/errors';
 import { OrderStatusEnum, ProductSerialEnum } from 'src/shared/enums';
 import logger from 'src/infrastructure/logger';
-import { Order } from 'src/infrastructure/database/schemas';
+import { cartItems, carts, Order } from 'src/infrastructure/database/schemas';
+import { DB } from 'src/infrastructure/database/connect';
+import { and, eq } from 'drizzle-orm';
 
 @injectable()
 export class OrderService implements IOrderService {
@@ -44,7 +46,7 @@ export class OrderService implements IOrderService {
       throw error;
     }
   }
-  
+
   async getOneOder(id: number): Promise<OrderRepsonse> {
     try {
       const order = await this.orderRepository.findById(id);
@@ -69,7 +71,6 @@ export class OrderService implements IOrderService {
       const orderResponses = await Promise.all(
         orders.map(async (order) => {
           const details = await this.orderDetailService.getOrderDetails(order.id);
-          console.log(details);
 
           return { ...order, details };
         }),
@@ -97,23 +98,28 @@ export class OrderService implements IOrderService {
 
   async checkout(checkoutDto: CheckoutDto, userId: number): Promise<string> {
     try {
-      const lineItems = [];
-      for (let i = 0; i < checkoutDto.length; i++) {
+      let lineItems = [];
+
+      for (let i = 0; i < checkoutDto.productItems.length; i++) {
         // const prodSeri = await this.productSerialService.getOneProductSerialBySerial(checkoutDto[i].productSerial)
         // const productItem = await this.productItemService.getOneProductItem(prodSeri.productItemId)
-        const productItem = await this.productItemService.getOneProductitemBySku(
-          checkoutDto[i].SKU,
-        );
+
         lineItems.push({
           price_data: {
             currency: 'vnd',
             product_data: {
-              name: productItem.name,
-              metadata: { sku: productItem.SKU, prodictItemId: productItem.id },
+              name: checkoutDto.productItems[i].name,
+              metadata: {
+                image: checkoutDto.productItems[i].image,
+                SKU: checkoutDto.productItems[i].SKU,
+                quantity: checkoutDto.productItems[i].quantity,
+                productItemId: checkoutDto.productItems[i].productItemId,
+                cartId: checkoutDto.cartId || null,
+              },
             },
-            unit_amount: Math.round(Number(productItem.price) * 100),
+            unit_amount: Math.round(Number(checkoutDto.productItems[i].price)),
           },
-          quantity: checkoutDto[i].quantity,
+          quantity: checkoutDto.productItems[i].quantity,
         });
       }
 
@@ -125,6 +131,7 @@ export class OrderService implements IOrderService {
       if (!user) {
         throw new NotFoundError('');
       }
+
       let stripeId = user.stripeId;
       if (!stripeId) {
         const customerStripe = await this.stripe.customers.create({
@@ -134,12 +141,15 @@ export class OrderService implements IOrderService {
         await this.userRepository.update(userId, { stripeId: customerStripe.id });
         stripeId = customerStripe.id;
       }
+
       const session = await this.stripe.checkout.sessions.create({
         customer: stripeId,
         line_items: lineItems,
         metadata: {
           customer_id: customer.id,
           customer_stripe_id: stripeId,
+          cart_id: checkoutDto.cartId || null,
+          product_items: JSON.stringify(checkoutDto.productItems),
         },
         mode: 'payment',
         billing_address_collection: 'required',
@@ -149,8 +159,6 @@ export class OrderService implements IOrderService {
         success_url: configuration.SUCCESS_URL,
         cancel_url: configuration.CANCEL_URL,
       });
-      console.log(session);
-
       return session.url || '';
     } catch (error) {
       throw error;
@@ -191,11 +199,10 @@ export class OrderService implements IOrderService {
         logger.error(`Webhook Error: ${err.message}`);
         throw new BadRequestError(`Webhook Error: ${err.message}`);
       }
-      logger.info('webhookHandler');
-      logger.info(event.type);
       // Handle the event
       if (event.type === 'checkout.session.completed') {
         const session = event.data.object;
+
         await this.handleCompletedCheckoutSession(session);
       }
     } catch (error) {
@@ -205,6 +212,7 @@ export class OrderService implements IOrderService {
   }
 
   private async handleCompletedCheckoutSession(session: any): Promise<void> {
+    const productItems = JSON.parse(session.metadata.product_items);
     const lineItems = await this.stripe.checkout.sessions.listLineItems(session.id);
     const orderData = {
       customerId: session.metadata.customer_id,
@@ -215,8 +223,45 @@ export class OrderService implements IOrderService {
       stripePaymentIntentId: session.payment_intent,
     };
 
+    if (session.metadata.cart_id) {
+      await Promise.all([
+        productItems.map(async (item: any) => {
+          const [cartItem] = await DB.select({ id: cartItems.id, quantity: cartItems.quantity })
+            .from(cartItems)
+            .where(
+              and(
+                eq(cartItems.cartId, Number(session.metadata.cart_id)),
+                eq(cartItems.productItemId, item.productItemId),
+              ),
+            )
+            .execute();
+          if (cartItem) {
+            if (cartItem.quantity > item.quantity) {
+              await DB.update(cartItems)
+                .set({ quantity: cartItem.quantity - item.quantity })
+                .where(
+                  and(
+                    eq(cartItems.cartId, Number(session.metadata.cart_id)),
+                    eq(cartItems.productItemId, item.productItemId),
+                  ),
+                )
+                .execute();
+            } else {
+              await DB.delete(cartItems)
+                .where(
+                  and(
+                    eq(cartItems.cartId, Number(session.metadata.cart_id)),
+                    eq(cartItems.productItemId, item.productItemId),
+                  ),
+                )
+                .execute();
+            }
+          }
+        }),
+      ]);
+    }
+
     const order = await this.orderRepository.add(orderData);
-    console.log(order);
 
     for (const item of lineItems.data) {
       // const productSerial = await this.productSerialService.getOneProductSerialBySerial(item.price?.product_data?.sku);
