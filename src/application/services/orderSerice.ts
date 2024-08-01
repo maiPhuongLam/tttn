@@ -110,7 +110,6 @@ export class OrderService implements IOrderService {
             product_data: {
               name: checkoutDto.productItems[i].name,
               metadata: {
-                image: checkoutDto.productItems[i].image,
                 SKU: checkoutDto.productItems[i].SKU,
                 quantity: checkoutDto.productItems[i].quantity,
                 productItemId: checkoutDto.productItems[i].productItemId,
@@ -149,7 +148,7 @@ export class OrderService implements IOrderService {
           customer_id: customer.id,
           customer_stripe_id: stripeId,
           cart_id: checkoutDto.cartId || null,
-          product_items: JSON.stringify(checkoutDto.productItems),
+          product_items: JSON.stringify(checkoutDto.productItems.map(item => ({ quantity: item.quantity, productItemId: item.productItemId }))),
         },
         mode: 'payment',
         billing_address_collection: 'required',
@@ -291,6 +290,6 @@ export class OrderService implements IOrderService {
       }
     }
 
-    await this.orderRepository.update(order.id, { orderStatus: 'processing' });
+    await this.orderRepository.update(order.id, { orderStatus: 'completed' });
   }
 }

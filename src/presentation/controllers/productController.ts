@@ -1,9 +1,13 @@
+import { eq } from 'drizzle-orm';
 import { Request, Response, NextFunction } from 'express';
 import { inject, injectable } from 'inversify';
 import { CreateProductDto, UpdateProductDto } from 'src/application/dtos';
 import { IProductService } from 'src/domain/services';
+import { DB } from 'src/infrastructure/database/connect';
+import { productItems, products } from 'src/infrastructure/database/schemas';
 import logger from 'src/infrastructure/logger';
 import { INTERFACE_NAME, STATUS_CODES } from 'src/shared/constants';
+import { BaseResponse } from 'src/shared/types/baseResponse';
 import { putObjectUrl } from 'src/shared/utils';
 
 @injectable()
@@ -112,6 +116,15 @@ export class ProductController {
     } catch (error) {
       console.error('Image upload failed:', error);
       next(error);
+    }
+  }
+
+  async getAllProduct(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await DB.select().from(products).innerJoin(productItems, eq(products.id, productItems.productId)).execute()
+      return res.status(STATUS_CODES.OK).json(BaseResponse.success('Get All Products Is Successful', data))
+    } catch (error) {
+      next(error)
     }
   }
 

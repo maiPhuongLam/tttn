@@ -9,6 +9,7 @@ import { deleteObject, putObjectUrl, upload } from 'src/shared/utils';
 const productRouter = express.Router();
 const controller = container.get<ProductController>(INTERFACE_NAME.ProductController);
 
+productRouter.get('/all', controller.getAllProduct.bind(controller));
 productRouter.get('/:id', controller.getProduct.bind(controller));
 productRouter.get('/', controller.getProducts.bind(controller));
 productRouter.post(
