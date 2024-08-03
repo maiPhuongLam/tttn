@@ -16,13 +16,14 @@ export type CreateProductDto = {
     os: string;
   };
 };
+
 export type UpdateProductDto = Partial<CreateProductDto>;
 
 export interface IProductService {
   getProducts(filter: any): Promise<Product[] | RepoResponseGetProducts>;
   getOneProduct(id: number): Promise<Product>;
   createProduct(createProductDto: CreateProductDto, userId: number): Promise<Product>;
-  updateProduct(id: number, updateProductDto: UpdateProductDto): Promise<Product>;
+  updateProduct(id: number, updateProductDto: UpdateProductDto): Promise<any>;
   softDeleteProduct(id: number): Promise<Product>;
   deleteProduct(id: number): Promise<Product>;
   // getProductByName(name: string): Promise<any>

@@ -1,19 +1,23 @@
 import { pgTable, serial, text, timestamp, varchar, integer, decimal } from 'drizzle-orm/pg-core';
 import { InferSelectModel } from 'drizzle-orm';
-import { warrantyPolicies } from './warrantyPolicy';
-import { warrantyRequests } from './warrantyRequest';
+import { customers } from './customer';
+import { productSerials } from './productSerial';
+import { warrantyCases } from './warrantyCase';
+import { orders } from './order';
+import { warranties } from './warranty';
 
 export const warrantyDetails = pgTable('warranty_details', {
   id: serial('id').primaryKey(),
-  warrantyRequestId: integer('warranty_request_id')
-    .references(() => warrantyRequests.id)
+  productSerial: varchar('product_serial')
+    .references(() => productSerials.serialNumber)
     .notNull(),
-  warrantyPolicyId: integer('warranty_policy_id')
-    .references(() => warrantyPolicies.id)
+  warrantyCaseId: integer('warranty_case_id')
+    .references(() => warrantyCases.id)
     .notNull(),
-  repairDate: timestamp('repair_date').notNull().defaultNow(),
-  repairDescription: text('repair_description').notNull(),
-  cost: decimal('cost', { precision: 9, scale: 2 }).notNull(),
+  warrantyId: integer('warranty_id')
+    .references(() => warranties.id, { onDelete: 'cascade' })
+    .notNull(),
+  cost: decimal('cost', { precision: 10, scale: 0 }).notNull(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });

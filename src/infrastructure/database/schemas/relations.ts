@@ -4,20 +4,18 @@ import { users } from './user';
 import { brands } from './brand';
 import { categories } from './category';
 import { products } from './product';
-import { warrantyPolicies } from './warrantyPolicy';
 import { admins } from './admin';
 import { carts } from './cart';
 import { cartItems } from './cartItem';
 import { productItems } from './productItem';
 import { customers } from './customer';
-import { warrantyRequests } from './warrantyRequest';
 import { orders } from './order';
 import { orderDetails } from './orderDetail';
 import { productDetails } from './productDetail';
 import { warrantyCases } from './warrantyCase';
-import { warrantyCasesPolices } from './warrantyCasePolicy';
 import { warrantyDetails } from './warrantyDetail';
 import { productSerials } from './productSerial';
+import { warranties } from './warranty';
 
 const addressRelations = relations(addresses, ({ one }) => ({
   user: one(users),
@@ -27,7 +25,6 @@ const adminRelations = relations(users, ({ many }) => ({
   brands: many(brands),
   categories: many(categories),
   products: many(products),
-  warrantyPolicies: many(warrantyPolicies),
 }));
 
 const brandRelations = relations(brands, ({ many, one }) => ({
@@ -64,8 +61,8 @@ const categoryRelations = relations(categories, ({ many, one }) => ({
 const customerRelations = relations(customers, ({ one, many }) => {
   return {
     cart: one(customers),
-    warrantyRequests: many(warrantyRequests),
     orders: many(orders),
+    warrantyDetails: many(warrantyDetails),
   };
 });
 
@@ -102,8 +99,6 @@ const productRelations = relations(products, ({ one, many }) => ({
     references: [categories.id],
   }),
   productItems: many(productItems),
-  warrantyRequests: many(warrantyRequests),
-  warrantyPolicies: many(warrantyPolicies),
 }));
 
 const productItemRelations = relations(productItems, ({ one, many }) => ({
@@ -119,7 +114,7 @@ const productSerialRelations = relations(productSerials, ({ one, many }) => ({
     fields: [productSerials.productItemId],
     references: [productItems.productId],
   }),
-  warrantieRequests: many(warrantyRequests),
+  warrantyDetails: many(warrantyDetails),
 }));
 
 const productDetailRelations = relations(productDetails, ({ one }) => ({
@@ -135,57 +130,24 @@ const userRelations = relations(users, ({ one }) => ({
 }));
 
 const warrantyCaseRelations = relations(warrantyCases, ({ many, one }) => ({
-  warrantyCasePolices: many(warrantyCasesPolices),
-  admin: one(admins, {
-    fields: [warrantyCases.adminId],
-    references: [admins.id],
-  }),
-  warrantyDetail: many(warrantyDetails),
+  warrantyDetails: many(warrantyDetails),
 }));
 
-const warrantyCasesPolicesRelations = relations(warrantyCasesPolices, ({ one }) => ({
-  warrantyPolicy: one(warrantyPolicies, {
-    fields: [warrantyCasesPolices.warrantyPolicyId],
-    references: [warrantyPolicies.id],
-  }),
-  warrantyCase: one(warrantyCases, {
-    fields: [warrantyCasesPolices.warrantyCaseId],
-    references: [warrantyCases.id],
-  }),
+const warrantyRelations = relations(warranties, ({ many, one }) => ({
+  warrantyDetails: many(warrantyDetails),
 }));
 
 const warrantyDetailRelations = relations(warrantyDetails, ({ one }) => ({
-  warrantyRequest: one(warrantyRequests, {
-    fields: [warrantyDetails.warrantyRequestId],
-    references: [warrantyRequests.id],
-  }),
-  warrantyPolicy: one(warrantyPolicies, {
-    fields: [warrantyDetails.warrantyPolicyId],
-    references: [warrantyPolicies.id],
-  }),
-}));
-
-const warrantyPolicyRelations = relations(warrantyPolicies, ({ many, one }) => ({
-  product: one(products, {
-    fields: [warrantyPolicies.productId],
-    references: [products.id],
-  }),
-  admin: one(admins, {
-    fields: [warrantyPolicies.adminId],
-    references: [admins.id],
-  }),
-  warrantyDetail: many(warrantyDetails),
-  warrantyCases: many(warrantyCasesPolices),
-}));
-
-const warrantyRequestRelations = relations(warrantyRequests, ({ many, one }) => ({
-  customer: one(customers, {
-    fields: [warrantyRequests.customerId],
-    references: [customers.id],
+  warrantyCase: one(warrantyCases, {
+    fields: [warrantyDetails.warrantyCaseId],
+    references: [warrantyCases.id],
   }),
   productSerial: one(productSerials, {
-    fields: [warrantyRequests.productSerial],
-    references: [productSerials.serialNumber],
+    fields: [warrantyDetails.productSerial],
+    references: [productSerials.id],
   }),
-  warrantyDetail: many(warrantyDetails),
+  warranty: one(warranties, {
+    fields: [warrantyDetails.warrantyId],
+    references: [warranties.id],
+  }),
 }));

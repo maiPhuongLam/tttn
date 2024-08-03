@@ -6,7 +6,7 @@ import {
   ProductFilters,
   RepoResponseGetProducts,
 } from 'src/domain/repositories';
-import { eq, sql, and, count, gte, lte } from 'drizzle-orm';
+import { eq, sql, and, count, gte, lte, or } from 'drizzle-orm';
 
 @injectable()
 export class ProductRepository extends Repository<Product> implements IProductRepository {
@@ -15,6 +15,8 @@ export class ProductRepository extends Repository<Product> implements IProductRe
   }
   async filter(filters: ProductFilters): Promise<RepoResponseGetProducts> {
     const { name, brandId, page = 1, pageSize = 12, minPrice = 0, maxPrice = 200000000 } = filters;
+    console.log(brandId);
+    
     let baseQuery = this.db
       .select({
         productId: products.id,
@@ -37,10 +39,10 @@ export class ProductRepository extends Repository<Product> implements IProductRe
 
     if (name) {
       conditions.push(
-        sql`to_tsvector('english', ${products.name}) @@ phraseto_tsquery('english', ${name})`,
-      );
-      conditions.push(
-        sql`to_tsvector('english', ${products.name}) @@ websearch_to_tsquery('english', ${name})`,
+        sql`${or(
+          sql`to_tsvector('english', ${products.name}) @@ phraseto_tsquery('english', ${name})`,
+          sql`to_tsvector('english', ${products.name}) @@ websearch_to_tsquery('english', ${name})`
+        )}`
       );
     }
 
@@ -57,7 +59,8 @@ export class ProductRepository extends Repository<Product> implements IProductRe
             .limit(pageSize)
             .offset(offset)
         : baseQuery.limit(pageSize).offset(offset);
-
+    console.log(conditions);
+    
     const [productsResult, countResult] = await Promise.all([
       query,
       this.db

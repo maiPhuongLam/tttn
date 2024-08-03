@@ -3,6 +3,32 @@ import { CheckoutDto, IOrderService } from 'src/domain/services';
 import { INTERFACE_NAME, STATUS_CODES } from 'src/shared/constants';
 import { Request, Response, NextFunction } from 'express';
 import logger from 'src/infrastructure/logger';
+import { DB } from 'src/infrastructure/database/connect';
+import {
+  customers,
+  orderDetails,
+  orders,
+  productItems,
+  products,
+  productSerials,
+  users,
+} from 'src/infrastructure/database/schemas';
+import { eq } from 'drizzle-orm';
+import { BaseResponse } from 'src/shared/types/baseResponse';
+type CombinedOrder = {
+  id: number;
+  totalPrice: string;
+  orderDate: string;
+  orderStatus: string;
+  customer_name: string;
+  customer_email: string;
+  details: {
+    product: string;
+    storage: string;
+    color: string;
+    quantity: number;
+  }[];
+};
 @injectable()
 export class OrderController {
   constructor(@inject(INTERFACE_NAME.OrderService) private orderService: IOrderService) {}
@@ -96,4 +122,104 @@ export class OrderController {
       next(error);
     }
   }
+
+  async getAllOrders2(req: Request, res: Response, next: NextFunction) {
+    try {
+      const query = DB.select({
+        id: orders.id,
+        totalPrice: orders.totalPrice,
+        orderDate: orders.orderDate,
+        orderStatus: orders.orderStatus,
+        customer_name: users.name,
+        customer_email: users.email,
+        product: products.name,
+        storage: productItems.storage,
+        color: productItems.color,
+      })
+        .from(orders)
+        .$dynamic();
+
+      query
+        .innerJoin(orderDetails, eq(orderDetails.orderId, orders.id))
+        .innerJoin(customers, eq(customers.id, orders.customerId))
+        .innerJoin(users, eq(users.id, customers.userId))
+        .innerJoin(productSerials, eq(productSerials.serialNumber, orderDetails.productSerial))
+        .innerJoin(productItems, eq(productItems.id, productSerials.productItemId))
+        .innerJoin(products, eq(products.id, productItems.productId));
+
+      const data = await query;
+      return res.status(STATUS_CODES.OK).json(BaseResponse.success('Get all order success', data));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getOrderDetails(req: Request, res: Response, next: NextFunction) {
+    try {
+      const orderMap = new Map<number, CombinedOrder>();
+      const { id } = req.params;
+      const query = DB.select({
+        id: orderDetails.orderId,
+        totalPrice: orders.totalPrice,
+        orderDate: orders.orderDate,
+        orderStatus: orders.orderStatus,
+        customer_name: users.name,
+        customer_email: users.email,
+        product: products.name,
+        storage: productItems.storage,
+        color: productItems.color,
+        quantity: orderDetails.quantity,
+      })
+        .from(orderDetails)
+        .where(eq(orderDetails.orderId, +id))
+        .$dynamic();
+
+      query
+        .innerJoin(orders, eq(orders.id, orderDetails.orderId))
+        .innerJoin(customers, eq(customers.id, orders.customerId))
+        .innerJoin(users, eq(users.id, customers.userId))
+        .innerJoin(productSerials, eq(productSerials.serialNumber, orderDetails.productSerial))
+        .innerJoin(productItems, eq(productItems.id, productSerials.productItemId))
+        .innerJoin(products, eq(products.id, productItems.productId));
+
+      const data = await query;
+      data.forEach((order) => {
+        if (!orderMap.has(order.id)) {
+          orderMap.set(order.id, {
+            id: order.id,
+            totalPrice: order.totalPrice,
+            orderDate: order.orderDate,
+            orderStatus: order.orderStatus,
+            customer_name: order.customer_name,
+            customer_email: order.customer_email,
+            details: [],
+          });
+        }
+
+        const combinedOrder = orderMap.get(order.id)!;
+        combinedOrder.details.push({
+          product: order.product,
+          storage: order.storage,
+          color: order.color,
+          quantity: order.quantity,
+        });
+      });
+      return res
+        .status(STATUS_CODES.OK)
+        .json(BaseResponse.success('Get order detail success', Array.from(orderMap.values())[0]));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // async deleteOrder(req: Request, res: Response, next: NextFunction) {
+  //   try {
+  //     const { id } = req.params
+
+  //     const [data] = await DB.delete(orders);
+  //     return res.status(STATUS_CODES.OK).json(BaseResponse.success('Get order detail success', data))
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // }
 }

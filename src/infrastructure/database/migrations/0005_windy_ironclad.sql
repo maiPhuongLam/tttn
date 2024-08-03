@@ -1,0 +1,1 @@
+ALTER TABLE "warranties" ADD COLUMN "appointment_date" timestamp NOT NULL;

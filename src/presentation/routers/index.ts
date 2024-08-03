@@ -10,9 +10,11 @@ import cartRouter from './cart';
 import orderRouter from './order';
 import warrantyRouter from './warranty';
 import statisticRouter from './statistic';
+import userRouter from './user';
 
 const appRouter = (app: Express) => {
   app.use('/health', healthRouter);
+  app.use('/users', userRouter);
   app.use('/auth', authRouter);
   app.use('/brands', brandRouter);
   app.use('/categories', categoryRouter);

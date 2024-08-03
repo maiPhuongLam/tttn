@@ -1,0 +1,1 @@
+ALTER TABLE "warranty_details" ALTER COLUMN "cost" SET DATA TYPE numeric(10, 0);

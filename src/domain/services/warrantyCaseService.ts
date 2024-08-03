@@ -7,10 +7,7 @@ export type CreateWarrantyCaseDto = {
 export type UpdateWarrantyCaseDto = Partial<CreateWarrantyCaseDto>;
 
 export interface IWarrantyCaseService {
-  createWarrantyCase(
-    createWarrantyCaseDto: CreateWarrantyCaseDto,
-    userId: number,
-  ): Promise<WarrantyCase>;
+  createWarrantyCase(createWarrantyCaseDto: CreateWarrantyCaseDto): Promise<WarrantyCase>;
   getWarrantyCases(): Promise<WarrantyCase[]>;
   getOneWarrantyCase(id: number): Promise<WarrantyCase>;
   updateWarrantyCase(

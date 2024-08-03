@@ -83,6 +83,7 @@ import {
   StatisticController,
   WarrantyController,
 } from 'src/presentation/controllers';
+import { UserController } from 'src/presentation/controllers/userController';
 
 const container = new Container();
 
@@ -143,5 +144,5 @@ container
   .to(WarrantyPolicyService);
 container.bind('StatisticService').to(StatisticService);
 container.bind('StatisticController').to(StatisticController);
-
+container.bind('UserController').to(UserController);
 export default container;

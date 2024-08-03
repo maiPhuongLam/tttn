@@ -28,12 +28,6 @@ EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
-DO $$ BEGIN
- CREATE TYPE "public"."warranty_request_status" AS ENUM('pending', 'warrantying', 'refused', 'successed');
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "addresses" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"street_address" text,
@@ -73,7 +67,7 @@ CREATE TABLE IF NOT EXISTS "cart_items" (
 	"cart_id" integer NOT NULL,
 	"product_item_id" integer NOT NULL,
 	"quantity" integer NOT NULL,
-	"price" real NOT NULL,
+	"price" numeric(10, 0) NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
@@ -97,7 +91,7 @@ CREATE TABLE IF NOT EXISTS "customers" (
 CREATE TABLE IF NOT EXISTS "orders" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"customer_id" integer NOT NULL,
-	"total_price" real NOT NULL,
+	"total_price" numeric(10, 0) NOT NULL,
 	"order_date" timestamp DEFAULT now() NOT NULL,
 	"order_status" "order_status" NOT NULL,
 	"checkout_session_id" varchar NOT NULL,
@@ -111,7 +105,7 @@ CREATE TABLE IF NOT EXISTS "order_details" (
 	"order_id" integer NOT NULL,
 	"product_serial" varchar NOT NULL,
 	"quantity" integer NOT NULL,
-	"price" real NOT NULL,
+	"price" numeric(10, 0) NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
@@ -120,7 +114,7 @@ CREATE TABLE IF NOT EXISTS "products" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"name" varchar(256) NOT NULL,
 	"image" text NOT NULL,
-	"original_price" real NOT NULL,
+	"original_price" numeric(9, 0) NOT NULL,
 	"admin_id" integer,
 	"brand_id" integer,
 	"category_id" integer,
@@ -149,7 +143,7 @@ CREATE TABLE IF NOT EXISTS "product_items" (
 	"sku" varchar(256) NOT NULL,
 	"qty_in_stock" integer NOT NULL,
 	"status" "product_item_request_status" NOT NULL,
-	"price" real NOT NULL,
+	"price" numeric(10, 0) NOT NULL,
 	"color" varchar NOT NULL,
 	"storage" varchar NOT NULL,
 	"ram" varchar NOT NULL,
@@ -179,6 +173,7 @@ CREATE TABLE IF NOT EXISTS "users" (
 	"phone_number" text NOT NULL,
 	"address_id" integer NOT NULL,
 	"tr" varchar(256),
+	"stripe_id" varchar,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "users_email_unique" UNIQUE("email"),
@@ -194,40 +189,13 @@ CREATE TABLE IF NOT EXISTS "warranty_cases" (
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "warranty_cases_polices" (
-	"warranty_policy_id" integer NOT NULL,
-	"warranty_case_id" integer NOT NULL,
-	CONSTRAINT "warranty_cases_polices_warranty_policy_id_warranty_case_id_pk" PRIMARY KEY("warranty_policy_id","warranty_case_id")
-);
---> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "warranty_details" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"warranty_request_id" integer NOT NULL,
-	"warranty_policy_id" integer NOT NULL,
-	"repair_date" timestamp DEFAULT now() NOT NULL,
-	"repair_description" text NOT NULL,
-	"cost" real NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "warranty_polices" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"product_id" integer NOT NULL,
-	"admin_id" integer NOT NULL,
-	"description" text NOT NULL,
-	"warranty_period" integer NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "warranty_requests" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"customer_id" integer NOT NULL,
 	"product_serial" varchar NOT NULL,
-	"issue_description" text NOT NULL,
-	"status" "warranty_request_status" NOT NULL,
-	"request_date" timestamp DEFAULT now() NOT NULL,
+	"description" text,
+	"cost" numeric(9, 2) NOT NULL,
+	"repair_date" timestamp NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
@@ -341,49 +309,13 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "warranty_cases_polices" ADD CONSTRAINT "warranty_cases_polices_warranty_policy_id_warranty_polices_id_fk" FOREIGN KEY ("warranty_policy_id") REFERENCES "public"."warranty_polices"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "warranty_details" ADD CONSTRAINT "warranty_details_customer_id_customers_id_fk" FOREIGN KEY ("customer_id") REFERENCES "public"."customers"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "warranty_cases_polices" ADD CONSTRAINT "warranty_cases_polices_warranty_case_id_warranty_cases_id_fk" FOREIGN KEY ("warranty_case_id") REFERENCES "public"."warranty_cases"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "warranty_details" ADD CONSTRAINT "warranty_details_warranty_request_id_warranty_requests_id_fk" FOREIGN KEY ("warranty_request_id") REFERENCES "public"."warranty_requests"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "warranty_details" ADD CONSTRAINT "warranty_details_warranty_policy_id_warranty_polices_id_fk" FOREIGN KEY ("warranty_policy_id") REFERENCES "public"."warranty_polices"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "warranty_polices" ADD CONSTRAINT "warranty_polices_product_id_products_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "warranty_polices" ADD CONSTRAINT "warranty_polices_admin_id_admins_id_fk" FOREIGN KEY ("admin_id") REFERENCES "public"."admins"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "warranty_requests" ADD CONSTRAINT "warranty_requests_customer_id_customers_id_fk" FOREIGN KEY ("customer_id") REFERENCES "public"."customers"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "warranty_requests" ADD CONSTRAINT "warranty_requests_product_serial_serial_numbers_serial_number_fk" FOREIGN KEY ("product_serial") REFERENCES "public"."serial_numbers"("serial_number") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "warranty_details" ADD CONSTRAINT "warranty_details_product_serial_serial_numbers_serial_number_fk" FOREIGN KEY ("product_serial") REFERENCES "public"."serial_numbers"("serial_number") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

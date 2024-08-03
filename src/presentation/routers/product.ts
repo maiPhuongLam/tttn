@@ -10,7 +10,7 @@ const productRouter = express.Router();
 const controller = container.get<ProductController>(INTERFACE_NAME.ProductController);
 
 productRouter.get('/all', controller.getAllProduct.bind(controller));
-productRouter.get('/:id', controller.getProduct.bind(controller));
+productRouter.get('/:id', controller.getProductDetail.bind(controller));
 productRouter.get('/', controller.getProducts.bind(controller));
 productRouter.post(
   '/',
@@ -19,7 +19,7 @@ productRouter.post(
   validationResource(createProductSchema),
   controller.createProduct.bind(controller),
 );
-productRouter.patch(
+productRouter.put(
   '/:id',
   auth,
   roles(['admin']),

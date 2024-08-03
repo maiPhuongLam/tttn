@@ -16,7 +16,7 @@ if (!JWT_ACCESS_SECRET_KEY || !JWT_REFRESH_SECRET_KEY) {
 // Signing and verifying tokens
 export const signAccessToken = (id: number, role: UserRoles): string => {
   const payload = { id, role };
-  const options = { expiresIn: '1h' };
+  const options = { expiresIn: '24h' };
   return jwt.sign(payload, JWT_ACCESS_SECRET_KEY, options);
 };
 

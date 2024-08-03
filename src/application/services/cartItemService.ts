@@ -88,8 +88,8 @@ export class CartItemService implements ICartItemService {
         }
 
         return await this.cartItemRepository.update(item.id, {
-          quantity: item.quantity + createCartItemDto.quantity,
-          price: (Number(item.price) + Number(createCartItemDto.price)).toString(),
+          quantity: createCartItemDto.quantity,
+          price: createCartItemDto.price,
         });
       }
 

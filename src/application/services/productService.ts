@@ -4,7 +4,7 @@ import {
   ProductFilters,
   RepoResponseGetProducts,
 } from 'src/domain/repositories';
-import { Product } from 'src/infrastructure/database/schemas';
+import { Product, productDetails, products } from 'src/infrastructure/database/schemas';
 import { INTERFACE_NAME } from 'src/shared/constants';
 import { NotFoundError } from 'src/shared/errors';
 import {
@@ -16,6 +16,8 @@ import {
 } from 'src/domain/services';
 import logger from 'src/infrastructure/logger';
 import cache from 'src/infrastructure/cache';
+import { DB } from 'src/infrastructure/database/connect';
+import { eq } from 'drizzle-orm';
 @injectable()
 export class ProductService implements IProductService {
   constructor(
@@ -27,6 +29,8 @@ export class ProductService implements IProductService {
 
   async getProducts(filter: ProductFilters): Promise<Product[] | RepoResponseGetProducts> {
     try {
+      console.log(filter);
+      
       const data = await this.productRepository.filter(filter);
       data.products = data.products.map((product) => ({
         ...product,
@@ -72,14 +76,26 @@ export class ProductService implements IProductService {
     }
   }
 
-  async updateProduct(id: number, updateProductDto: UpdateProductDto): Promise<Product> {
+  async updateProduct(id: number, updateProductDto: UpdateProductDto): Promise<any> {
     try {
       await this.getOneProduct(id);
       const updatedProduct = await this.productRepository.update(id, {
         ...updateProductDto,
         releaseDate: new Date(updateProductDto.releaseDate!),
       });
-      return updatedProduct;
+      if (updateProductDto.features) {
+        await this.productDetailService.updateProductDetail(updatedProduct.featureId!, {
+          battery: updateProductDto.features.battery,
+          screenSize: updateProductDto.features.screenSize,
+          camera: updateProductDto.features.camera,
+          processor: updateProductDto.features.processor,
+          os: updateProductDto.features.os,
+        });
+      }
+      return await DB.select()
+        .from(products)
+        .where(eq(products.id, id))
+        .innerJoin(productDetails, eq(productDetails.id, products.id));
     } catch (error) {
       logger.error('Error in Update Product:', error);
       throw error;

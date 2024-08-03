@@ -1,6 +1,6 @@
 {
-  "id": "9967cfc8-5830-422f-b182-c31b1fa2f399",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "f49d803b-ec9b-4117-be65-833f649112c8",
+  "prevId": "ad704fdc-222e-42ec-ab4a-d61481602a6d",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1495,8 +1495,56 @@
           "primaryKey": false,
           "notNull": true
         },
-        "product_id": {
-          "name": "product_id",
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.warranty_details": {
+      "name": "warranty_details",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "product_serial": {
+          "name": "product_serial",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "warranty_case_id": {
+          "name": "warranty_case_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "warranty_id": {
+          "name": "warranty_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cost": {
+          "name": "cost",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
@@ -1518,12 +1566,38 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "warranty_cases_product_id_admins_id_fk": {
-          "name": "warranty_cases_product_id_admins_id_fk",
-          "tableFrom": "warranty_cases",
-          "tableTo": "admins",
+        "warranty_details_product_serial_serial_numbers_serial_number_fk": {
+          "name": "warranty_details_product_serial_serial_numbers_serial_number_fk",
+          "tableFrom": "warranty_details",
+          "tableTo": "serial_numbers",
           "columnsFrom": [
-            "product_id"
+            "product_serial"
+          ],
+          "columnsTo": [
+            "serial_number"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "warranty_details_warranty_case_id_warranty_cases_id_fk": {
+          "name": "warranty_details_warranty_case_id_warranty_cases_id_fk",
+          "tableFrom": "warranty_details",
+          "tableTo": "warranty_cases",
+          "columnsFrom": [
+            "warranty_case_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "warranty_details_warranty_id_warranties_id_fk": {
+          "name": "warranty_details_warranty_id_warranties_id_fk",
+          "tableFrom": "warranty_details",
+          "tableTo": "warranties",
+          "columnsFrom": [
+            "warranty_id"
           ],
           "columnsTo": [
             "id"
@@ -1535,8 +1609,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.warranty_details": {
-      "name": "warranty_details",
+    "public.warranties": {
+      "name": "warranties",
       "schema": "",
       "columns": {
         "id": {
@@ -1551,21 +1625,9 @@
           "primaryKey": false,
           "notNull": true
         },
-        "product_serial": {
-          "name": "product_serial",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "cost": {
-          "name": "cost",
-          "type": "numeric(9, 2)",
+        "total_cost": {
+          "name": "total_cost",
+          "type": "numeric(10, 0)",
           "primaryKey": false,
           "notNull": true
         },
@@ -1574,46 +1636,19 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "warranty_details_customer_id_customers_id_fk": {
-          "name": "warranty_details_customer_id_customers_id_fk",
-          "tableFrom": "warranty_details",
+        "warranties_customer_id_customers_id_fk": {
+          "name": "warranties_customer_id_customers_id_fk",
+          "tableFrom": "warranties",
           "tableTo": "customers",
           "columnsFrom": [
             "customer_id"
           ],
           "columnsTo": [
             "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "warranty_details_product_serial_serial_numbers_serial_number_fk": {
-          "name": "warranty_details_product_serial_serial_numbers_serial_number_fk",
-          "tableFrom": "warranty_details",
-          "tableTo": "serial_numbers",
-          "columnsFrom": [
-            "product_serial"
-          ],
-          "columnsTo": [
-            "serial_number"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"

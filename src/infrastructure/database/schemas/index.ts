@@ -13,8 +13,5 @@ export * from './productItem';
 export * from './productSerial';
 export * from './user';
 export * from './warrantyCase';
-export * from './warrantyCasePolicy';
 export * from './warrantyDetail';
-export * from './warrantyPolicy';
-export * from './warrantyRequest';
 export * from './relations';

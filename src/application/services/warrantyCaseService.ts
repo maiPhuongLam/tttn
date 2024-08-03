@@ -19,13 +19,9 @@ export class WarrantyCaseService implements IWarrantyCaseService {
     private adminService: IAdminService,
   ) {}
 
-  async createWarrantyCase(
-    createWarrantyCaseDto: CreateWarrantyCaseDto,
-    userId: number,
-  ): Promise<WarrantyCase> {
+  async createWarrantyCase(createWarrantyCaseDto: CreateWarrantyCaseDto): Promise<WarrantyCase> {
     try {
-      const admin = await this.adminService.getAdminByUserId(userId);
-      return await this.warrantyRpository.add({ ...createWarrantyCaseDto, adminId: admin.id });
+      return await this.warrantyRpository.add({ ...createWarrantyCaseDto });
     } catch (error) {
       throw error;
     }

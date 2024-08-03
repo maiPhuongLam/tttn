@@ -99,7 +99,8 @@ export class OrderService implements IOrderService {
   async checkout(checkoutDto: CheckoutDto, userId: number): Promise<string> {
     try {
       let lineItems = [];
-
+      console.log(checkoutDto);
+      
       for (let i = 0; i < checkoutDto.productItems.length; i++) {
         // const prodSeri = await this.productSerialService.getOneProductSerialBySerial(checkoutDto[i].productSerial)
         // const productItem = await this.productItemService.getOneProductItem(prodSeri.productItemId)
@@ -111,7 +112,6 @@ export class OrderService implements IOrderService {
               name: checkoutDto.productItems[i].name,
               metadata: {
                 SKU: checkoutDto.productItems[i].SKU,
-                quantity: checkoutDto.productItems[i].quantity,
                 productItemId: checkoutDto.productItems[i].productItemId,
                 cartId: checkoutDto.cartId || null,
               },
@@ -121,6 +121,7 @@ export class OrderService implements IOrderService {
           quantity: checkoutDto.productItems[i].quantity,
         });
       }
+
 
       if (lineItems.length < 1) {
         throw new BadRequestError('These products are not available right now');
@@ -148,7 +149,12 @@ export class OrderService implements IOrderService {
           customer_id: customer.id,
           customer_stripe_id: stripeId,
           cart_id: checkoutDto.cartId || null,
-          product_items: JSON.stringify(checkoutDto.productItems.map(item => ({ quantity: item.quantity, productItemId: item.productItemId }))),
+          product_items: JSON.stringify(
+            checkoutDto.productItems.map((item) => ({
+              quantity: item.quantity,
+              productItemId: item.productItemId,
+            })),
+          ),
         },
         mode: 'payment',
         billing_address_collection: 'required',
@@ -211,11 +217,13 @@ export class OrderService implements IOrderService {
   }
 
   private async handleCompletedCheckoutSession(session: any): Promise<void> {
+    console.log(session.amount_total);
+    
     const productItems = JSON.parse(session.metadata.product_items);
     const lineItems = await this.stripe.checkout.sessions.listLineItems(session.id);
     const orderData = {
       customerId: session.metadata.customer_id,
-      totalPrice: (Number(session.amount_total) / 100).toString(),
+      totalPrice: (Number(session.amount_total)).toString(),
       orderDate: new Date(),
       orderStatus: OrderStatusEnum.PROCESSING,
       checkoutSessionId: session.id,
