@@ -23,5 +23,5 @@ export interface IProductItemService {
   softDeleteProductItem(id: number): Promise<ProductItem>;
   deleteProductItem(id: number): Promise<ProductItem>;
   getProductItemDetail(id: number): Promise<ProductDetailResponse>;
-  getProductItemDetailByProductId(productId: number): Promise<ProductDetailResponse[]>;
+  getProductItemDetailByProductId(productId: number, sort: any): Promise<ProductDetailResponse[]>;
 }

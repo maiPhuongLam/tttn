@@ -1,0 +1,1 @@
+ALTER TABLE "warranty_details" ADD COLUMN "text" text;

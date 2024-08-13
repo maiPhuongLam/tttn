@@ -39,6 +39,7 @@ export class AuthService implements IAuthService {
         ...registerDto,
         addressId: userAddress.id,
         rt: null,
+        stripeId: null
       });
       await addJobToQueue(WorkerNames.ROLE, {
         role: registerDto.role,

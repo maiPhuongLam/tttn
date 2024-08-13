@@ -130,9 +130,9 @@ export class ProductItemService implements IProductItemService {
     }
   }
 
-  async getProductItemDetailByProductId(productId: number): Promise<ProductDetailResponse[]> {
+  async getProductItemDetailByProductId(productId: number, sort: any): Promise<ProductDetailResponse[]> {
     try {
-      const productItem = await this.productItemRepository.detailForProductId(productId);
+      const productItem = await this.productItemRepository.detailForProductId(productId, sort);
       if (!productItem) {
         throw new NotFoundError(`ProductItem with productId ${productId} not found.`);
       }

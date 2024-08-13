@@ -3,6 +3,11 @@ import { StatisticService } from 'src/application/services';
 import { Request, Response, NextFunction } from 'express';
 import { RevenueType } from 'src/shared/enums';
 import { AnyArn } from 'aws-sdk/clients/groundstation';
+import { DB } from 'src/infrastructure/database/connect';
+import { sql } from 'drizzle-orm'
+import { warranties } from 'src/infrastructure/database/schemas/warranty';
+import { orders } from 'src/infrastructure/database/schemas';
+import { union } from 'drizzle-orm/pg-core';
 @injectable()
 export class StatisticController {
   constructor(@inject('StatisticService') private statisticService: StatisticService) {}
@@ -17,4 +22,6 @@ export class StatisticController {
       next(error);
     }
   }
+
+
 }

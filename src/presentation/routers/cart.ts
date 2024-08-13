@@ -8,7 +8,8 @@ const cartRouter = express.Router();
 const controller = container.get<CartController>(INTERFACE_NAME.CartController);
 
 cartRouter.get('/my-cart', auth, roles(['customer']), controller.getCart.bind(controller));
-cartRouter.post('/', auth, roles(['customer']), controller.updateCart.bind(controller));
+cartRouter.post('/', auth, roles(['customer']), controller.addToCart.bind(controller));
+cartRouter.put('/', auth, roles(['customer']), controller.updateCart.bind(controller));
 cartRouter.delete(
   '/:cartItemId',
   auth,

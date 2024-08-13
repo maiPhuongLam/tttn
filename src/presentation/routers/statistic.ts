@@ -8,6 +8,8 @@ import { loginSchema, refreshTokenSchema, registerSchema } from 'src/application
 const statisticRouter = express.Router();
 const controller = container.get<StatisticController>('StatisticController');
 
+// statisticRouter.get('/all', controller.getStatistics.bind(controller));
 statisticRouter.get('/', controller.getDailyStatistic.bind(controller));
+
 
 export default statisticRouter;

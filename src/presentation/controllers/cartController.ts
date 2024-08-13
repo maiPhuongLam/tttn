@@ -24,13 +24,28 @@ export class CartController {
     }
   }
 
+  async addToCart(req: Request, res: Response, next: NextFunction) {
+    try {
+      const body = <CreateCartItemDto>req.body;
+      const data = await this.cartItemService.addCartItem(body);
+      const response = {
+        success: true,
+        message: 'Add item to Cart is successful',
+        data,
+      };
+      return res.status(STATUS_CODES.OK).json(response);
+    } catch (error) {
+      logger.error('Error add to cart', error);
+    }
+  }
+
   async updateCart(req: Request, res: Response, next: NextFunction) {
     try {
       const body = <CreateCartItemDto>req.body;
       const data = await this.cartItemService.updateCartItem(body);
       const response = {
         success: true,
-        message: 'Add item to Cart is successful',
+        message: 'Update to Cart is successful',
         data,
       };
       return res.status(STATUS_CODES.OK).json(response);

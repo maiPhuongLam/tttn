@@ -45,8 +45,10 @@ export class ProductItemController {
   async getProductItemsDetails(req: Request, res: Response, next: NextFunction) {
     try {
       const { productId } = req.params;
+      const sort = req.query.sort || null
       const data = await this.productItemService.getProductItemDetailByProductId(
         parseInt(productId),
+        sort
       );
       const response = {
         success: true,

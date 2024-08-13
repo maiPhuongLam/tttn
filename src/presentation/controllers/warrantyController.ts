@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, gte, lte } from 'drizzle-orm';
 import { PgEnum } from 'drizzle-orm/pg-core';
 import { NextFunction, Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
@@ -6,6 +6,9 @@ import { IWarrantyCaseService, IWarrantyPolicyService } from 'src/domain/service
 import { DB } from 'src/infrastructure/database/connect';
 import {
   customers,
+  productItems,
+  products,
+  productSerials,
   users,
   WarrantyCase,
   warrantyCases,
@@ -28,6 +31,7 @@ type Detail = {
   productSerial: string;
   warrantyCaseId: number;
   cost: number;
+  description: string;
 };
 
 type CombinedWarranty = {
@@ -41,7 +45,11 @@ type CombinedWarranty = {
   details: {
     product_serial: string;
     warranty_case: string;
+    description: string;
     cost: string;
+    storage: string;
+    color: string;
+    name: string;
   }[];
 };
 @injectable()
@@ -130,7 +138,6 @@ export class WarrantyController {
 
   async createWarranty(req: Request, res: Response, next: NextFunction) {
     try {
-      console.log(req.body)
       const details = <Detail[]>req.body.details;
       const [user] = await DB.select({ id: users.id })
         .from(users)
@@ -150,7 +157,7 @@ export class WarrantyController {
         (accumulator, currentValue) => accumulator + currentValue.cost,
         0,
       );
-      
+
       const [warranty] = await DB.insert(warranties)
         .values({
           totalCost: totalCost.toString(),
@@ -163,10 +170,11 @@ export class WarrantyController {
         .execute();
       for (let i = 0; i < details.length; i++) {
         await DB.insert(warrantyDetails).values({
-          cost: details[0].cost.toString(),
-          warrantyCaseId: details[0].warrantyCaseId,
-          productSerial: details[0].productSerial,
+          cost: details[i].cost.toString(),
+          warrantyCaseId: details[i].warrantyCaseId,
+          productSerial: details[i].productSerial,
           warrantyId: warranty.id,
+          description: details[i].description
         });
       }
       const response = {
@@ -182,7 +190,22 @@ export class WarrantyController {
 
   async getAllWarranties(req: Request, res: Response, next: NextFunction) {
     try {
-      const data = await DB.select().from(warranties).execute();
+      const { startDate, endDate } = <{ startDate: string, endDate: string }>req.query
+      const query = DB.select().from(warranties)
+      if (startDate && endDate) {
+        query.where(
+          and(
+            gte(warranties.repairDate, new Date(startDate)),
+            lte(warranties.repairDate, new Date(endDate))
+          )
+        );
+      } else if (startDate) {
+        query.where(gte(warranties.repairDate, new Date(startDate)));
+      } else if (endDate) {
+        query.where(lte(warranties.repairDate, new Date(endDate)));
+      }
+
+      const data = await query
       return res.status(STATUS_CODES.OK).json(BaseResponse.success('Get warranties success', data));
     } catch (error) {
       next(error);
@@ -203,7 +226,11 @@ export class WarrantyController {
         customer_phone: users.phoneNumber,
         product_serial: warrantyDetails.productSerial,
         cost: warrantyDetails.cost,
+        description: warrantyDetails.description,
         warranty_case: warrantyCases.name,
+        storage: productItems.storage,
+        color: productItems.color,
+        name: products.name
       })
         .from(warranties)
         .where(eq(warranties.id, +id))
@@ -211,8 +238,11 @@ export class WarrantyController {
         .innerJoin(users, eq(users.id, customers.userId))
         .innerJoin(warrantyDetails, eq(warrantyDetails.warrantyId, warranties.id))
         .innerJoin(warrantyCases, eq(warrantyCases.id, warrantyDetails.warrantyCaseId))
+        .innerJoin(productSerials, eq(warrantyDetails.productSerial, productSerials.serialNumber))
+        .innerJoin(productItems, eq(productSerials.productItemId, productItems.id))
+        .innerJoin(products, eq(productItems.productId, products.id))
         .execute();
-      console.log(data)
+
       data.forEach((warranty) => {
         if (!warrantyMap.has(warranty.id)) {
           warrantyMap.set(warranty.id, {
@@ -232,6 +262,10 @@ export class WarrantyController {
           product_serial: warranty.product_serial,
           warranty_case: warranty.warranty_case,
           cost: warranty.cost,
+          storage: warranty.storage,
+          color: warranty.color,
+          name: warranty.name,
+          description: warranty.description || ''
         });
       });
       return res
@@ -246,12 +280,14 @@ export class WarrantyController {
 
   async updateWarranty(req: Request, res: Response, next: NextFunction) {
     try {
-      const data = await DB.update(warranties).set({ status: req.body.status}).where(eq(warranties.id, +req.params.id)).returning().execute();
+      const data = await DB.update(warranties)
+        .set({ status: req.body.status })
+        .where(eq(warranties.id, +req.params.id))
+        .returning()
+        .execute();
       return res
         .status(STATUS_CODES.OK)
-        .json(
-          BaseResponse.success('Update warranty detail success', data),
-        );
+        .json(BaseResponse.success('Update warranty detail success', data));
       // return await this.getWarrantyDetail(req, res, next);
     } catch (error) {
       next(error);
@@ -260,13 +296,13 @@ export class WarrantyController {
 
   async deleteWarranty(req: Request, res: Response, next: NextFunction) {
     try {
-      await DB.delete(warrantyDetails).where(eq(warrantyDetails.warrantyId, +req.params.id)).execute()
+      await DB.delete(warrantyDetails)
+        .where(eq(warrantyDetails.warrantyId, +req.params.id))
+        .execute();
       const data = await DB.delete(warranties).where(eq(warranties.id, +req.params.id)).execute();
       return res
         .status(STATUS_CODES.OK)
-        .json(
-          BaseResponse.success('delete warranty success', data),
-        );
+        .json(BaseResponse.success('delete warranty success', data));
     } catch (error) {
       next(error);
     }

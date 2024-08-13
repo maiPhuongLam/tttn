@@ -1,112 +1,217 @@
-import { sql } from 'drizzle-orm';
+import { and, count, gte, lte, sql } from 'drizzle-orm';
 import { injectable } from 'inversify';
 import { DB } from 'src/infrastructure/database/connect';
 import { orders, orderDetails } from 'src/infrastructure/database/schemas';
+import { warranties } from 'src/infrastructure/database/schemas/warranty';
 import { RevenueType } from 'src/shared/enums';
 import { formatDate } from 'src/shared/utils';
 interface RevenueData {
-  date?: string;
-  weekStart?: string | Date;
-  month?: string;
-  year?: number;
-  revenue: number;
+  period: string;
+  totalRevenue: number;
+  count: number;
 }
+
+interface FormattedData {
+  period: string;
+  orderRevenue: number;
+  orderCount: number;
+  warrantyRevenue: number;
+  warrantyCount: number;
+  revenueIn: number;
+}
+
 
 @injectable()
 export class StatisticService {
   async getStastic(revenueType: RevenueType, payload: any) {
-    console.log(revenueType);
-
     let result;
+    const startDate = new Date(payload.startDate)
+    const endDate = new Date(payload.endDate)
     switch (revenueType) {
       case RevenueType.DAILY:
-        result = await this.getDailyRevenue(payload.startDate, payload.endDate);
+        result = await this.getDailyRevenue(startDate, endDate);
         break;
       case RevenueType.WEEKLY:
-        result = await this.getWeeklyRevenue(payload.startDate, payload.endDate);
+        result = await this.getWeeklyRevenue(startDate, endDate);
         break;
       case RevenueType.MONTHLY:
-        result = await this.getMonthlyRevenue(payload.year);
+        result = await this.getMonthlyRevenue(startDate, endDate);
         break;
       case RevenueType.YEARLY:
-        result = await this.getYearlyRevenue();
+        result = await this.getYearlyRevenue(startDate, endDate);
         break;
       default:
+        result = await this.getDailyRevenue(startDate, endDate);
         break;
     }
-    console.log(result);
-
-    return result;
+    return this._formatRevenueData(result)
   }
 
-  private async getDailyRevenue(startDate: Date, endDate: Date): Promise<RevenueData[]> {
+  private async getDailyRevenue(startDate: Date, endDate: Date){
     try {
-      const results = await DB.select({
-        date: sql<string>`date(${orders.orderDate}) as date`,
-        revenue: sql<number>`sum(${orders.totalPrice}) as revenue`,
-      })
+      const orderRevenue = await DB
+        .select({
+          period: sql<string>`DATE(${orders.orderDate})`,
+          totalRevenue: sql<number>`cast(sum(${orders.totalPrice}) as float)`,
+          count: count(),
+        })
         .from(orders)
-        .innerJoin(orderDetails, sql<string>`${orders.id} = ${orderDetails.orderId}`)
-        .where(sql<string>`${orders.orderDate} between ${startDate} and ${endDate}`)
-        .groupBy(sql<string>`date(${orders.orderDate})`)
-        .orderBy(sql<string>`date(${orders.orderDate})`);
+        .where(and(gte(orders.orderDate, startDate), lte(orders.orderDate, endDate)))
+        .groupBy(sql`DATE(${orders.orderDate})`)
+        .orderBy(sql`DATE(${orders.orderDate})`);
 
-      return results.map((row) => ({
-        date: row.date,
-        revenue: row.revenue,
-      }));
+      const warrantyRevenue = await DB
+        .select({
+          period: sql<string>`DATE(${warranties.repairDate})`,
+          totalRevenue: sql<number>`cast(sum(${warranties.totalCost}) as float)`,
+          count: count(),
+        })
+        .from(warranties)
+        .where(and(gte(warranties.repairDate, startDate), lte(warranties.repairDate, endDate)))
+        .groupBy(sql`DATE(${warranties.repairDate})`)
+        .orderBy(sql`DATE(${warranties.repairDate})`);
+      return {
+        orderRevenue,
+        warrantyRevenue
+      }
     } catch (error) {
       throw error;
     }
   }
 
-  private async getWeeklyRevenue(startDate: Date, endDate: Date): Promise<RevenueData[]> {
-    const results = await DB.select({
-      weekStart: sql<Date>`date_trunc('week', ${orders.orderDate}) as week_start`,
-      revenue: sql<number>`sum(${orders.totalPrice}) as revenue`,
-    })
-      .from(orders)
-      .innerJoin(orderDetails, sql`${orders.id} = ${orderDetails.orderId}`)
-      .where(sql<string>`${orders.orderDate} between ${startDate} and ${endDate}`)
-      .groupBy(sql<Date>`date_trunc('week', ${orders.orderDate})`)
-      .orderBy(sql<Date>`date_trunc('week', ${orders.orderDate})`);
-
-    return results.map((row) => ({
-      weekStart: row.weekStart,
-      revenue: row.revenue,
-    }));
+  private async getWeeklyRevenue(startDate: Date, endDate: Date) {
+    try {
+      const orderRevenue = await DB
+        .select({
+          period: sql<string>`EXTRACT(WEEK FROM ${orders.orderDate})`,
+          totalRevenue: sql<number>`cast(sum(${orders.totalPrice}) as float)`,
+          count: count(),
+        })
+        .from(orders)
+        .where(and(gte(orders.orderDate, startDate), lte(orders.orderDate, endDate)))
+        .groupBy(sql`EXTRACT(WEEK FROM ${orders.orderDate})`)
+        .orderBy(sql`EXTRACT(WEEK FROM ${orders.orderDate})`);
+      
+      const warrantyRevenue = await DB
+        .select({
+          period: sql<string>`EXTRACT(WEEK FROM ${warranties.repairDate})`,
+          totalRevenue: sql<number>`cast(sum(${warranties.totalCost}) as float)`,
+          count: count(),
+        })
+        .from(warranties)
+        .where(and(gte(warranties.repairDate, startDate), lte(warranties.repairDate, endDate)))
+        .groupBy(sql`EXTRACT(WEEK FROM ${warranties.repairDate})`)
+        .orderBy(sql`EXTRACT(WEEK FROM ${warranties.repairDate})`);    
+  
+      return {
+        orderRevenue,
+        warrantyRevenue
+      }
+    } catch (error) {
+      throw error;
+    }
   }
 
-  private async getMonthlyRevenue(year: number): Promise<RevenueData[]> {
-    const results = await DB.select({
-      month: sql<string>`to_char(${orders.orderDate}, 'YYYY-MM') as month`,
-      revenue: sql<number>`sum(${orders.totalPrice}) as revenue`,
-    })
-      .from(orders)
-      .innerJoin(orderDetails, sql`${orders.id} = ${orderDetails.orderId}`)
-      .where(sql`extract(year from ${orders.orderDate}) = ${year}`)
-      .groupBy(sql<string>`to_char(${orders.orderDate}, 'YYYY-MM')`)
-      .orderBy(sql<string>`to_char(${orders.orderDate}, 'YYYY-MM')`);
-
-    return results.map((row) => ({
-      month: row.month,
-      revenue: row.revenue,
-    }));
+  private async getMonthlyRevenue(startDate: Date, endDate: Date) {
+    try {
+      const orderRevenue = await DB
+        .select({
+          period: sql<string>`EXTRACT(MONTH FROM ${orders.orderDate})`,
+          totalRevenue: sql<number>`cast(sum(${orders.totalPrice}) as float)`,
+          count: count(),
+        })
+        .from(orders)
+        .where(and(gte(orders.orderDate, startDate), lte(orders.orderDate, endDate)))
+        .groupBy(sql`EXTRACT(MONTH FROM ${orders.orderDate})`)
+        .orderBy(sql`EXTRACT(MONTH FROM ${orders.orderDate})`);
+      
+      const warrantyRevenue = await DB
+        .select({
+          period: sql<string>`EXTRACT(MONTH FROM ${warranties.repairDate})`,
+          totalRevenue: sql<number>`cast(sum(${warranties.totalCost}) as float)`,
+          count: count(),
+        })
+        .from(warranties)
+        .where(and(gte(warranties.repairDate, startDate), lte(warranties.repairDate, endDate)))
+        .groupBy(sql`EXTRACT(MONTH FROM ${warranties.repairDate})`)
+        .orderBy(sql`EXTRACT(MONTH FROM ${warranties.repairDate})`);
+          
+      return {
+        orderRevenue,
+        warrantyRevenue
+      }
+    } catch (error) {
+      throw error;
+    }
   }
 
-  private async getYearlyRevenue(): Promise<RevenueData[]> {
-    const results = await DB.select({
-      year: sql<number>`extract(year from ${orders.orderDate}) as year`,
-      revenue: sql<number>`sum(${orders.totalPrice}) as revenue`,
-    })
-      .from(orders)
-      .innerJoin(orderDetails, sql`${orders.id} = ${orderDetails.orderId}`)
-      .groupBy(sql<string>`extract(year from ${orders.orderDate})`)
-      .orderBy(sql<string>`extract(year from ${orders.orderDate})`);
+  private async getYearlyRevenue(startDate: Date, endDate: Date) {
+    try {
+      const orderRevenue = await DB
+        .select({
+          period: sql<string>`EXTRACT(YEAR FROM ${orders.orderDate})`,
+          totalRevenue: sql<number>`cast(sum(${orders.totalPrice}) as float)`,
+          count: count(),
+        })
+        .from(orders)
+        .where(and(gte(orders.orderDate, startDate), lte(orders.orderDate, endDate)))
+        .groupBy(sql`EXTRACT(YEAR FROM ${orders.orderDate})`)
+        .orderBy(sql`EXTRACT(YEAR FROM ${orders.orderDate})`);
+      
+      const warrantyRevenue = await DB
+        .select({
+          period: sql<string>`EXTRACT(YEAR FROM ${warranties.repairDate})`,
+          totalRevenue: sql<number>`cast(sum(${warranties.totalCost}) as float)`,
+          count: count(),
+        })
+        .from(warranties)
+        .where(and(gte(warranties.repairDate, startDate), lte(warranties.repairDate, endDate)))
+        .groupBy(sql`EXTRACT(YEAR FROM ${warranties.repairDate})`)
+        .orderBy(sql`EXTRACT(YEAR FROM ${warranties.repairDate})`);
+      
+      return {
+        orderRevenue,
+        warrantyRevenue
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
 
-    return results.map((row) => ({
-      year: row.year,
-      revenue: row.revenue,
-    }));
+  private _formatRevenueData(data: { orderRevenue: RevenueData[]; warrantyRevenue: RevenueData[] }): FormattedData[] {
+    const combinedData = new Map<string, FormattedData>();
+  
+    data.orderRevenue.forEach(order => {
+      const period = order.period;
+      combinedData.set(period, {
+        period,
+        orderRevenue: order.totalRevenue,
+        orderCount: order.count,
+        warrantyRevenue: 0,
+        warrantyCount: 0,
+        revenueIn: order.totalRevenue,
+      });
+    });
+  
+    data.warrantyRevenue.forEach(warranty => {
+      const period = warranty.period;
+      if (combinedData.has(period)) {
+        const existing = combinedData.get(period)!;
+        existing.warrantyRevenue = warranty.totalRevenue;
+        existing.warrantyCount = warranty.count;
+        existing.revenueIn += warranty.totalRevenue;
+      } else {
+        combinedData.set(period, {
+          period,
+          orderRevenue: 0,
+          orderCount: 0,
+          warrantyRevenue: warranty.totalRevenue,
+          warrantyCount: warranty.count,
+          revenueIn: warranty.totalRevenue
+        });
+      }
+    });
+  
+    return Array.from(combinedData.values());
   }
 }

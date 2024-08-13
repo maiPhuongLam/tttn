@@ -14,7 +14,7 @@ import {
   OrderRepsonse,
 } from 'src/domain/services';
 import { BadRequestError, NotFoundError } from 'src/shared/errors';
-import { OrderStatusEnum, ProductSerialEnum } from 'src/shared/enums';
+import { OrderStatusEnum, PaymentType, ProductSerialEnum } from 'src/shared/enums';
 import logger from 'src/infrastructure/logger';
 import { cartItems, carts, Order } from 'src/infrastructure/database/schemas';
 import { DB } from 'src/infrastructure/database/connect';
@@ -60,18 +60,14 @@ export class OrderService implements IOrderService {
       throw error;
     }
   }
+
   async getCustomerOrders(userId: number): Promise<OrderRepsonse[]> {
     try {
       const customer = await this.customerService.getByUserId(userId);
       const orders = await this.orderRepository.findByCustomerId(customer.id);
-      // if (orders.length === 0) {
-      //   throw new NotFoundError('Customer has no orders');
-      // }
-
       const orderResponses = await Promise.all(
         orders.map(async (order) => {
           const details = await this.orderDetailService.getOrderDetails(order.id);
-
           return { ...order, details };
         }),
       );
@@ -82,6 +78,7 @@ export class OrderService implements IOrderService {
       throw error;
     }
   }
+
   async updateStatusOrder(id: number, status: OrderStatusEnum): Promise<Order> {
     try {
       const order = await this.orderRepository.findById(id);
@@ -96,15 +93,10 @@ export class OrderService implements IOrderService {
     }
   }
 
-  async checkout(checkoutDto: CheckoutDto, userId: number): Promise<string> {
+  async checkout(checkoutDto: CheckoutDto, userId: number, paymentType: string): Promise<string> {
     try {
       let lineItems = [];
-      console.log(checkoutDto);
-      
       for (let i = 0; i < checkoutDto.productItems.length; i++) {
-        // const prodSeri = await this.productSerialService.getOneProductSerialBySerial(checkoutDto[i].productSerial)
-        // const productItem = await this.productItemService.getOneProductItem(prodSeri.productItemId)
-
         lineItems.push({
           price_data: {
             currency: 'vnd',
@@ -122,16 +114,62 @@ export class OrderService implements IOrderService {
         });
       }
 
-
       if (lineItems.length < 1) {
         throw new BadRequestError('These products are not available right now');
       }
       const customer = await this.customerService.getByUserId(userId);
       const user = await this.userRepository.findById(userId);
       if (!user) {
-        throw new NotFoundError('');
+        throw new NotFoundError('User not found');
       }
 
+      if (paymentType === 'cash') {
+        // Handle cash payment
+        const orderData = {
+          customerId: customer.id,
+          totalPrice: lineItems
+            .reduce((acc, item) => acc + item.price_data.unit_amount * item.quantity, 0)
+            .toString(),
+          orderDate: new Date(),
+          orderStatus: OrderStatusEnum.PENDING, // Or another status suitable for cash orders
+          checkoutSessionId: '',
+          stripePaymentIntentId: '',
+          paymentType: PaymentType.CASH
+        };
+
+        const order = await this.orderRepository.add(orderData);
+
+        // Update inventory, etc., as needed
+        for (const item of lineItems) {
+          const productSerials = await this.productSerialService.getProductSerials({
+            productItemId: item.price_data.product_data.metadata.productItemId,
+            status: ProductSerialEnum.INVENTORY,
+          });
+          const orderDetailData = {
+            orderId: order.id,
+            productSerial: productSerials[0].serialNumber,
+            quantity: item.quantity,
+            price: item.price_data.unit_amount.toString(),
+          };
+          await this.orderDetailService.createOrderDetail(orderDetailData);
+          for (let i = 0; i < item.quantity; i++) {
+            await this.productSerialService.updateProductSerial(productSerials[i].id, {
+              status: ProductSerialEnum.SOLD,
+            });
+          }
+          const productItem = await this.productItemService.getOneProductItem(
+            productSerials[0].productItemId,
+          );
+          await this.productItemService.updateProductItem(productSerials[0].productItemId, {
+            quantityInStock: productItem.quantityInStock - item.quantity,
+          });
+        }
+        if (checkoutDto.cartId) {
+          await DB.delete(cartItems).where(eq(cartItems.cartId, checkoutDto.cartId)).execute();
+        }
+
+        return 'Cash payment order created successfully';
+      }
       let stripeId = user.stripeId;
       if (!stripeId) {
         const customerStripe = await this.stripe.customers.create({
@@ -141,6 +179,12 @@ export class OrderService implements IOrderService {
         await this.userRepository.update(userId, { stripeId: customerStripe.id });
         stripeId = customerStripe.id;
       }
+      const test = JSON.stringify(
+        checkoutDto.productItems.map((item) => ({
+          quantity: item.quantity,
+          productItemId: item.productItemId,
+        })),
+      );
 
       const session = await this.stripe.checkout.sessions.create({
         customer: stripeId,
@@ -166,6 +210,7 @@ export class OrderService implements IOrderService {
       });
       return session.url || '';
     } catch (error) {
+      logger.error(`Checkout Error: ${error}`);
       throw error;
     }
   }
@@ -174,8 +219,9 @@ export class OrderService implements IOrderService {
     try {
       const user = await this.userRepository.findById(userId);
       if (!user) {
-        throw new NotFoundError('');
+        throw new NotFoundError('User not found');
       }
+
       let stripeId = user.stripeId;
       if (!stripeId) {
         const customer = await this.stripe.customers.create({
@@ -185,11 +231,13 @@ export class OrderService implements IOrderService {
         await this.userRepository.update(userId, { stripeId: customer.id });
         stripeId = customer.id;
       }
+
       return this.stripe.billingPortal.sessions.create({
         customer: stripeId,
-        return_url: 'http://localhost:3000',
+        return_url: 'http://localhost:3000', // Ensure this is configured correctly
       });
     } catch (error) {
+      logger.error(`History Checkout Error: ${error}`);
       throw error;
     }
   }
@@ -204,30 +252,29 @@ export class OrderService implements IOrderService {
         logger.error(`Webhook Error: ${err.message}`);
         throw new BadRequestError(`Webhook Error: ${err.message}`);
       }
-      // Handle the event
+
       if (event.type === 'checkout.session.completed') {
         const session = event.data.object;
 
         await this.handleCompletedCheckoutSession(session);
       }
     } catch (error) {
-      logger.error(error);
+      logger.error(`Webhook Handler Error: ${error}`);
       throw error;
     }
   }
 
   private async handleCompletedCheckoutSession(session: any): Promise<void> {
-    console.log(session.amount_total);
-    
     const productItems = JSON.parse(session.metadata.product_items);
     const lineItems = await this.stripe.checkout.sessions.listLineItems(session.id);
     const orderData = {
       customerId: session.metadata.customer_id,
-      totalPrice: (Number(session.amount_total)).toString(),
+      totalPrice: Number(session.amount_total).toString(),
       orderDate: new Date(),
-      orderStatus: OrderStatusEnum.PROCESSING,
+      orderStatus: OrderStatusEnum.PENDING,
       checkoutSessionId: session.id,
       stripePaymentIntentId: session.payment_intent,
+      paymentType: PaymentType.ONLINE
     };
 
     if (session.metadata.cart_id) {
@@ -270,34 +317,73 @@ export class OrderService implements IOrderService {
 
     const order = await this.orderRepository.add(orderData);
 
-    for (const item of lineItems.data) {
-      // const productSerial = await this.productSerialService.getOneProductSerialBySerial(item.price?.product_data?.sku);
-      if (item.price?.unit_amount && item.quantity) {
+    const items = lineItems.data;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].price?.unit_amount && items[i].quantity) {
         const productSerials = await this.productSerialService.getProductSerials({
-          productItemId: item.price?.metadata.productItemId,
+          productItemId: productItems[i].productItemId,
           status: ProductSerialEnum.INVENTORY,
         });
+
         const orderDetailData = {
           orderId: order.id,
           productSerial: productSerials[0].serialNumber,
-          quantity: item.quantity,
-          price: (Number(item.price.unit_amount) / 100).toString(),
+          quantity: items[i].quantity!,
+          price: items[i]?.price?.unit_amount!.toString() || '',
         };
+
         await this.orderDetailService.createOrderDetail(orderDetailData);
-        for (let i = 0; i < item.quantity; i++) {
+
+        for (let i = 0; i < items[i]?.quantity!; i++) {
           await this.productSerialService.updateProductSerial(productSerials[i].id, {
             status: ProductSerialEnum.SOLD,
           });
         }
+
         const productItem = await this.productItemService.getOneProductItem(
           productSerials[0].productItemId,
         );
+
         await this.productItemService.updateProductItem(productSerials[0].productItemId, {
-          quantityInStock: productItem.quantityInStock - item.quantity,
+          quantityInStock: productItem.quantityInStock - items[i].quantity!,
         });
       }
     }
 
-    await this.orderRepository.update(order.id, { orderStatus: 'completed' });
+    await this.orderRepository.update(order.id, { orderStatus: OrderStatusEnum.PROCESSING });
+    // await this.createInvoice(session.metadata.customer_id, (Number(session.amount_total)));
+  }
+
+  async createInvoice(userId: number, amount: number) {
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
+      throw new NotFoundError('User not found');
+    }
+
+    let stripeId = user.stripeId;
+    if (!stripeId) {
+      const customerStripe = await this.stripe.customers.create({
+        email: user.email,
+        name: user.name,
+      });
+      await this.userRepository.update(userId, { stripeId: customerStripe.id });
+      stripeId = customerStripe.id;
+    }
+
+    const invoiceItem = await this.stripe.invoiceItems.create({
+      customer: stripeId,
+      amount: amount, // Amount in cents
+      currency: 'usd',
+      description: 'One-time payment for order',
+    });
+
+    // Create the invoice
+    const invoice = await this.stripe.invoices.create({
+      customer: stripeId,
+      auto_advance: true, // Automatically finalize the invoice
+    });
+
+    await this.stripe.invoices.finalizeInvoice(invoice.id);
+    return invoice;
   }
 }

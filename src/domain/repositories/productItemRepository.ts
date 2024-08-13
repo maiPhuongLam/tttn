@@ -30,9 +30,13 @@ export type SKUResponse = {
   ram: string;
   storage: string;
 };
-
+export enum SortBy {
+  LATEST = 'latest',
+  LOW_TO_HIGH = 'low_to_high',
+  HIGH_TO_LOW = 'high_to_low',
+}
 export interface IProductItemRepository extends IRepository<ProductItem> {
   findBySKU(SKU: string): Promise<SKUResponse | null>;
   detail(id: number): Promise<ProductDetailResponse>;
-  detailForProductId(id: number): Promise<ProductDetailResponse[]>;
+  detailForProductId(id: number, sort: SortBy): Promise<ProductDetailResponse[]>;
 }

@@ -6,8 +6,9 @@ import {
   IProductRepository,
   ProductDetailResponse,
   SKUResponse,
+  SortBy,
 } from 'src/domain/repositories';
-import { eq } from 'drizzle-orm';
+import { desc, eq, asc } from 'drizzle-orm';
 import { query } from 'express';
 
 @injectable()
@@ -93,7 +94,7 @@ export class ProductItemRepository
     return data;
   }
 
-  async detailForProductId(productId: number): Promise<ProductDetailResponse[]> {
+  async detailForProductId(productId: number, sort: SortBy): Promise<ProductDetailResponse[]> {
     const query = this.db
       .select({
         itemId: productItems.id,
@@ -118,9 +119,16 @@ export class ProductItemRepository
       .innerJoin(products, eq(productItems.productId, products.id))
       .innerJoin(productDetails, eq(products.featureId, productDetails.id))
       .where(eq(productItems.productId, productId))
-      .execute();
+    
+    if (sort === SortBy.LOW_TO_HIGH) {
+      query.orderBy(asc(productItems.price));
+    } else if (sort === SortBy.HIGH_TO_LOW) {
+      query.orderBy(desc(productItems.price))
+    } else {
+      query.orderBy(desc(products.releaseDate))
+    }
 
-    const data = await query;
-    return data;
+    
+    return await query;
   }
 }

@@ -28,7 +28,7 @@ export interface IOrderService {
   getOneOder(id: number): Promise<OrderRepsonse>;
   getCustomerOrders(userId: number): Promise<OrderRepsonse[]>;
   updateStatusOrder(id: number, status: OrderStatusEnum): Promise<any>;
-  checkout(checkoutDto: CheckoutDto, customerId: number): Promise<string>;
+  checkout(checkoutDto: CheckoutDto, customerId: number, paymentType: string): Promise<string>;
   webhookHandler(body: any, sig: string): Promise<void>;
   historyCheckout(userId: number): Promise<any>;
 }

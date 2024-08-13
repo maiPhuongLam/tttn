@@ -18,6 +18,7 @@ export const warrantyDetails = pgTable('warranty_details', {
     .references(() => warranties.id, { onDelete: 'cascade' })
     .notNull(),
   cost: decimal('cost', { precision: 10, scale: 0 }).notNull(),
+  description: text('text'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });

@@ -29,8 +29,6 @@ export class ProductService implements IProductService {
 
   async getProducts(filter: ProductFilters): Promise<Product[] | RepoResponseGetProducts> {
     try {
-      console.log(filter);
-      
       const data = await this.productRepository.filter(filter);
       data.products = data.products.map((product) => ({
         ...product,

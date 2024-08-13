@@ -44,8 +44,8 @@ export class ProductController {
         ...(page && { page }),
         ...(pageSize && { pageSize }),
         ...(min_price && { minPrice: min_price }),
-        ...(max_price && { maxPrice: max_price })
-      }
+        ...(max_price && { maxPrice: max_price }),
+      };
       const data = await this.productService.getProducts(filters);
       const response = {
         success: true,
@@ -85,7 +85,6 @@ export class ProductController {
       const updateProductDto = <UpdateProductDto>req.body;
       let product = await this.productService.getOneProduct(+id);
       if (updateProductDto.name || updateProductDto.name) {
-        console.log(updateProductDto);
         await DB.update(products).set(updateProductDto).where(eq(products.id, +id)).execute();
       }
       if (updateProductDto.features) {
